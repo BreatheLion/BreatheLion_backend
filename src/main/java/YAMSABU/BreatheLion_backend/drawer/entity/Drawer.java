@@ -1,11 +1,14 @@
 package YAMSABU.BreatheLion_backend.drawer.entity;
 
+import YAMSABU.BreatheLion_backend.organization.DrawerOrganization;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +19,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -50,4 +54,6 @@ public class Drawer {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "drawer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DrawerOrganization> drawerOrganizations = new ArrayList<>();
 }
