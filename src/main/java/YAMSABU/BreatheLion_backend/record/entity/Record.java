@@ -19,6 +19,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -40,33 +42,30 @@ public class Record {
     @JoinColumn(name = "drawer_id", nullable = false)
     private Drawer drawer;
 
+    @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
     private int severity;
 
+    @Column(nullable = false)
     private String location;
 
+    @Column(nullable = false)
     private LocalDateTime occurredAt;
 
     private String summary;
 
+    @CreationTimestamp
+    @Column(name ="created_at")
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
+    @Column(name ="updated_at")
     private LocalDateTime updatedAt;
-
-    // 엔티티가 처음 저장되기 전(DB에 INSERT 되기 직전)에 호출
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    // 엔티티가 DB에 UPDATE 되기 직전에 호출
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
