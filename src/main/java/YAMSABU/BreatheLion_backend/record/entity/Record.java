@@ -1,19 +1,8 @@
 package YAMSABU.BreatheLion_backend.record.entity;
 
 import YAMSABU.BreatheLion_backend.drawer.entity.Drawer;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import YAMSABU.BreatheLion_backend.record.RecordPerson;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "records")
@@ -39,6 +30,9 @@ public class Record {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "drawer_id", nullable = false)
     private Drawer drawer;
+
+    @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RecordPerson> recordPersons = new ArrayList<>();
 
     private String title;
 
@@ -71,4 +65,6 @@ public class Record {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RecordCategory category;
+
+
 }
