@@ -66,5 +66,4 @@ public class Record {
     @Column(nullable = false)
     private RecordCategory category;
 
-
 }
