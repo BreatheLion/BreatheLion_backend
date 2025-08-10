@@ -45,5 +45,5 @@ public class Chat {
     private String message;
 
     @CreationTimestamp
-    private LocalDateTime sentAt;
+    private LocalDateTime sendAt;
 }

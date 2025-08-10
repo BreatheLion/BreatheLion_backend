@@ -1,5 +1,8 @@
 package YAMSABU.BreatheLion_backend.domain.chat.service;
 
+import YAMSABU.BreatheLion_backend.domain.chat.converter.ChatConverter;
+import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
+import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.chat.repository.ChatRepository;
 import YAMSABU.BreatheLion_backend.domain.chat.repository.SessionRepository;
@@ -19,17 +22,23 @@ public class ChatServiceImpl implements ChatService{
     private final ChatRepository chatRepository;
     private final SessionRepository sessionRepository;
     private final RecordRepository recordRepository;
+
+
+
     @Override
     @Transactional
     public ChatStartResponseDTO startChating(ChatStartRequestDTO chatStartRequestDTO){
-        // 메세지를 받음
         Record record = new Record();
-        Session session = new Session();
+        Session session = new Session(record);
 
         recordRepository.save(record);
         sessionRepository.save(session);
 
+        Chat chat = ChatConverter.RequesttoChat(chatStartRequestDTO,session);
+        chatRepository.save(chat);
+        //  여기에 대해서 응답 받고
 
 
+        return Chat
     }
 }

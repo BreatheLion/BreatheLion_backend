@@ -45,8 +45,12 @@ public class Session {
     @CreationTimestamp
     private LocalDateTime startedAt;
 
-    @CreationTimestamp
     private LocalDateTime endedAt;
 
-
+    public Session(Record record){
+        this.record = record;
+    }
+    public void endSession() {
+        this.endedAt = LocalDateTime.now();
+    }
 }
