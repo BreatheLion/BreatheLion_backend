@@ -1,0 +1,12 @@
+### Spring Boot / Application Config ###
+src/main/resources/application.yml
+src/main/resources/application-*.yml
+
+### Logs ###
+logs/
+*.log
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+out/
