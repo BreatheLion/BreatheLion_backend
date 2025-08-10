@@ -1,7 +1,4 @@
 ### Spring Boot / Application Config ###
-<<<<<<< HEAD
-src/main/resources/application.yml
-src/main/resources/application-*.yml
 src/main/resources/secrets.properties
 
 ### Logs ###
