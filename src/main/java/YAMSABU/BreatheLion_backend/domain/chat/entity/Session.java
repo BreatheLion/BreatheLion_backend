@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatSession {
+public class Session {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class ChatSession {
     @JoinColumn(name = "record_id", nullable = false)
     private Record record;
 
-    @OneToMany(mappedBy = "chatSession", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "Session", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ChatLog> chatLogs = new ArrayList<>();
 
     @CreationTimestamp

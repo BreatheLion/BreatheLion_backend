@@ -20,8 +20,8 @@ public class ChatLog {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_session_id", nullable = false)
-    private ChatSession chatSession;
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
