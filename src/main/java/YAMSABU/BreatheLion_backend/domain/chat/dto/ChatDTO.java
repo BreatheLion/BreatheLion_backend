@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class ChatLogDTO {
+public class ChatDTO {
 
     @Getter
     @Builder
@@ -36,6 +36,6 @@ public class ChatLogDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChatMessageResponseDTO {
-
+        private String message;
     }
 }

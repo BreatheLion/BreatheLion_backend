@@ -1,8 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.chat.converter;
 
-import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatLogDTO.ChatMessageResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatLogDTO.ChatStartRequestDTO;
-import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatLogDTO.ChatStartResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatStartRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;

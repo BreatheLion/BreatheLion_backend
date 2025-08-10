@@ -54,6 +54,7 @@ public class Drawer {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "drawer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DrawerOrganization> drawerOrganizations = new ArrayList<>();
 }

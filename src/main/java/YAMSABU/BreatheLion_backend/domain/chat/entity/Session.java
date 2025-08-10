@@ -39,7 +39,7 @@ public class Session {
     @JoinColumn(name = "record_id", nullable = false)
     private Record record;
 
-    @OneToMany(mappedBy = "Session", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Chat> chats = new ArrayList<>();
 
     @CreationTimestamp

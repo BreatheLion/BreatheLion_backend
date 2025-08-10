@@ -1,3 +1,19 @@
 spring:
     application:
         name: BreatheLion_backend
+
+    datasource:
+        url: jdbc:mysql://localhost:3306/hack
+        username: root
+        password: dudfhr
+    jpa:
+        hibernate:
+            ddl-auto: update
+    ai:
+        openai:
+            api-key:
+            chat:
+                options:
+                    model: gpt-4o-mini
+                    temperature: 0.2
+                    max-tokens: 512
