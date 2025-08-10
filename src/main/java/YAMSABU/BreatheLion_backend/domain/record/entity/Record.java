@@ -2,7 +2,19 @@ package YAMSABU.BreatheLion_backend.domain.record.entity;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.record.RecordPerson;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,22 +42,22 @@ public class Record {
 
     // 연관된 drawer
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "drawer_id", nullable = false)
+    @JoinColumn(name = "drawer_id")
     private Drawer drawer;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String content;
 
-    @Column(nullable = false)
+    @Column
     private int severity;
 
-    @Column(nullable = false)
+    @Column
     private String location;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime occurredAt;
 
     private String summary;
@@ -59,7 +71,7 @@ public class Record {
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private RecordCategory category;
   
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)

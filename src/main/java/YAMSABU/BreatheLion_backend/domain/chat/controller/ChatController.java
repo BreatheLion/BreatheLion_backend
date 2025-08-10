@@ -17,6 +17,7 @@ public class ChatController {
     private ChatService chatService;
     @PostMapping("/start")
     public ApiResponse<ChatStartResponseDTO> startChat(ChatStartRequestDTO chatStartRequestDTO){
+        return ApiResponse.onSuccess("채팅성공", chatService.startChating(chatStartRequestDTO));
     }
 
 }
