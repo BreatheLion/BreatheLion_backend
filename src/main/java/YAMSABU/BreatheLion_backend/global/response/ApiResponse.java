@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.global.response;
 
+import YAMSABU.BreatheLion_backend.global.code.SuccessCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
