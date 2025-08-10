@@ -1,5 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.chat.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +14,9 @@ public class ChatLogDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChatStartRequestDTO {
+        @NotBlank
         private String message;
+        @NotNull
         private String role;
     }
 
