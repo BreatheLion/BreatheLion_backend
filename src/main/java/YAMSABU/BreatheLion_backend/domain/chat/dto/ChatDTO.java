@@ -16,8 +16,6 @@ public class ChatDTO {
     public static class ChatStartRequestDTO {
         @NotBlank
         private String message;
-        @NotNull
-        private String role;
     }
 
     @Getter

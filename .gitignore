@@ -1,12 +1,25 @@
 ### Spring Boot / Application Config ###
+<<<<<<< HEAD
 src/main/resources/application.yml
 src/main/resources/application-*.yml
+src/main/resources/secrets.properties
 
 ### Logs ###
 logs/
 *.log
 
-### IntelliJ IDEA ###
+### IntelliJ IDEA / VSCode ###
 .idea/
 *.iml
-out/
+.vscode/
+
+### Build Artifacts ###
+/build/
+/out/
+/target/
+*.jar
+*.war
+
+### OS Files ###
+.DS_Store
+Thumbs.db
