@@ -1,4 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.chat.repository;
 
-public class ChatRepository{
+import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatLog;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ChatRepository extends JpaRepository<ChatLog,Long> {
 }
