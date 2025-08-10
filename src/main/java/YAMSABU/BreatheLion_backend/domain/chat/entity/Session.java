@@ -27,7 +27,7 @@ public class Session {
     private Record record;
 
     @OneToMany(mappedBy = "Session", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<ChatLog> chatLogs = new ArrayList<>();
+    private List<Chat> chats = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime startedAt;
