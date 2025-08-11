@@ -32,7 +32,7 @@ public class ChatServiceImpl implements ChatService{
 
     @Override
     @Transactional
-    public ChatStartResponseDTO startChating(ChatStartRequestDTO chatStartRequestDTO){
+    public ChatStartResponseDTO startChatting(ChatStartRequestDTO chatStartRequestDTO){
         // 생성 및 저장
         Record record = new Record();
         Session session = new Session(record);
@@ -45,7 +45,7 @@ public class ChatServiceImpl implements ChatService{
 
         // AI 답변 생성
         String aiAnswer = aiService.ChatAnswer(chatRequest.getMessage());
-        Chat answerChat = ChatConverter.anwertoChat(aiAnswer, session);
+        Chat answerChat = ChatConverter.anwerToChat(aiAnswer, session);
 
         chatRepository.save(answerChat);
 

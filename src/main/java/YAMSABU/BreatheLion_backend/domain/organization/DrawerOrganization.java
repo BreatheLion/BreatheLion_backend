@@ -13,7 +13,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name="drawer_organizaions")
+@Table(name="drawer_organizations")
 public class DrawerOrganization {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
