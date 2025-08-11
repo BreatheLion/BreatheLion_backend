@@ -22,11 +22,6 @@ public class Person {
 
     private String name;
 
-    // ASSAILANT, WITNESS(가해자, 목격자)
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PersonRole role;
-
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecordPerson> recordPersons = new ArrayList<>();
 }

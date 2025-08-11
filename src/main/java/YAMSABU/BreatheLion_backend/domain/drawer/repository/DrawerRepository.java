@@ -1,4 +1,4 @@
-package YAMSABU.BreatheLion_backend.domain.drawer.repositoty;
+package YAMSABU.BreatheLion_backend.domain.drawer.repository;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import org.springframework.data.jpa.repository.JpaRepository;

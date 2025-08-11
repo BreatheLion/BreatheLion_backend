@@ -48,16 +48,16 @@ public class Record {
     @Column
     private String title;
 
-    @Column
+    @Column(nullable = false)
     private String content;
 
-    @Column
+    @Column(nullable = false)
     private int severity;
 
-    @Column
+    @Column(nullable = false)
     private String location;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime occurredAt;
 
     private String summary;
