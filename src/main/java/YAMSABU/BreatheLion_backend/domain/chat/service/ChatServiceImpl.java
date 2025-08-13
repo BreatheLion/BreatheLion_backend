@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.chat.service;
 
 import YAMSABU.BreatheLion_backend.domain.chat.converter.ChatConverter;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
@@ -14,11 +15,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageListDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatStartResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatStartRequestDTO;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 
 @Service
@@ -51,5 +52,17 @@ public class ChatServiceImpl implements ChatService{
 
         // DTO 생성 후 반환
         return ChatConverter.toChatStartResponseDTO(session, answerChat);
+    }
+
+    @Override
+    @Transactional
+    public ChatMessageListDTO getChatList(Long recordID){
+
+        Record record = recordRepository.findById(recordID)
+                .orElseThrow(() -> new IllegalArgumentException("Record not found: " + recordID));
+        Session session = record.getSession();
+        List<Chat> chatList = session.getChats();
+
+        return ChatConverter.toChatListDTO(session,chatList);
     }
 }

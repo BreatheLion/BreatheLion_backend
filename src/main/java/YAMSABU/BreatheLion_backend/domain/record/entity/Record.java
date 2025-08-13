@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.record.entity;
 
+import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.record.RecordPerson;
 import jakarta.persistence.CascadeType;
@@ -14,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,6 +75,9 @@ public class Record {
     @Enumerated(EnumType.STRING)
     @Column
     private RecordCategory category;
+
+    @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Session session;
   
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecordPerson> recordPersons = new ArrayList<>();
