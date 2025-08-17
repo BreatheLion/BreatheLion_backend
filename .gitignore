@@ -11,6 +11,7 @@ logs/
 .vscode/
 
 ### Build Artifacts ###
+.gradle/
 /build/
 /out/
 /target/
