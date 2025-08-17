@@ -10,10 +10,8 @@ logs/
 *.iml
 .vscode/
 
-### Gradle ###
-.gradle/
-
 ### Build Artifacts ###
+.gradle/
 /build/
 /out/
 /target/
