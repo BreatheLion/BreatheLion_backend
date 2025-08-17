@@ -6,8 +6,5 @@ import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatStartRequestDTO;
 
 public interface ChatService {
     ChatStartResponseDTO startChatting(ChatStartRequestDTO chatStartRequestDTO);
-
     ChatMessageListDTO getChatList(Long recordID);
-
-
 }

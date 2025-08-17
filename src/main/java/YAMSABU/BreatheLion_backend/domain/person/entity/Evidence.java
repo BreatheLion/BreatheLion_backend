@@ -3,6 +3,7 @@ package YAMSABU.BreatheLion_backend.domain.person.entity;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -23,18 +24,24 @@ public class Evidence {
     @JoinColumn(name = "record_id", nullable = false)
     private Record record;
 
-    private String type;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EvidenceType type;
 
     @Column(nullable = false)
     private String filename;
 
-    private String S3url;
+    @Column(name = "s3_url" ,nullable = false)
+    private String S3Url;
 
+    @CreationTimestamp
+    @Column(name = "uploaded_at", updatable = false)
     private LocalDateTime uploadedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.uploadedAt = LocalDateTime.now();
-    }
+    // 아마 삭제해도 될듯
+//    @PrePersist
+//    protected void onCreate() {
+//        this.uploadedAt = LocalDateTime.now();
+//    }
 
 }

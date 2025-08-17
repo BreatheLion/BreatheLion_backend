@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.record;
 
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
+import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,4 +22,9 @@ public class RecordPerson {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;
+
+    // ASSAILANT, WITNESS(가해자, 목격자)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PersonRole role;
 }

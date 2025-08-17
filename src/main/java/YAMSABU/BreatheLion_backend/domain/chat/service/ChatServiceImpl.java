@@ -46,7 +46,7 @@ public class ChatServiceImpl implements ChatService{
 
         // AI 답변 생성
         String aiAnswer = aiService.ChatAnswer(chatRequest.getMessage());
-        Chat answerChat = ChatConverter.anwertoChat(aiAnswer, session);
+        Chat answerChat = ChatConverter.anwerToChat(aiAnswer, session);
 
         chatRepository.save(answerChat);
 

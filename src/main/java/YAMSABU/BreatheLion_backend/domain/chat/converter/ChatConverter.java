@@ -24,7 +24,7 @@ public class ChatConverter {
     }
 
     /** AI 답변 → Chat(assistant) */
-    public static Chat anwertoChat(String answer, Session session) {
+    public static Chat anwerToChat(String answer, Session session) {
         return Chat.builder()
                 .session(session)
                 .role(ChatRole.assistant)
