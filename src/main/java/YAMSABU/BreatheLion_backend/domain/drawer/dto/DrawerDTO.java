@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 public class DrawerDTO {
 
     @Getter
@@ -27,8 +29,40 @@ public class DrawerDTO {
     @AllArgsConstructor
     @Builder
     public static class DrawerResponseDTO {
+        @JsonProperty("drawer_id")
         private Long drawerId;
         private String name;
+        @JsonProperty("create_at")
         private String createdAt;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DrawerItemDTO {
+        @JsonProperty("drawer_id")
+        private Long drawerId;
+
+        private String name;
+
+        @JsonProperty("record_count")
+        private Long recordCount;
+
+        @JsonProperty("create_at")
+        private String createdAt;
+
+        @JsonProperty("update_at")
+        private String updatedAt;
+
+    }
+
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DrawerListResponseDTO {
+        private List<DrawerItemDTO> drawers;
     }
 }
