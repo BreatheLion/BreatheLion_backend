@@ -16,14 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat")
+@RequestMapping("/api/chats")
 public class ChatController {
 
     private final ChatService chatService;
     @PostMapping("/start/")
     public ApiResponse<ChatStartResponseDTO> startChat(@Valid @RequestBody ChatStartRequestDTO chatStartRequestDTO){
-        return ApiResponse.onSuccess("채팅성공", chatService.startChating(chatStartRequestDTO));
+        return ApiResponse.onSuccess("채팅 성공", chatService.startChatting(chatStartRequestDTO));
     }
+
+//    @GetMapping("/end/")
+//    public ApiResponse<> endChat(){
+//        return ApiResponse.onSuccess("채팅 끝",chatService.endChatting();
+//    }
 
     @GetMapping("/{record_id}/list")
     public ApiResponse<ChatMessageListDTO> retrieveChat(@PathVariable("record_id") Long recordId) {

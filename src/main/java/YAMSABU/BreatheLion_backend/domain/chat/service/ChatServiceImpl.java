@@ -33,7 +33,7 @@ public class ChatServiceImpl implements ChatService{
 
     @Override
     @Transactional
-    public ChatStartResponseDTO startChating(ChatStartRequestDTO chatStartRequestDTO){
+    public ChatStartResponseDTO startChatting(ChatStartRequestDTO chatStartRequestDTO){
         // 생성 및 저장
         Record record = new Record();
         Session session = new Session(record);
