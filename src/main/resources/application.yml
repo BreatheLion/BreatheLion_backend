@@ -1,4 +1,6 @@
 spring:
+    config:
+        import: optional:classpath:secrets.properties
     application:
         name: BreatheLion_backend
 

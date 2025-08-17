@@ -31,8 +31,8 @@ public class Evidence {
     @Column(nullable = false)
     private String filename;
 
-    @Column(name = "s3_url" ,nullable = false)
-    private String S3Url;
+    @Column(name = "s3_key" ,nullable = false)
+    private String s3Key;
 
     @CreationTimestamp
     @Column(name = "uploaded_at", updatable = false)
