@@ -37,7 +37,7 @@ public class ChatConverter {
         // 현재 날짜/시간
         LocalDateTime now = LocalDateTime.now();
         String messageTime = now.format(DateTimeFormatter.ofPattern("HH:mm"));
-        String messageDate = now.format(DateTimeFormatter.ofPattern("MM-dd"));
+        String messageDate = now.format(DateTimeFormatter.ofPattern("yyyy - MM - dd"));
 
         return ChatStartResponseDTO.builder()
                 .session_id(session.getId())
