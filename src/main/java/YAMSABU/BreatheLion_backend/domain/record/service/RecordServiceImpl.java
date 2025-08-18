@@ -38,7 +38,7 @@ public class RecordServiceImpl implements RecordService {
     private final S3Port s3Service;
 
     @Override
-    public RecordSaveResponseDTO saveFinalize(RecordSaveRequestDTO request) {
+    public void saveFinalize(RecordSaveRequestDTO request) {
         if (request.getRecordId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "record_id 필요");
         }
@@ -55,8 +55,10 @@ public class RecordServiceImpl implements RecordService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "장소는 필수항목입니다.");
         if (request.getOccurredAt() == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "발생 시간은 필수항목입니다.");
-        if (request.getSeverity() < 1 || request.getSeverity() > 5)
+        if (request.getSeverity() == null ||request.getSeverity() < 1 || request.getSeverity() > 5)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 1~5여야 합니다.");
+        if(request.getTitle() != null && !request.getTitle().isBlank())
+            record.setTitle(request.getTitle());
 
         record.setContent(request.getContent());
         record.setSeverity(request.getSeverity());
@@ -94,23 +96,23 @@ public class RecordServiceImpl implements RecordService {
 
         record.setRecordStatus(RecordStatus.FINALIZED);
         recordRepository.save(record);
-
-        return RecordSaveResponseDTO.builder()
-                .message("서랍에 기록이 만들어졌어요.")
-                .build();
     }
 
     // 한 페이지당 몇개씩 기록 보여주는 지 몰라서 15개로 일단 해놓음
+    @Transactional(readOnly = true)
     @Override
     public RecordRecentResponseDTO getRecent() {
         var page = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
-        var items = recordRepository.findAll(page).getContent().stream()
+        var items = recordRepository.findByRecordStatus(RecordStatus.FINALIZED, page)
+                .getContent()
+                .stream()
                 .map(RecordConverter::toRecentItem)
                 .collect(Collectors.toList());
         return RecordRecentResponseDTO.builder()
                 .records(items).build();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public RecordDetailResponseDTO getDetail(Long recordId) {
         Record record = recordRepository.findById(recordId)
@@ -150,8 +152,15 @@ public class RecordServiceImpl implements RecordService {
         }
         if (request.getContent() != null)
             record.setContent(request.getContent());
-        if (request.getSeverity() > 0)
+        if(request.getTitle() != null)
+            record.setTitle(request.getTitle());
+        if (request.getSeverity() != null) {
+            if(request.getSeverity() < 1 || request.getSeverity() > 5) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 1~5여야 합니다.");
+            }
             record.setSeverity(request.getSeverity());
+        }
+
         if (request.getLocation() != null)
             record.setLocation(request.getLocation());
         if (request.getOccurredAt() != null)
@@ -185,6 +194,7 @@ public class RecordServiceImpl implements RecordService {
                 evidenceRepository.save(evidence);
             }
         }
+
         recordRepository.save(record);
     }
 

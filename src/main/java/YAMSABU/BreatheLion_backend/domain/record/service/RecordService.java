@@ -3,21 +3,9 @@ import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 
 public interface RecordService {
-//    // DRAFT
-//    void updateDraft(Long recordId, RecordDraftRequestDTO request);
-//
-//    // 최종 저장(FINALIZE) – PATCH /api/records/save
-//    void saveFinalize(SaveRecordRequest request);
-//
-//    // 조회
-//    List<RecentRecordResponse> getRecent();
-//
-//    RecordDetailResponseDTO getDetail(Long recordId);
-//
-//    // 삭제
-//    void deleteRecord(Long recordId);
-// DRAFT -> FINALIZED
-    RecordSaveResponseDTO saveFinalize(RecordSaveRequestDTO request);
+
+    // DRAFT -> FINALIZED
+    void saveFinalize(RecordSaveRequestDTO request);
 
     // 최근 기록 목록
     RecordRecentResponseDTO getRecent();
@@ -29,6 +17,6 @@ public interface RecordService {
     void deleteRecord(Long recordId);
 
     // DRAFT 상태에서 수정가능
-    void updateDraft(Long recordId, RecordDTO.RecordDraftRequestDTO request);
+    void updateDraft(Long recordId, RecordDraftRequestDTO request);
 
 }

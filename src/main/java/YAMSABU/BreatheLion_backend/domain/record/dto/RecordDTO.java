@@ -69,18 +69,19 @@ public class RecordDTO {
         }
     }
 
-    // 2. 저장 응답
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class RecordSaveResponseDTO {
-
-        // 서랍에 기록이 만들어졌어요.
-        private String message;
-    }
+//    controller에서 받는 방식으로 변경
+//    // 2. 저장 응답
+//    @Getter
+//    @Builder
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
+//    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+//    public static class RecordSaveResponseDTO {
+//
+//        // 서랍에 기록이 만들어졌어요.
+//        private String message;
+//    }
 
     // 3. 최근 기록 확인(조회)
     @Getter
@@ -135,8 +136,7 @@ public class RecordDTO {
 
         private List<String> categories;
 
-        // 제목 여부가 기억이 안남
-        // private String title;
+        private String title;
 
         private String content;
 
@@ -181,7 +181,7 @@ public class RecordDTO {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordDraftRequestDTO {
 
-        // private String title;
+        private String title;
 
         private List<String> categories;
 

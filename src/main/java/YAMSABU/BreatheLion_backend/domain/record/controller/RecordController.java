@@ -23,12 +23,9 @@ public class RecordController {
 
     // 1. 최종 기록 저장하기 버튼(FINALIZED 상태)
     @PatchMapping("/save")
-    public ApiResponse<RecordSaveResponseDTO> save(@Valid @RequestBody RecordSaveRequestDTO request) {
-        RecordSaveResponseDTO response = recordService.saveFinalize(request);
-        return ApiResponse.onSuccess("", RecordSaveResponseDTO.builder()
-                .message("서랍에 기록이 만들어졌어요.")
-                .build()
-        );
+    public ApiResponse<Void> save(@Valid @RequestBody RecordSaveRequestDTO request) {
+        recordService.saveFinalize(request);
+        return ApiResponse.onSuccess("서랍에 기록이 만들어졌어요.");
     }
 
     // 2. 최근 기록 목록
