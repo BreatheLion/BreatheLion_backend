@@ -8,4 +8,5 @@ import java.util.List;
 public interface DrawerRepository extends JpaRepository<Drawer,Long> {
     boolean existsByName(String name);
     List<Drawer> findAllByOrderByCreatedAtDesc();
+    Optional<Drawer> findByName(String name);
 }
