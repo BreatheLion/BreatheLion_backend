@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.record.entity;
 
+import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
@@ -18,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -76,10 +78,9 @@ public class Record {
     @Column(name ="updated_at")
     private LocalDateTime updatedAt;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column
-//    private RecordCategory category;
-
+    @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Session session;
+  
     @Builder.Default
     @ElementCollection(targetClass = RecordCategory.class)
     @Enumerated(EnumType.STRING)
