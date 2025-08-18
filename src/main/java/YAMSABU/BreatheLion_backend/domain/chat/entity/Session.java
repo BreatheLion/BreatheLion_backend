@@ -40,6 +40,7 @@ public class Session {
     private Record record;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL,orphanRemoval = true)
+    @Builder.Default
     private List<Chat> chats = new ArrayList<>();
 
     @CreationTimestamp

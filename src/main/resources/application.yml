@@ -14,3 +14,8 @@ spring:
     ai:
         openai:
             api-key: ${OPENAI_API_KEY}
+
+    cloud:
+        aws:
+            s3:
+                enabled: false

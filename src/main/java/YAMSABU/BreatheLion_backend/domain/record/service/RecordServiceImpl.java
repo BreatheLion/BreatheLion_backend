@@ -13,7 +13,6 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
-import YAMSABU.BreatheLion_backend.global.s3.S3Port;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,13 +28,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class RecordServiceImpl implements RecordService {
+public class RecordServiceImpl implements RecordService{
 
     private final RecordRepository recordRepository;
     private final DrawerRepository drawerRepository;
     private final PersonRepository personRepository;
     private final EvidenceRepository evidenceRepository;
-    private final S3Port s3Service;
+//    private final S3Port s3Service;
 
     @Override
     public void saveFinalize(RecordSaveRequestDTO request) {
@@ -125,7 +124,8 @@ public class RecordServiceImpl implements RecordService {
                         .recordId(record.getId())
                         .type(evidence.getType().name())
                         .filename(evidence.getFilename())
-                        .s3Url(s3Service.generatePresignedGetUrl(evidence.getS3Key(), 10)) // 10분 유효시간
+//                        .s3Url(s3Service.generatePresignedGetUrl(evidence.getS3Key(), 10)) // 10분 유효시간
+                        .s3Url(null) //  일단 이거 넣어둠
                         .uploadedAt(evidence.getUploadedAt())
                         .build())
                 .collect(Collectors.toList());
