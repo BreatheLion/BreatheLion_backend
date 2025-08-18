@@ -40,4 +40,10 @@ public class DrawerServiceImpl implements DrawerService {
         List<Drawer> drawers = drawerRepository.findAllByOrderByCreatedAtDesc();
         return DrawerConverter.drawersToList(drawers);
     }
+
+    @Override
+    @Transactional
+    public void deleteDrawer(Long drawerId) {
+        drawerRepository.deleteById(drawerId);
+    }
 }

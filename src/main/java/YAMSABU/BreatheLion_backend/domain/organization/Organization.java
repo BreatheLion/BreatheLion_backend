@@ -45,5 +45,6 @@ public class Organization {
     private String description;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<DrawerOrganization> drawerOrganizations = new ArrayList<>();
 }

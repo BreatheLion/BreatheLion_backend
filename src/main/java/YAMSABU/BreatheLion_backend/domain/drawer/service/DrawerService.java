@@ -10,4 +10,6 @@ public interface DrawerService {
 
     DrawerListResponseDTO getDrawerList();
 
+    void deleteDrawer(Long drawerId);
+
 }
