@@ -2,9 +2,13 @@ package YAMSABU.BreatheLion_backend.domain.record.entity;
 
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
+import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.RecordPerson;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,7 +31,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "records")
@@ -50,16 +56,16 @@ public class Record {
     @Column
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String content;
 
-    @Column(nullable = false)
-    private int severity;
+    @Column
+    private Integer severity;
 
-    @Column(nullable = false)
+    @Column
     private String location;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime occurredAt;
 
     private String summary;
@@ -72,13 +78,32 @@ public class Record {
     @Column(name ="updated_at")
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private RecordCategory category;
-
     @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Session session;
   
+    @Builder.Default
+    @ElementCollection(targetClass = RecordCategory.class)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    @CollectionTable(name = "record_categories", joinColumns = @JoinColumn(name = "record_id"))
+    private Set<RecordCategory> categories = new HashSet<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecordPerson> recordPersons = new ArrayList<>();
+
+    // 기본값이 DRAFT고 저장완료 후, FINALIZED로 변경하면 됨
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private RecordStatus recordStatus = RecordStatus.DRAFT;
+
+    public void add(Person person, PersonRole role) {
+        RecordPerson rp = RecordPerson.of(this, person, role);
+        this.recordPersons.add(rp);
+    }
+
+    public void clear() {
+        this.recordPersons.clear();
+    }
 }

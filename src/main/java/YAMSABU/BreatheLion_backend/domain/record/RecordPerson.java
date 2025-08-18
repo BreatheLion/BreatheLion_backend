@@ -27,4 +27,12 @@ public class RecordPerson {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PersonRole role;
+
+    public static RecordPerson of(Record record, Person person, PersonRole role) {
+        RecordPerson rp = new RecordPerson();
+        rp.record = record;
+        rp.person = person;
+        rp.role = role;
+        return rp;
+    }
 }

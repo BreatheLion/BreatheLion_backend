@@ -22,6 +22,7 @@ public class Person {
 
     private String name;
 
+    @Builder.Default
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecordPerson> recordPersons = new ArrayList<>();
 }
