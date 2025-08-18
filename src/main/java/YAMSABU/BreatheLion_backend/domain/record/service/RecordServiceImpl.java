@@ -11,8 +11,8 @@ import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
+import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class RecordServiceImpl implements RecordService{
+public class RecordServiceImpl implements RecordService {
 
     private final RecordRepository recordRepository;
     private final DrawerRepository drawerRepository;
     private final PersonRepository personRepository;
     private final EvidenceRepository evidenceRepository;
-//    private final S3Port s3Service;
+    private final S3FileService s3FileService;
 
     @Override
     public void saveFinalize(RecordSaveRequestDTO request) {
@@ -86,7 +86,7 @@ public class RecordServiceImpl implements RecordService{
                 Evidence evidence = Evidence.builder()
                         .record(record)
                         .type(RecordConverter.mapEvidenceType(it.getType()))
-                        .filename(it.getFilename())
+                        .filename(it.getFilename()) // 화면 표시용
                         .s3Key(it.getS3Key())
                         .build();
                 evidenceRepository.save(evidence);
@@ -124,8 +124,7 @@ public class RecordServiceImpl implements RecordService{
                         .recordId(record.getId())
                         .type(evidence.getType().name())
                         .filename(evidence.getFilename())
-//                        .s3Url(s3Service.generatePresignedGetUrl(evidence.getS3Key(), 10)) // 10분 유효시간
-                        .s3Url(null) //  일단 이거 넣어둠
+                        .s3Url(s3FileService.getGetPreSignedUrlByKey(evidence.getS3Key(), 10)) // 10분 유효시간
                         .uploadedAt(evidence.getUploadedAt())
                         .build())
                 .collect(Collectors.toList());
