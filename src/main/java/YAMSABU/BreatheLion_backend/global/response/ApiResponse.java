@@ -21,7 +21,7 @@ public class ApiResponse<T> {
     }
 
     // 성공 시 응답
-    public static ApiResponse<?> onSuccess(String message) {
-        return new ApiResponse<>(true, SuccessCode._OK.getCode(), message, Collections.emptyMap());
+    public static ApiResponse<Void> onSuccess(String message) {
+        return new ApiResponse<>(true, SuccessCode._OK.getCode(), message, null);
     }
 }
