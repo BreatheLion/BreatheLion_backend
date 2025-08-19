@@ -56,7 +56,7 @@ public class Record {
     @Column
     private String title;
 
-    @Column
+    @Column(columnDefinition = "TEXT" ,nullable = true)
     private String content;
 
     @Column

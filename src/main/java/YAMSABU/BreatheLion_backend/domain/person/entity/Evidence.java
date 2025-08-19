@@ -38,10 +38,4 @@ public class Evidence {
     @Column(name = "uploaded_at", updatable = false)
     private LocalDateTime uploadedAt;
 
-    // 아마 삭제해도 될듯
-//    @PrePersist
-//    protected void onCreate() {
-//        this.uploadedAt = LocalDateTime.now();
-//    }
-
 }
