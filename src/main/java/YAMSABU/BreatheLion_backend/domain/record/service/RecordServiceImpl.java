@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.record.service;
 
+import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Evidence;
@@ -13,13 +14,16 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
+import jakarta.persistence.OneToMany;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,78 @@ public class RecordServiceImpl implements RecordService {
     private final PersonRepository personRepository;
     private final EvidenceRepository evidenceRepository;
     private final S3FileService s3FileService;
+    private final DrawerService drawerService;
+
+    @Override
+    public Long createDraft(RecordDraftRequestDTO request) {
+        Record record = Record.builder().build();
+
+        if(request.getTitle() != null)
+            record.setTitle(request.getTitle());
+        if(request.getContent() != null)
+            record.setContent(request.getContent());
+        if(request.getSeverity() != null)
+            record.setSeverity(request.getSeverity());
+        if(request.getLocation() != null)
+            record.setLocation(request.getLocation());
+        if(request.getOccurredAt() != null) {
+            record.setOccurredAt(request.getOccurredAt());
+        }
+        if(request.getCategories() != null) {
+            record.getCategories().clear();
+            record.getCategories().addAll(RecordConverter.mapCategories(request.getCategories()));
+        }
+        if(request.getDrawer() != null && !request.getDrawer().isBlank()) {
+            Drawer drawer = drawerRepository.findByName(request.getDrawer())
+                    .orElseGet(() -> drawerRepository.save(Drawer.builder()
+                            .name(request.getDrawer()).build()));
+            record.setDrawer(drawer);
+        }
+        if(request.getAssailant() != null || request.getWitness() != null) {
+            attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
+            attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
+        }
+        // district 한글 매핑 지원: 프론트에서 한글로 올 경우 변환
+        if(request.getDistrict() != null) {
+            // 한글로 들어온 경우 변환
+            if (request.getDistrict().getLabel() != null && !request.getDistrict().name().equals(request.getDistrict().getLabel())) {
+                var mapped = YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict.fromLabel(request.getDistrict().getLabel());
+                record.setDistrict(mapped != null ? mapped : request.getDistrict());
+            } else {
+                record.setDistrict(request.getDistrict());
+            }
+        }
+
+        recordRepository.save(record);
+
+        // S3 evidences 제한: 최대 10개, 총합 300MB
+        if (request.getEvidences() != null) {
+            if (request.getEvidences().size() > 10) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일은 최대 10개까지 첨부할 수 있습니다.");
+            }
+            long totalSize = request.getEvidences().stream()
+                    .mapToLong(e -> e.getContentLength() != null ? e.getContentLength() : 0L)
+                    .sum();
+            if (totalSize > 314572800L) { // 300MB
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일 총 용량은 300MB를 초과할 수 없습니다.");
+            }
+        }
+
+        if (request.getEvidences() != null) {
+            for (var it : request.getEvidences()) {
+                Evidence evidence = Evidence.builder()
+                        .record(record)
+                        .type(RecordConverter.mapEvidenceType(it.getType()))
+                        .filename(it.getFilename())
+                        .s3Key(it.getS3Key())
+                        .build();
+                evidenceRepository.save(evidence);
+            }
+        }
+
+        return record.getId();
+
+    }
 
     @Override
     public void saveFinalize(RecordSaveRequestDTO request) {
@@ -82,6 +158,17 @@ public class RecordServiceImpl implements RecordService {
 
         evidenceRepository.deleteByRecord(record);
         if (request.getEvidences() != null) {
+            // S3 evidences 제한: 최대 10개, 총합 300MB
+            if (request.getEvidences().size() > 10) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일은 최대 10개까지 첨부할 수 있습니다.");
+            }
+            long totalSize = request.getEvidences().stream()
+                    .mapToLong(e -> e.getContentLength() != null ? e.getContentLength() : 0L)
+                    .sum();
+            if (totalSize > 314572800L) { // 300MB
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일 총 용량은 300MB를 초과할 수 없습니다.");
+            }
+
             for (var it : request.getEvidences()) {
                 Evidence evidence = Evidence.builder()
                         .record(record)
@@ -97,13 +184,10 @@ public class RecordServiceImpl implements RecordService {
         recordRepository.save(record);
     }
 
-    // 한 페이지당 몇개씩 기록 보여주는 지 몰라서 15개로 일단 해놓음
     @Transactional(readOnly = true)
     @Override
     public RecordRecentResponseDTO getRecent() {
-        var page = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
-        var items = recordRepository.findByRecordStatus(RecordStatus.FINALIZED, page)
-                .getContent()
+        var items = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
                 .stream()
                 .map(RecordConverter::toRecentItem)
                 .collect(Collectors.toList());
@@ -141,61 +225,74 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
-    @Transactional
-    public void updateDraft(Long recordId, RecordDraftRequestDTO request) {
-        Record record = recordRepository.findById(recordId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
-
-        if (record.getRecordStatus() != RecordStatus.DRAFT) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 저장된 기록은 수정할 수 없습니다.");
+    public void updateTitle(Long recordId, String title) {
+        if (!StringUtils.hasText(title) || title.trim().length() > 100) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "제목 형식이 올바르지 않습니다.");
         }
-        if (request.getContent() != null)
-            record.setContent(request.getContent());
-        if(request.getTitle() != null)
-            record.setTitle(request.getTitle());
-        if (request.getSeverity() != null) {
-            if(request.getSeverity() < 1 || request.getSeverity() > 5) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 1~5여야 합니다.");
-            }
-            record.setSeverity(request.getSeverity());
-        }
-
-        if (request.getLocation() != null)
-            record.setLocation(request.getLocation());
-        if (request.getOccurredAt() != null)
-            record.setOccurredAt(request.getOccurredAt());
-        if (request.getCategories() != null) {
-            record.getCategories().clear();
-            record.getCategories().addAll(RecordConverter.mapCategories(request.getCategories()));
-        }
-        if (request.getDrawer() != null && !request.getDrawer().isBlank()) {
-            Drawer drawer = drawerRepository.findByName(request.getDrawer())
-                    .orElseGet(() -> drawerRepository.save(Drawer.builder()
-                            .name(request.getDrawer()).build()));
-            record.setDrawer(drawer);
-        }
-        if (request.getAssailant() != null || request.getWitness() != null) {
-            record.clear();
-            attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
-            attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
-        }
-
-        if (request.getEvidences() != null) {
-            evidenceRepository.deleteByRecord(record);
-            for (var it : request.getEvidences()) {
-                Evidence evidence = Evidence.builder()
-                        .record(record)
-                        .type(RecordConverter.mapEvidenceType(it.getType()))
-                        .filename(it.getFilename())
-                        .s3Key(it.getS3Key())
-                        .build();
-
-                evidenceRepository.save(evidence);
-            }
-        }
-
+        // FINALIZED에서만 허용
+        Record record = mustBeFinalized(recordId);
+        record.setTitle(title.trim());
         recordRepository.save(record);
     }
+
+
+    // 얘도 확인하고 RecordService랑 같이 삭제하면 될듯
+//    @Override
+//    @Transactional
+//    public void updateDraft(Long recordId, RecordDraftRequestDTO request) {
+//        Record record = recordRepository.findById(recordId)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
+//
+//        if (record.getRecordStatus() != RecordStatus.DRAFT) {
+//            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 저장된 기록은 수정할 수 없습니다.");
+//        }
+//        if (request.getContent() != null)
+//            record.setContent(request.getContent());
+//        if(request.getTitle() != null)
+//            record.setTitle(request.getTitle());
+//        if (request.getSeverity() != null) {
+//            if(request.getSeverity() < 1 || request.getSeverity() > 5) {
+//                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 1~5여야 합니다.");
+//            }
+//            record.setSeverity(request.getSeverity());
+//        }
+//
+//        if (request.getLocation() != null)
+//            record.setLocation(request.getLocation());
+//        if (request.getOccurredAt() != null)
+//            record.setOccurredAt(request.getOccurredAt());
+//        if (request.getCategories() != null) {
+//            record.getCategories().clear();
+//            record.getCategories().addAll(RecordConverter.mapCategories(request.getCategories()));
+//        }
+//        if (request.getDrawer() != null && !request.getDrawer().isBlank()) {
+//            Drawer drawer = drawerRepository.findByName(request.getDrawer())
+//                    .orElseGet(() -> drawerRepository.save(Drawer.builder()
+//                            .name(request.getDrawer()).build()));
+//            record.setDrawer(drawer);
+//        }
+//        if (request.getAssailant() != null || request.getWitness() != null) {
+//            record.clear();
+//            attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
+//            attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
+//        }
+//
+//        if (request.getEvidences() != null) {
+//            evidenceRepository.deleteByRecord(record);
+//            for (var it : request.getEvidences()) {
+//                Evidence evidence = Evidence.builder()
+//                        .record(record)
+//                        .type(RecordConverter.mapEvidenceType(it.getType()))
+//                        .filename(it.getFilename())
+//                        .s3Key(it.getS3Key())
+//                        .build();
+//
+//                evidenceRepository.save(evidence);
+//            }
+//        }
+//
+//        recordRepository.save(record);
+//    }
 
     private void attachPeople(Record record, List<String> names, PersonRole role) {
         for (String name : names) {
@@ -220,5 +317,42 @@ public class RecordServiceImpl implements RecordService {
             }
         }
         return names;
+    }
+
+    private Record mustBeFinalized(Long id) {
+        Record record = recordRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
+        if(record.getRecordStatus() != RecordStatus.FINALIZED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "FINALIZED 상태에서만 수정이 가능합니다.");
+        }
+        return record;
+    }
+
+    @Override
+    public void updateDrawer(Long recordId, Long drawerId, String newName) {
+        Record record = mustBeFinalized(recordId);
+        Drawer drawer;
+
+        if(drawerId != null) {
+            drawer = drawerRepository.findById(drawerId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
+            if(StringUtils.hasText(newName)) {
+                drawerService.rename(drawerId, newName.trim());
+                drawer = drawerRepository.findById(drawerId).orElse(drawer);
+            }
+        }
+        else {
+            if(!StringUtils.hasText(newName)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "drawerId, newName 중에 하나는 필수입니다.");
+            }
+            var created = drawerService.createDrawer(
+                    DrawerCreateRequestDTO.builder()
+                            .drawerName(newName.trim()).build());
+            drawer = drawerRepository.findById(created.getDrawerId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "서랍 생성 후 조회 실패"));
+
+        }
+        record.setDrawer(drawer);
+        recordRepository.save(record);
     }
 }

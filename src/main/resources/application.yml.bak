@@ -1,0 +1,35 @@
+spring:
+    config:
+        import: optional:classpath:secrets.properties
+    application:
+        name: BreatheLion_backend
+
+    datasource:
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+    jpa:
+        hibernate:
+            ddl-auto: update
+    ai:
+        openai:
+            api-key: ${OPENAI_API_KEY}
+<<<<<<< HEAD
+
+    cloud:
+        aws:
+            s3:
+                enabled: false
+=======
+    cloud:
+        aws:
+            s3:
+                bucket: ${BUCKET_NAME}
+            stack:
+                auto: false
+            region:
+                static: ${AWS_REGION}
+            credentials:
+                access-key: ${AWS_ACCESS_KEY}
+                secret-key: ${AWS_SECRET_KEY}
+>>>>>>> 4e632d9 (feat: S3)
