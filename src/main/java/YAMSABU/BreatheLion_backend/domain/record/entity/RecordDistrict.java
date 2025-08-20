@@ -28,7 +28,8 @@ public enum RecordDistrict {
     EUNPYEONG("은평구"),
     JONGNO("종로구"),
     JUNG("중구"),
-    JUNGRANG("중랑구");
+    JUNGRANG("중랑구"),
+    ONLINE("온라인");
 
     private final String label;
     RecordDistrict(String label) { this.label = label; }
