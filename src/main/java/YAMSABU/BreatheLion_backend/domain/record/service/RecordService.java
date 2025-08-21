@@ -1,7 +1,10 @@
 package YAMSABU.BreatheLion_backend.domain.record.service;
+import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
+
+import java.util.List;
 
 public interface RecordService {
 
@@ -28,6 +31,4 @@ public interface RecordService {
 
     // 엔티티 반환
     Record getRecordEntity(Long recordId);
-
-
 }

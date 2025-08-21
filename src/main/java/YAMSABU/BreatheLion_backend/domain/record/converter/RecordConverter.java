@@ -2,7 +2,7 @@ package YAMSABU.BreatheLion_backend.domain.record.converter;
 
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
-import YAMSABU.BreatheLion_backend.domain.person.entity.EvidenceType;
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.EvidenceType;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordCategory;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 

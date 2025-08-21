@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.global.ai.dto;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.OrganizationDTO;
+import YAMSABU.BreatheLion_backend.domain.record.entity.RecordCategory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class AIAnswerDTO {
@@ -51,5 +53,35 @@ public class AIAnswerDTO {
     public static class LawListDTO {
         @JsonProperty(required = true, value = "laws")
         private List<LawDTO> laws;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChatSummaryDTO {
+        @JsonProperty(value = "title", required = true)
+        private String title;
+
+        @JsonProperty(value = "categories", required = true)
+        private List<RecordCategory> categories;
+
+        @JsonProperty(value = "content", required = true)
+        private String content;
+
+        @JsonProperty(value = "severity", required = true)
+        private Integer severity;
+
+        @JsonProperty(value = "location", required = true)
+        private String location;
+
+        @JsonProperty(value = "occurred_at", required = true)
+        private LocalDateTime occurredAt;
+
+        @JsonProperty(value = "assailant", required = true)
+        private List<String> assailant;
+
+        @JsonProperty(value = "witness", required = true)
+        private List<String> witness;
     }
 }

@@ -2,35 +2,28 @@ package YAMSABU.BreatheLion_backend.global.ai.service;
 
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.ChatSummaryDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
-import YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
-import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.ResponseFormat;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
-import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forANSWER;
+import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forCHATSUMMARY;
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forHELP;
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forLAWS;
 
@@ -86,7 +79,10 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .content();
 
-        return null;
+        if (response == null) {
+            throw new RuntimeException("LLM 응답이 비어 있습니다.");
+        }
+        return outputConverter.convert(response);
     }
 
     @Override
@@ -129,5 +125,27 @@ public class AIServiceImpl implements AIService{
             throw new RuntimeException("LLM 응답이 비어 있습니다.");
         }
         return outputConverter.convert(response);
+    }
+    public ChatSummaryDTO chatSummary(String chattings){
+
+        var outputConverter = new BeanOutputConverter<>(ChatSummaryDTO.class);
+        var jsonSchema = outputConverter.getJsonSchema();
+
+        OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
+                .model("gpt-4.1-nano")
+                .temperature(0.75)
+                .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
+                .build();
+
+        String response = chatClient
+                .prompt()
+                .user(userSpec -> userSpec
+                        .text(forCHATSUMMARY)
+                        .param("chattings", chattings))
+                .options(openAiChatOptions)
+                .call()
+                .content();
+
+        return null;
     }
 }

@@ -4,6 +4,24 @@ public class PromptStore {
     public static final String forANSWER =
             "너는 상담형 AI다. 대화를 통해 사건 관련 정보를 자연스럽게 이끌어내고, 적절히 공감하며 추가 정보를 유도하라.";
 
+    public static final String forCHATSUMMARY =
+    """
+    Input:
+    - chatting log : {chattings}
+    제공된 채팅 로그에서 정보를 추출하여 JSON 스키마에 맞게 값을 채워라.
+    
+    규칙:
+    - severity는 0(낮음), 1(보통), 2(높음) 중 하나만 사용.
+    - categories는 아래 목록 중 선택. 여러 개 가능.
+        - "VERBAL_ABUSE, PHYSICAL_ABUSE, SEXUAL_HARASSMENT, SEXUAL_VIOLENCE,
+            DISCRIMINATION, OSTRACISM, BULLYING, STALKING, ETC"
+    - assailant와 witness는 여러 명 가능. 쉼표나 조사 제거 후 이름만 배열로 채운다.
+    - occurred_at: 가능하면 "YYYY.MM.DD (THH:mm)" 형식
+    - 모르겠으면 빈칸("" 또는 [] 또는 null)으로 남긴다.
+    - 채팅에 명시된 내용만 추출. 추측 금지.
+    - 스키마에 정의된 필드 외 다른 값은 절대 포함하지 마라.
+    """;
+
     public static final String forHELP = """
     당신은 피해 사건을 요약하고, 적절한 지원 기관을 추천하며, 피해자에게 따뜻한 케어 메시지를 제공하는 역할을 합니다.
     Input:

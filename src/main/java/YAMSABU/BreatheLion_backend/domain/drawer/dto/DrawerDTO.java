@@ -92,7 +92,6 @@ public class DrawerDTO {
     }
 
     @Getter
-    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder

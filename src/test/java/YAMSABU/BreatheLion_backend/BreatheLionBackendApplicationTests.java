@@ -9,5 +9,4 @@ class BreatheLionBackendApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

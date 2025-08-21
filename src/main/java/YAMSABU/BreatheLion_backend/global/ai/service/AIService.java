@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.global.ai.service;
 
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.ChatSummaryDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
 
@@ -13,4 +14,7 @@ public interface AIService {
 
     // 관련 법률
     LawListDTO lawSearch(String summaries);
+
+    // 채팅 전문 요약
+    ChatSummaryDTO chatSummary(String chattings);
 }

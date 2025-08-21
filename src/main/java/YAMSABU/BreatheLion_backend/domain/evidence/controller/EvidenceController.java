@@ -1,4 +1,4 @@
-package YAMSABU.BreatheLion_backend.domain.person.controller;
+package YAMSABU.BreatheLion_backend.domain.evidence.controller;
 
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
-import YAMSABU.BreatheLion_backend.domain.person.dto.EvidenceDTO.EvidencePresignedUrlRequestDTO;
+
+import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidencePresignedUrlRequestDTO;
 
 @RestController
 @RequiredArgsConstructor

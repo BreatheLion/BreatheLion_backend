@@ -21,7 +21,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordSaveRequestDTO {
 
@@ -78,7 +77,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordRecentItemDTO {
 
@@ -102,7 +100,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordRecentResponseDTO {
         private List<RecordRecentItemDTO> records;
@@ -113,7 +110,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordDetailResponseDTO {
 
@@ -150,7 +146,6 @@ public class RecordDTO {
         @Builder
         @AllArgsConstructor
         @NoArgsConstructor
-        // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
         @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
         public static class EvidenceItemDTO {
             private Long id;
@@ -167,7 +162,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordDraftRequestDTO {
 
@@ -190,6 +184,7 @@ public class RecordDTO {
         private String drawer;
 
         private List<RecordSaveRequestDTO.EvidenceSaveRequestDTO> evidences;
+
     }
 
 }
