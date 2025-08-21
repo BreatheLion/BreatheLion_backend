@@ -4,7 +4,6 @@ import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import YAMSABU.BreatheLion_backend.domain.record.RecordPerson;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;

@@ -1,8 +1,7 @@
-package YAMSABU.BreatheLion_backend.domain.record;
+package YAMSABU.BreatheLion_backend.domain.record.entity;
 
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import jakarta.persistence.*;
 import lombok.Getter;
 

@@ -1,6 +1,8 @@
 package YAMSABU.BreatheLion_backend.domain.chat.controller;
 
-import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatRequestDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatEndRequestDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatEndResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageListDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatWithEvidenceDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageResponseDTO;
@@ -24,7 +26,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/start/")
-    public ApiResponse<ChatStartResponseDTO> startChat(@Valid @RequestBody ChatDTO.ChatRequestDTO chatRequestDTO){
+    public ApiResponse<ChatStartResponseDTO> startChat(@Valid @RequestBody ChatRequestDTO chatRequestDTO){
         return ApiResponse.onSuccess("채팅성공", chatService.startChatting(chatRequestDTO));
     }
 
@@ -33,8 +35,13 @@ public class ChatController {
         return ApiResponse.onSuccess("저장 및 전송 성공", chatService.attachChatting(chatWithEvidenceDTO));
     }
 
+    @GetMapping("/end/")
+    public ApiResponse<ChatEndResponseDTO>  endChat(@Valid @RequestBody ChatEndRequestDTO chatEndRequestDTO ){
+        return ApiResponse.onSuccess("채팅 종료",chatService.endChatting(chatEndRequestDTO));
+    }
+
     @GetMapping("/{record_id}/list/")
     public ApiResponse<ChatMessageListDTO> getList(@PathVariable("record_id") long recordId){
-        return ApiResponse.onSuccess("채팅 조회 성공!", chatService.getChatList(recordId));
+        return ApiResponse.onSuccess("채팅 조회 성공!", chatService.getChattingList(recordId));
     }
 }

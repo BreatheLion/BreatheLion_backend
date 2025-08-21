@@ -27,8 +27,8 @@ spring:
     vectorstore:
       chroma:
         client:
-          host: http://localhost
-          port: 8000
+          host: ${CHROMADB_HOST}
+          port: ${CHROMADB_PORT}
         initialize-schema: true
         collection-name: pdf-collection
 

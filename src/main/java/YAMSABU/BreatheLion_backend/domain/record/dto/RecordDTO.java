@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +21,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordSaveRequestDTO {
 
@@ -88,7 +86,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordRecentItemDTO {
 
@@ -114,7 +111,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordRecentResponseDTO {
         private List<RecordRecentItemDTO> records;
@@ -125,7 +121,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordDetailResponseDTO {
 
@@ -163,7 +158,6 @@ public class RecordDTO {
         @Builder
         @AllArgsConstructor
         @NoArgsConstructor
-        // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
         @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
         public static class EvidenceItemDTO {
             private Long id;
@@ -180,7 +174,6 @@ public class RecordDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordDraftRequestDTO {
 
@@ -205,12 +198,7 @@ public class RecordDTO {
         private List<RecordSaveRequestDTO.EvidenceSaveRequestDTO> evidences;
 
         private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
-        public YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict getDistrict() {
-            return this.district;
-        }
-        public void setDistrict(YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district) {
-            this.district = district;
-        }
+
     }
 
 }

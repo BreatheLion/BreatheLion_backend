@@ -230,65 +230,6 @@ public class RecordServiceImpl implements RecordService {
         recordRepository.save(record);
     }
 
-
-    // 얘도 확인하고 RecordService랑 같이 삭제하면 될듯
-//    @Override
-//    @Transactional
-//    public void updateDraft(Long recordId, RecordDraftRequestDTO request) {
-//        Record record = recordRepository.findById(recordId)
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
-//
-//        if (record.getRecordStatus() != RecordStatus.DRAFT) {
-//            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 저장된 기록은 수정할 수 없습니다.");
-//        }
-//        if (request.getContent() != null)
-//            record.setContent(request.getContent());
-//        if(request.getTitle() != null)
-//            record.setTitle(request.getTitle());
-//        if (request.getSeverity() != null) {
-//            if(request.getSeverity() < 1 || request.getSeverity() > 5) {
-//                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 1~5여야 합니다.");
-//            }
-//            record.setSeverity(request.getSeverity());
-//        }
-//
-//        if (request.getLocation() != null)
-//            record.setLocation(request.getLocation());
-//        if (request.getOccurredAt() != null)
-//            record.setOccurredAt(request.getOccurredAt());
-//        if (request.getCategories() != null) {
-//            record.getCategories().clear();
-//            record.getCategories().addAll(RecordConverter.mapCategories(request.getCategories()));
-//        }
-//        if (request.getDrawer() != null && !request.getDrawer().isBlank()) {
-//            Drawer drawer = drawerRepository.findByName(request.getDrawer())
-//                    .orElseGet(() -> drawerRepository.save(Drawer.builder()
-//                            .name(request.getDrawer()).build()));
-//            record.setDrawer(drawer);
-//        }
-//        if (request.getAssailant() != null || request.getWitness() != null) {
-//            record.clear();
-//            attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
-//            attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
-//        }
-//
-//        if (request.getEvidences() != null) {
-//            evidenceRepository.deleteByRecord(record);
-//            for (var it : request.getEvidences()) {
-//                Evidence evidence = Evidence.builder()
-//                        .record(record)
-//                        .type(RecordConverter.mapEvidenceType(it.getType()))
-//                        .filename(it.getFilename())
-//                        .s3Key(it.getS3Key())
-//                        .build();
-//
-//                evidenceRepository.save(evidence);
-//            }
-//        }
-//
-//        recordRepository.save(record);
-//    }
-
     private void attachPeople(Record record, List<String> names, PersonRole role) {
         for (String name : names) {
             Person p = personRepository.findByName(name)

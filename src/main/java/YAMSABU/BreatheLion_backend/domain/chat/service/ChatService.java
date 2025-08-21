@@ -1,5 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.chat.service;
 
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatEndRequestDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatEndResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatWithEvidenceDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageListDTO;
@@ -11,5 +13,7 @@ public interface ChatService {
 
     ChatMessageResponseDTO attachChatting(ChatWithEvidenceDTO chatWithEvidenceDTO);
 
-    ChatMessageListDTO getChatList(Long recordID);
+    ChatMessageListDTO getChattingList(Long recordID);
+
+    ChatEndResponseDTO endChatting(ChatEndRequestDTO chatEndRequestDTO);
 }

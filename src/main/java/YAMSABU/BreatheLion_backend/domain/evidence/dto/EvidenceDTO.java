@@ -1,6 +1,10 @@
 package YAMSABU.BreatheLion_backend.domain.evidence.dto;
 
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.EvidenceType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class EvidenceDTO {
 
@@ -12,5 +16,13 @@ public class EvidenceDTO {
         private Long contentLength;   // 파일 크기
     }
 
-
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class EvidenceResponseDTO {
+        private String url;
+        private EvidenceType type;
+        private String filename;
+    }
 }

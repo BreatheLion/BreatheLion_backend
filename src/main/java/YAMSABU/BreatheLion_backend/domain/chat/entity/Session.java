@@ -49,13 +49,7 @@ public class Session {
     @Column(name = "created_at")
     private LocalDateTime startedAt;
 
-    @Column(name = "ended_at")
-    private LocalDateTime endedAt;
-
     public Session(Record record){
         this.record = record;
-    }
-    public void endSession() {
-        this.endedAt = LocalDateTime.now();
     }
 }

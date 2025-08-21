@@ -1,8 +1,11 @@
 package YAMSABU.BreatheLion_backend.domain.record.entity;
 
+import lombok.Getter;
+
 import java.text.Normalizer;
 import java.util.Arrays;
 
+@Getter
 public enum RecordCategory {
 //    언어폭력, 신체폭력, 성희롱, 성폭력, 차별행위, 따돌림, 괴롭힘, 스토킹, 기타
     VERBAL_ABUSE("언어폭력"),
@@ -18,7 +21,6 @@ public enum RecordCategory {
     private final String label;
 
     RecordCategory(String label) { this.label = label; }
-    public String getLabel() { return label; }
 
     /** 한글 라벨 -> Enum 매핑 */
     public static RecordCategory fromLabel(String raw) {
