@@ -16,6 +16,16 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-3-small
+        vectorstore:
+          chroma:
+            client:
+              port: 8000
+              host: http://localhost
+      #                collection-name: pdf_rag
+      #                initialize-schema: true
 
   cloud:
     aws:

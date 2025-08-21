@@ -12,5 +12,5 @@ public interface DrawerService {
 
     void deleteDrawer(Long drawerId);
 
-    void rename(Long drawerId, String newName);
+    String getDrawerName(Long drawerId);
 }

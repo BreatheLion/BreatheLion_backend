@@ -27,6 +27,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+	implementation 'org.springframework.ai:spring-ai-advisors-vector-store'
+	implementation 'org.springframework.ai:spring-ai-starter-vector-store-chroma'
+	implementation 'org.springframework.ai:spring-ai-pdf-document-reader'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -36,6 +39,9 @@ dependencies {
 	// AWS S3
 	implementation platform("software.amazon.awssdk:bom:2.25.61")
 	implementation 'software.amazon.awssdk:s3'
+
+	// iText PDF
+	implementation 'com.itextpdf:itextpdf:5.5.13.3'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

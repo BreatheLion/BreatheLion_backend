@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -62,24 +61,6 @@ public class S3FileService {
     }
 
 
-    // key 기반 presigned GET URL 발급
-    public String getGetPreSignedUrlByKey(String key, int minutes) {
-        GetObjectRequest objectRequest = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .build();
-
-        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(minutes))
-                .getObjectRequest(objectRequest)
-                .build();
-
-        PresignedGetObjectRequest presignedRequest = s3presigner.presignGetObject(presignRequest);
-        String url = presignedRequest.url().toExternalForm();
-        log.info("[S3FileService] getGetPreSignedUrlByKey: {}", url);
-        return url;
-    }
-
     // S3 key 기반 삭제
     public void deleteByKey(String key) {
         try {
@@ -92,5 +73,16 @@ public class S3FileService {
             log.error("[S3FileService] deleteByKey error: {}", e.getMessage());
             throw new RuntimeException("S3 파일 삭제 실패: " + key, e);
         }
+    }
+
+    public String getGetPreSignedUrlByKey(String s3Key, int minutes) {
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(minutes))
+                .getObjectRequest(b -> b.bucket(bucket).key(s3Key))
+                .build();
+        PresignedGetObjectRequest presignedRequest = s3presigner.presignGetObject(presignRequest);
+        String url = presignedRequest.url().toString();
+        log.info("[S3FileService] getGetPreSignedUrlByKey: {}", url);
+        return url;
     }
 }
