@@ -65,4 +65,53 @@ public class DrawerDTO {
     public static class DrawerListResponseDTO {
         private List<DrawerItemDTO> drawers;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class AIHelpResponseDTO{
+        @JsonProperty("drawer_id")
+        private Long drawerId;
+
+        @JsonProperty("drawer_name")
+        private String drawerName;
+
+        private List<String> categories;
+
+        private List<String> assailant;
+
+        @JsonProperty("record_count")
+        private Integer recordCount;
+
+        private String summary;
+
+        @JsonProperty("actions")
+        private List<String> actions;
+
+        @JsonProperty("related_laws")
+        private List<RelatedLawDTO> relatedLaws;
+
+        private List<OrganizationDTO> organizations;
+    }
+
+    @Getter @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class RelatedLawDTO {
+        private String lawName;
+        private String clause;
+        private String referenceUrl;
+    }
+
+    @Getter @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class OrganizationDTO {
+        private String name;
+        private String description;
+        private String url;
+    }
 }

@@ -1,11 +1,13 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.service;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.converter.DrawerConverter;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,4 +48,14 @@ public class DrawerServiceImpl implements DrawerService {
     public void deleteDrawer(Long drawerId) {
         drawerRepository.deleteById(drawerId);
     }
+
+    @Override
+    @Transactional
+    public AIHelpResponseDTO helpAI(Long drawerId){
+        Drawer drawer = drawerRepository.findById(drawerId)
+                .orElseThrow(() -> new EntityNotFoundException("Drawer not found: " + drawerId));
+
+        return null;
+    }
+
 }

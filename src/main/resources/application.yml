@@ -1,21 +1,49 @@
 spring:
-    config:
-        import: optional:classpath:secrets.properties
-    application:
-        name: BreatheLion_backend
+  docker:
+    compose:
+      enabled: false
 
-    datasource:
-        url: ${DB_URL}
-        username: ${DB_USERNAME}
-        password: ${DB_PASSWORD}
-    jpa:
-        hibernate:
-            ddl-auto: update
-    ai:
-        openai:
-            api-key: ${OPENAI_API_KEY}
+  config:
+    import: optional:classpath:secrets.properties
 
-    cloud:
-        aws:
-            s3:
-                enabled: false
+  application:
+    name: BreatheLion_backend
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-3-small
+    vectorstore:
+      chroma:
+        client:
+          host: http://localhost
+          port: 8000
+        initialize-schema: true
+        collection-name: pdf-collection
+  cloud:
+    aws:
+      s3:
+        bucket: ${BUCKET_NAME}
+      stack:
+        auto: false
+      region:
+        static: ${AWS_REGION}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+
+app:
+  ingest:
+    dir: classpath:/pdfs/*.pdf
