@@ -13,6 +13,8 @@ public interface DrawerService {
 
     void deleteDrawer(Long drawerId);
 
+    String getDrawerName(Long drawerId);
+  
     AIHelpResponseDTO helpAI(Long drawerId);
   
     void rename(Long drawerId, String newName);

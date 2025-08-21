@@ -2,6 +2,7 @@ package YAMSABU.BreatheLion_backend.domain.record.entity;
 
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import YAMSABU.BreatheLion_backend.domain.person.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import jakarta.persistence.CascadeType;
@@ -91,15 +92,16 @@ public class Record {
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecordPerson> recordPersons = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Evidence> evidences = new ArrayList<>();
+
     // 기본값이 DRAFT고 저장완료 후, FINALIZED로 변경하면 됨
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private RecordStatus recordStatus = RecordStatus.DRAFT;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "district")
-    private RecordDistrict district;
 
     public void add(Person person, PersonRole role) {
         RecordPerson rp = RecordPerson.of(this, person, role);

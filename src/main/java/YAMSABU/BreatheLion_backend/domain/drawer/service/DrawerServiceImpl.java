@@ -63,6 +63,14 @@ public class DrawerServiceImpl implements DrawerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public String getDrawerName(Long drawerId) {
+          Drawer drawer = drawerRepository.findById(drawerId)
+            .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
+        return drawer.getName();
+    }
+  
+    @Override
     @Transactional
     public AIHelpResponseDTO helpAI(Long drawerId){
         Drawer drawer = drawerRepository.findById(drawerId)
@@ -99,5 +107,4 @@ public class DrawerServiceImpl implements DrawerService {
         drawer.setName(newName.trim());
         drawerRepository.save(drawer);
     }
-
 }

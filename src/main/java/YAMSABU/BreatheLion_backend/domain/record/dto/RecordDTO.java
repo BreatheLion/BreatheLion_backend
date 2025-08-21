@@ -52,7 +52,6 @@ public class RecordDTO {
 
         private List<EvidenceSaveRequestDTO> evidences;
 
-        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
         @Getter
         @Builder
         @AllArgsConstructor
@@ -69,14 +68,6 @@ public class RecordDTO {
             // 파일 크기(바이트)
             @NotNull
             private Long contentLength;
-        }
-
-        // district 한글로 들어올 경우 Enum 변환
-        public void setDistrictByLabel(String label) {
-            this.district = YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict.fromLabel(label);
-        }
-        public String getDistrictLabel() {
-            return this.district != null ? this.district.getLabel() : null;
         }
     }
 
@@ -103,8 +94,6 @@ public class RecordDTO {
         private LocalDateTime createdAt;
 
         private String summary;
-
-        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
     }
 
     @Getter
@@ -153,7 +142,6 @@ public class RecordDTO {
 
         private List<EvidenceItemDTO> evidences;
 
-        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
         @Getter
         @Builder
         @AllArgsConstructor
@@ -196,8 +184,6 @@ public class RecordDTO {
         private String drawer;
 
         private List<RecordSaveRequestDTO.EvidenceSaveRequestDTO> evidences;
-
-        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
 
     }
 

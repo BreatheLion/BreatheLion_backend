@@ -67,16 +67,6 @@ public class RecordServiceImpl implements RecordService {
             attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
             attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
         }
-        // district 한글 매핑 지원: 프론트에서 한글로 올 경우 변환
-        if(request.getDistrict() != null) {
-            // 한글로 들어온 경우 변환
-            if (request.getDistrict().getLabel() != null && !request.getDistrict().name().equals(request.getDistrict().getLabel())) {
-                var mapped = YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict.fromLabel(request.getDistrict().getLabel());
-                record.setDistrict(mapped != null ? mapped : request.getDistrict());
-            } else {
-                record.setDistrict(request.getDistrict());
-            }
-        }
 
         recordRepository.save(record);
 
@@ -230,6 +220,16 @@ public class RecordServiceImpl implements RecordService {
         recordRepository.save(record);
     }
 
+    @Override
+    public void updateDrawer(Long recordId, Long drawerId) {
+        Record record = mustBeFinalized(recordId);
+        Drawer drawer = drawerRepository.findById(drawerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
+        record.setDrawer(drawer);
+        recordRepository.save(record);
+    }
+
+
     private void attachPeople(Record record, List<String> names, PersonRole role) {
         for (String name : names) {
             Person p = personRepository.findByName(name)
@@ -265,30 +265,8 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
-    public void updateDrawer(Long recordId, Long drawerId, String newName) {
-        Record record = mustBeFinalized(recordId);
-        Drawer drawer;
-
-        if(drawerId != null) {
-            drawer = drawerRepository.findById(drawerId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
-            if(StringUtils.hasText(newName)) {
-                drawerService.rename(drawerId, newName.trim());
-                drawer = drawerRepository.findById(drawerId).orElse(drawer);
-            }
-        }
-        else {
-            if(!StringUtils.hasText(newName)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "drawerId, newName 중에 하나는 필수입니다.");
-            }
-            var created = drawerService.createDrawer(
-                    DrawerCreateRequestDTO.builder()
-                            .drawerName(newName.trim()).build());
-            drawer = drawerRepository.findById(created.getDrawerId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "서랍 생성 후 조회 실패"));
-
-        }
-        record.setDrawer(drawer);
-        recordRepository.save(record);
+    public Record getRecordEntity(Long recordId) {
+        return recordRepository.findById(recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기록을 찾을 수 없습니다."));
     }
 }
