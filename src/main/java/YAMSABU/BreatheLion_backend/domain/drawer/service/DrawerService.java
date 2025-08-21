@@ -3,6 +3,7 @@ package YAMSABU.BreatheLion_backend.domain.drawer.service;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 
 
 public interface DrawerService {
@@ -12,5 +13,7 @@ public interface DrawerService {
 
     void deleteDrawer(Long drawerId);
 
+    AIHelpResponseDTO helpAI(Long drawerId);
+  
     void rename(Long drawerId, String newName);
 }

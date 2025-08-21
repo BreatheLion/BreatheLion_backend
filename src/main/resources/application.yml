@@ -1,6 +1,10 @@
 spring:
+  docker:
+    compose:
+      enabled: false
   config:
     import: optional:classpath:secrets.properties
+
   application:
     name: BreatheLion_backend
 
@@ -12,10 +16,21 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    open-in-view: false
 
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-3-small
+    vectorstore:
+      chroma:
+        client:
+          host: http://localhost
+          port: 8000
+        initialize-schema: true
+        collection-name: pdf-collection
 
   cloud:
     aws:
@@ -28,3 +43,7 @@ spring:
       credentials:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
+
+app:
+  ingest:
+    dir: classpath:/pdfs/*.pdf

@@ -3,11 +3,13 @@ package YAMSABU.BreatheLion_backend.domain.drawer.controller;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO;
+import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +39,9 @@ public class DrawerController {
     public ApiResponse<Void> deleteDrawer(@PathVariable("drawer_id") Long drawerId) {
         drawerService.deleteDrawer(drawerId);
         return ApiResponse.onSuccess("서랍 삭제 성공");
+    }
+    @GetMapping("/{drawer_id}/helpai/")
+    public ApiResponse<AIHelpResponseDTO> helpAI(@PathVariable("drawer_id")Long drawerId){
+        return ApiResponse.onSuccess("AI 도움 조회 성공", drawerService.helpAI(drawerId));
     }
 }

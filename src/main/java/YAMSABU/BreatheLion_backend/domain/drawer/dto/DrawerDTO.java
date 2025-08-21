@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.dto;
 
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -57,12 +58,48 @@ public class DrawerDTO {
 
     }
 
-
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class DrawerListResponseDTO {
         private List<DrawerItemDTO> drawers;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class AIHelpResponseDTO{
+
+        @JsonProperty("drawer_name")
+        private String drawerName;
+
+        private List<String> assailant;
+
+        @JsonProperty("record_count")
+        private Long recordCount;
+
+        private String summary;
+
+        @JsonProperty("care_guide")
+        private String careGuide;
+
+        @JsonProperty("related_laws")
+        private LawListDTO relatedLaws;
+
+        private List<OrganizationDTO> organizations;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class OrganizationDTO {
+        private String name;
+        private String description;
+        private String phone;
+        private String url;
     }
 }

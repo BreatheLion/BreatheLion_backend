@@ -1,12 +1,17 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.converter;
 
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerItemDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DrawerConverter {
@@ -41,4 +46,9 @@ public class DrawerConverter {
                 .drawers(drawerDTOs)
                 .build();
     }
+
+    public static AIHelpResponseDTO drawersToAiDTO(Drawer drawer, List<String> assailants, SOA_DTO soaDto,LawListDTO laws) {
+        return null;
+    }
+
 }
