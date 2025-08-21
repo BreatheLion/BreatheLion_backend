@@ -1,4 +1,4 @@
-package YAMSABU.BreatheLion_backend.domain.person.dto;
+package YAMSABU.BreatheLion_backend.domain.evidence.dto;
 
 import lombok.Getter;
 

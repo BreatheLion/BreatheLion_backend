@@ -3,10 +3,10 @@ package YAMSABU.BreatheLion_backend.domain.record.service;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
-import YAMSABU.BreatheLion_backend.domain.person.entity.Evidence;
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import YAMSABU.BreatheLion_backend.domain.person.repository.EvidenceRepository;
+import YAMSABU.BreatheLion_backend.domain.evidence.repository.EvidenceRepository;
 import YAMSABU.BreatheLion_backend.domain.person.repository.PersonRepository;
 import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -14,10 +14,7 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
-import jakarta.persistence.OneToMany;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,9 +104,7 @@ public class RecordServiceImpl implements RecordService {
                 evidenceRepository.save(evidence);
             }
         }
-
         return record.getId();
-
     }
 
     @Override
