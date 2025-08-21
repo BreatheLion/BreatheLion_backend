@@ -2,7 +2,7 @@ package YAMSABU.BreatheLion_backend.domain.record.entity;
 
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
-import YAMSABU.BreatheLion_backend.domain.person.entity.Evidence;
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import jakarta.persistence.CascadeType;

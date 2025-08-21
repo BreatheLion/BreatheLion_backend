@@ -40,28 +40,30 @@ public class DrawerController {
     private final RecordRepository recordRepository;
 
     @PostMapping("/create/")
-    public ApiResponse<DrawerResponseDTO> createDrawer(@Valid @RequestBody DrawerCreateRequestDTO drawerCreateRequest){
+    public ApiResponse<DrawerResponseDTO> createDrawer(@Valid @RequestBody DrawerCreateRequestDTO drawerCreateRequest) {
         return ApiResponse.onSuccess("서랍 생성 성공", drawerService.createDrawer(drawerCreateRequest));
     }
 
     @GetMapping("/list/")
-    public ApiResponse<DrawerListResponseDTO> getDrawerList(){
+    public ApiResponse<DrawerListResponseDTO> getDrawerList() {
         return ApiResponse.onSuccess("서랍 목록 조회 성공", drawerService.getDrawerList());
     }
+
     @DeleteMapping("/{drawer_id}/delete/")
     public ApiResponse<Void> deleteDrawer(@PathVariable("drawer_id") Long drawerId) {
         drawerService.deleteDrawer(drawerId);
         return ApiResponse.onSuccess("서랍 삭제 성공");
     }
+
     // 전체 PDF 다운로드 (GET)
     @GetMapping("/{drawer_id}/pdf")
     public ResponseEntity<byte[]> downloadAllPdf(@PathVariable("drawer_id") Long drawerId) {
         // 해당 서랍의 FINALIZED 기록 모두 조회 (오래된 순)
         List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
-            .stream()
-            .filter(r -> r.getDrawer() != null && r.getDrawer().getId().equals(drawerId))
-            .sorted(Comparator.comparing(Record::getOccurredAt))
-            .toList();
+                .stream()
+                .filter(r -> r.getDrawer() != null && r.getDrawer().getId().equals(drawerId))
+                .sorted(Comparator.comparing(Record::getOccurredAt))
+                .toList();
         String drawerName = drawerService.getDrawerName(drawerId);
         byte[] pdfBytes = pdfExportService.exportAllPdf(records, drawerName);
         HttpHeaders headers = new HttpHeaders();
@@ -73,8 +75,8 @@ public class DrawerController {
     // 서랍장 내부 레코드별 PDF 다운로드 (상담용)
     @GetMapping("/{drawer_id}/records/{record_id}/pdf")
     public ResponseEntity<byte[]> downloadDrawerRecordConsultPdf(@PathVariable("drawer_id") Long drawerId,
-                                                                @PathVariable("record_id") Long recordId,
-                                                                @Param("type") String type) {
+                                                                 @PathVariable("record_id") Long recordId,
+                                                                 @Param("type") String type) {
         if (!"consult".equals(type)) {
             return ResponseEntity.badRequest().body(null);
         }
@@ -92,9 +94,9 @@ public class DrawerController {
     // 서랍장 내부 레코드별 PDF 다운로드 (내용증명용)
     @PostMapping("/{drawer_id}/records/{record_id}/pdf")
     public ResponseEntity<byte[]> downloadDrawerRecordNoticePdf(@PathVariable("drawer_id") Long drawerId,
-                                                               @PathVariable("record_id") Long recordId,
-                                                               @Param("type") String type,
-                                                               @RequestBody PdfNoticeRequestDTO dto) {
+                                                                @PathVariable("record_id") Long recordId,
+                                                                @Param("type") String type,
+                                                                @RequestBody PdfNoticeRequestDTO dto) {
         if (!"notice".equals(type)) {
             return ResponseEntity.badRequest().body(null);
         }
@@ -107,9 +109,9 @@ public class DrawerController {
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "notice.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
-      
+    }
     @GetMapping("/{drawer_id}/helpai/")
-    public ApiResponse<AIHelpResponseDTO> helpAI(@PathVariable("drawer_id")Long drawerId){
+    public ApiResponse<AIHelpResponseDTO> helpAI(@PathVariable("drawer_id") Long drawerId){
         return ApiResponse.onSuccess("AI 도움 조회 성공", drawerService.helpAI(drawerId));
     }
 }

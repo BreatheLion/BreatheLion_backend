@@ -6,8 +6,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordCategory;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import YAMSABU.BreatheLion_backend.domain.person.entity.Evidence;
-import YAMSABU.BreatheLion_backend.domain.person.entity.EvidenceType;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
