@@ -2,7 +2,6 @@ spring:
   docker:
     compose:
       enabled: false
-
   config:
     import: optional:classpath:secrets.properties
 
@@ -32,6 +31,7 @@ spring:
           port: 8000
         initialize-schema: true
         collection-name: pdf-collection
+
   cloud:
     aws:
       s3:

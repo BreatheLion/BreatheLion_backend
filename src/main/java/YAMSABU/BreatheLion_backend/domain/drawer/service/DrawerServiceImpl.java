@@ -89,4 +89,15 @@ public class DrawerServiceImpl implements DrawerService {
 
         return DrawerConverter.drawersToAiDTO(drawer,assailants,soaDto,laws);
     }
+
+    public void rename(Long drawerId, String newName) {
+        if(newName == null || newName.isBlank()) {
+                throw new IllegalArgumentException("서랍 이름의 형식이 올바르지 않습니다.");
+        }
+        Drawer drawer = drawerRepository.findById(drawerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
+    drawer.setName(newName.trim());
+    drawerRepository.save(drawer);
+    }
+
 }

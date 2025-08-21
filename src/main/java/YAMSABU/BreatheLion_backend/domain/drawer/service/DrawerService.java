@@ -14,5 +14,6 @@ public interface DrawerService {
     void deleteDrawer(Long drawerId);
 
     AIHelpResponseDTO helpAI(Long drawerId);
-
+  
+    void rename(Long drawerId, String newName);
 }

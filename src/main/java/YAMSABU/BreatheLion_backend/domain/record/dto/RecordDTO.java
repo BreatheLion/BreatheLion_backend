@@ -53,6 +53,8 @@ public class RecordDTO {
         private String drawer;
 
         private List<EvidenceSaveRequestDTO> evidences;
+
+        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
         @Getter
         @Builder
         @AllArgsConstructor
@@ -66,22 +68,20 @@ public class RecordDTO {
             // Presigned URL이 아니라 S3Key만 저장
             @NotBlank
             private String s3Key;
+            // 파일 크기(바이트)
+            @NotNull
+            private Long contentLength;
+        }
+
+        // district 한글로 들어올 경우 Enum 변환
+        public void setDistrictByLabel(String label) {
+            this.district = YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict.fromLabel(label);
+        }
+        public String getDistrictLabel() {
+            return this.district != null ? this.district.getLabel() : null;
         }
     }
 
-//    controller에서 받는 방식으로 변경
-//    // 2. 저장 응답
-//    @Getter
-//    @Builder
-//    @AllArgsConstructor
-//    @NoArgsConstructor
-//    // 자바 카멜케이스 코드를 JSON일때 스네이크케이스로 자동변환해주는 역할
-//    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-//    public static class RecordSaveResponseDTO {
-//
-//        // 서랍에 기록이 만들어졌어요.
-//        private String message;
-//    }
 
     // 3. 최근 기록 확인(조회)
     @Getter
@@ -106,6 +106,8 @@ public class RecordDTO {
         private LocalDateTime createdAt;
 
         private String summary;
+
+        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
     }
 
     @Getter
@@ -156,6 +158,7 @@ public class RecordDTO {
 
         private List<EvidenceItemDTO> evidences;
 
+        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
         @Getter
         @Builder
         @AllArgsConstructor
@@ -200,6 +203,14 @@ public class RecordDTO {
         private String drawer;
 
         private List<RecordSaveRequestDTO.EvidenceSaveRequestDTO> evidences;
+
+        private YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district;
+        public YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict getDistrict() {
+            return this.district;
+        }
+        public void setDistrict(YAMSABU.BreatheLion_backend.domain.record.entity.RecordDistrict district) {
+            this.district = district;
+        }
     }
 
 }
