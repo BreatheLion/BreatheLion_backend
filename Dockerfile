@@ -1,35 +1,43 @@
-FROM openjdk:17-jdk-slim as builder
-
+# Build stage
+FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-# Gradle wrapper와 build 파일들 먼저 복사 (캐시 활용)
-COPY gradlew .
+# Copy gradle files first for dependency caching
+COPY build.gradle settings.gradle ./
 COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
 
-# 실행 권한 부여
-RUN chmod +x ./gradlew
+# Download dependencies (캐시)
+RUN gradle dependencies --no-daemon || true
 
-# 의존성 다운로드 (캐시 활용)
-RUN ./gradlew dependencies --no-daemon
-
-# 소스 코드 복사
+# Copy source code
 COPY src src
 
-# 빌드 실행
-RUN ./gradlew bootJar --no-daemon
+# Build application
+RUN gradle bootJar --no-daemon
 
-# 런타임 이미지
-FROM openjdk:17-jre-slim
-
+# Runtime stage
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# 빌드된 JAR 파일 복사
-COPY --from=builder /app/build/libs/*.jar app.jar
+# Create non-root user for security
+RUN addgroup --system --gid 1001 spring && \
+    adduser --system --uid 1001 --gid 1001 spring
 
-# 포트 노출
+# Copy built jar from build stage
+COPY --from=build /app/build/libs/*.jar app.jar
+
+# Change ownership to spring user
+RUN chown spring:spring app.jar
+
+# Switch to non-root user
+USER spring
+
+# Expose port
 EXPOSE 8080
 
-# 애플리케이션 실행
+# Health check (Spring Actuator 사용 시)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+
+# Run application
 ENTRYPOINT ["java", "-jar", "app.jar"]
