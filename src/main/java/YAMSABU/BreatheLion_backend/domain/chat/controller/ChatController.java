@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
     private final ChatService chatService;
+
     @PostMapping("/start")
     public ApiResponse<ChatStartResponseDTO> startChat(@Valid @RequestBody ChatStartRequestDTO chatStartRequestDTO){
         return ApiResponse.onSuccess("채팅성공", chatService.startChatting(chatStartRequestDTO));

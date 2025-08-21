@@ -1,4 +1,4 @@
-package YAMSABU.BreatheLion_backend.domain.organization;
+package YAMSABU.BreatheLion_backend.domain.organization.entity;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import jakarta.persistence.Entity;

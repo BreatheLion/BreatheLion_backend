@@ -3,7 +3,10 @@ package YAMSABU.BreatheLion_backend.domain.drawer.controller;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO;
+import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
@@ -16,6 +19,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,7 +53,6 @@ public class DrawerController {
         drawerService.deleteDrawer(drawerId);
         return ApiResponse.onSuccess("서랍 삭제 성공");
     }
-
     // 전체 PDF 다운로드 (GET)
     @GetMapping("/{drawer_id}/pdf")
     public ResponseEntity<byte[]> downloadAllPdf(@PathVariable("drawer_id") Long drawerId) {
@@ -104,5 +107,9 @@ public class DrawerController {
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "notice.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
+      
+    @GetMapping("/{drawer_id}/helpai/")
+    public ApiResponse<AIHelpResponseDTO> helpAI(@PathVariable("drawer_id")Long drawerId){
+        return ApiResponse.onSuccess("AI 도움 조회 성공", drawerService.helpAI(drawerId));
     }
 }

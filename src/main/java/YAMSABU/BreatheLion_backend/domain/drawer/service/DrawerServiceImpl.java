@@ -1,22 +1,37 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.service;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.converter.DrawerConverter;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
+import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
+import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
+import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
+import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
+import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
+import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DrawerServiceImpl implements DrawerService {
 
     private final DrawerRepository drawerRepository;
+    private final RecordRepository recordRepository;
+    private final AIService aiService;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     @Transactional
@@ -50,10 +65,46 @@ public class DrawerServiceImpl implements DrawerService {
     @Override
     @Transactional(readOnly = true)
     public String getDrawerName(Long drawerId) {
-        Drawer drawer = drawerRepository.findById(drawerId)
+          Drawer drawer = drawerRepository.findById(drawerId)
             .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
         return drawer.getName();
     }
+  
+    @Override
+    @Transactional
+    public AIHelpResponseDTO helpAI(Long drawerId){
+        Drawer drawer = drawerRepository.findById(drawerId)
+                .orElseThrow(() -> new EntityNotFoundException("Drawer not found: " + drawerId));
 
+        List<Record> records = recordRepository.findByDrawer(drawer);
 
+        String mergedSummaries = records.stream()
+                .map(Record::getSummary) // 각 Record에서 summary를 추출
+                .collect(Collectors.joining("\n")); // 줄바꿈으로 연결
+
+        // 가해자들
+        List<String> assailants = records.stream()
+                .flatMap(r -> r.getRecordPersons().stream())
+                .filter(rp -> rp.getRole() == PersonRole.ASSAILANT)
+                .map(rp -> rp.getPerson().getName())
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+
+        SOA_DTO soaDto = aiService.helpAnswer(mergedSummaries);
+        LawListDTO laws = aiService.lawSearch(mergedSummaries);
+
+        return DrawerConverter.drawersToAiDTO(drawer,assailants,soaDto,laws);
+    }
+
+    public void rename(Long drawerId, String newName) {
+        if(newName == null || newName.isBlank()) {
+                throw new IllegalArgumentException("서랍 이름의 형식이 올바르지 않습니다.");
+        }
+        Drawer drawer = drawerRepository.findById(drawerId)
+            .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
+        drawer.setName(newName.trim());
+        drawerRepository.save(drawer);
+    }
 }

@@ -1,6 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.entity;
 
-import YAMSABU.BreatheLion_backend.domain.organization.DrawerOrganization;
+import YAMSABU.BreatheLion_backend.domain.organization.entity.DrawerOrganization;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -41,8 +41,7 @@ public class Drawer {
 
     private String summary;
 
-    @ElementCollection
-    private List<String> action;
+    private String action;
 
     private String related_laws;
 

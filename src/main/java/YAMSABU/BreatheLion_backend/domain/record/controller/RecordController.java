@@ -1,6 +1,5 @@
 package YAMSABU.BreatheLion_backend.domain.record.controller;
 
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
 import YAMSABU.BreatheLion_backend.domain.record.service.RecordService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
