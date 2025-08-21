@@ -63,6 +63,14 @@ public class DrawerServiceImpl implements DrawerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public String getDrawerName(Long drawerId) {
+          Drawer drawer = drawerRepository.findById(drawerId)
+            .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
+        return drawer.getName();
+    }
+  
+    @Override
     @Transactional
     public AIHelpResponseDTO helpAI(Long drawerId){
         Drawer drawer = drawerRepository.findById(drawerId)
@@ -95,9 +103,8 @@ public class DrawerServiceImpl implements DrawerService {
                 throw new IllegalArgumentException("서랍 이름의 형식이 올바르지 않습니다.");
         }
         Drawer drawer = drawerRepository.findById(drawerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
-    drawer.setName(newName.trim());
-    drawerRepository.save(drawer);
+            .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
+        drawer.setName(newName.trim());
+        drawerRepository.save(drawer);
     }
-
 }
