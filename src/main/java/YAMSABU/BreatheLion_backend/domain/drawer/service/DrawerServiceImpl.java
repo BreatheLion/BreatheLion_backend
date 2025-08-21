@@ -96,8 +96,8 @@ public class DrawerServiceImpl implements DrawerService {
         }
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
-    drawer.setName(newName.trim());
-    drawerRepository.save(drawer);
+        drawer.setName(newName.trim());
+        drawerRepository.save(drawer);
     }
 
 }
