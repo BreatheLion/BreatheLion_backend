@@ -44,16 +44,4 @@ public class DrawerController {
     public ApiResponse<AIHelpResponseDTO> helpAI(@PathVariable("drawer_id")Long drawerId){
         return ApiResponse.onSuccess("AI 도움 조회 성공", drawerService.helpAI(drawerId));
     }
-
-    private final AIService aiService;
-    @GetMapping("/ai")
-    public ApiResponse<AIAnswerDTO.LawListDTO> getAIList(){
-        return ApiResponse.onSuccess("잘되나",aiService.lawSearch(List.of(
-                "온라인 쇼핑몰을 운영하던 판매자가 선입금을 받은 뒤 물건을 보내지 않고 잠적했습니다.",
-                "회식 자리에서 상사가 부하 직원에게 폭행을 가해 상해 사건으로 이어졌습니다.",
-                "아파트 주차장에서 차량을 절도당한 후 며칠 뒤 다른 지역에서 발견되었습니다.",
-                "지인의 명의를 도용해 불법 대출을 받은 사실이 드러났습니다.",
-                "편의점 야간 근무 중 괴한이 흉기를 들이밀고 현금을 강탈해 달아났습니다."
-        )));
-    }
 }

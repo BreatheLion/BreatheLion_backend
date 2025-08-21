@@ -1,4 +1,4 @@
-package YAMSABU.BreatheLion_backend.domain.organization;
+package YAMSABU.BreatheLion_backend.domain.organization.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -34,10 +34,6 @@ public class Organization {
     private String name;
 
     private String phone;
-
-    private String email;
-
-    private String address;
 
     private String url;
 

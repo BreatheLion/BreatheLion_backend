@@ -9,8 +9,8 @@ public interface AIService {
     String ChatAnswer(String text);
 
     // 서랍 요약 기능 + 기관 선택 기능 + 행동 추천 기능
-    SOA_DTO helpAnswer(String text);
+    SOA_DTO helpAnswer(String summaries);
 
     // 관련 법률
-    LawListDTO lawSearch(List<String> summaries);
+    LawListDTO lawSearch(String summaries);
 }

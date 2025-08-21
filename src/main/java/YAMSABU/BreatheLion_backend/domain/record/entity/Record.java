@@ -76,10 +76,6 @@ public class Record {
     @Column(name ="updated_at")
     private LocalDateTime updatedAt;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column
-//    private RecordCategory category;
-
     @Builder.Default
     @ElementCollection(targetClass = RecordCategory.class)
     @Enumerated(EnumType.STRING)

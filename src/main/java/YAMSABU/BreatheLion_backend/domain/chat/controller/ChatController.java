@@ -22,5 +22,4 @@ public class ChatController {
     public ApiResponse<ChatStartResponseDTO> startChat(@Valid @RequestBody ChatStartRequestDTO chatStartRequestDTO){
         return ApiResponse.onSuccess("채팅성공", chatService.startChatting(chatStartRequestDTO));
     }
-
 }

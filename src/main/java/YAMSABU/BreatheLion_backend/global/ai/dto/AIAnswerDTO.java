@@ -22,11 +22,11 @@ public class AIAnswerDTO {
         @JsonProperty("summary")
         private String summary;
 
-        @JsonProperty("recommended_actions")
-        private List<String> recommendedActions; // 최대 3개
+        @JsonProperty("organization_id")
+        private List<Long> organizationID; // 최대 2개
 
-        @JsonProperty("organizations")
-        private List<Long> organizations;
+        @JsonProperty("care_guide")
+        private String care_guide;
     }
 
     @Getter

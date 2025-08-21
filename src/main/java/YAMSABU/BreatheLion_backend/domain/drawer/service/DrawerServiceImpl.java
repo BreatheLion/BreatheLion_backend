@@ -7,18 +7,31 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateReque
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
+import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
+import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
+import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
+import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
+import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
+import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DrawerServiceImpl implements DrawerService {
 
     private final DrawerRepository drawerRepository;
+    private final RecordRepository recordRepository;
+    private final AIService aiService;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     @Transactional
@@ -55,7 +68,25 @@ public class DrawerServiceImpl implements DrawerService {
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new EntityNotFoundException("Drawer not found: " + drawerId));
 
-        return null;
-    }
+        List<Record> records = recordRepository.findByDrawer(drawer);
 
+        String mergedSummaries = records.stream()
+                .map(Record::getSummary) // 각 Record에서 summary를 추출
+                .collect(Collectors.joining("\n")); // 줄바꿈으로 연결
+
+        // 가해자들
+        List<String> assailants = records.stream()
+                .flatMap(r -> r.getRecordPersons().stream())
+                .filter(rp -> rp.getRole() == PersonRole.ASSAILANT)
+                .map(rp -> rp.getPerson().getName())
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+
+        SOA_DTO soaDto = aiService.helpAnswer(mergedSummaries);
+        LawListDTO laws = aiService.lawSearch(mergedSummaries);
+
+        return DrawerConverter.drawersToAiDTO(drawer,assailants,soaDto,laws);
+    }
 }

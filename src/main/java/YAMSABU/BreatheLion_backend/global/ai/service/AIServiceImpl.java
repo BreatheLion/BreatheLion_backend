@@ -1,5 +1,7 @@
 package YAMSABU.BreatheLion_backend.global.ai.service;
 
+import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
+import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
@@ -25,8 +27,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forANSWER;
+import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forHELP;
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forLAWS;
 
 @Service
@@ -35,6 +40,7 @@ public class AIServiceImpl implements AIService{
 
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     @Transactional
@@ -53,14 +59,39 @@ public class AIServiceImpl implements AIService{
     }
     @Override
     @Transactional
-    public SOA_DTO helpAnswer(String answer){
+    public SOA_DTO helpAnswer(String summaries){
+
+        List<Organization> organizations = organizationRepository.findAll();
+
+        // 각 기관 이름에 번호를 붙이고
+        String organString = organizations.stream()
+                .map(org -> org.getId() + ". " + org.getName())
+                .collect(Collectors.joining("\n"));
+
+        var outputConverter = new BeanOutputConverter<>(SOA_DTO.class);
+        var jsonSchema = outputConverter.getJsonSchema();
+
+        OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
+                .model("gpt-4.1-nano")
+                .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
+                .build();
+
+        String response = chatClient
+                .prompt()
+                .user(userSpec -> userSpec
+                        .text(forHELP)
+                        .param("summaries", summaries)
+                        .param("organizations", organString))
+                .options(openAiChatOptions)
+                .call()
+                .content();
+
         return null;
     }
 
     @Override
     @Transactional
-    public LawListDTO lawSearch(List<String> summaries) {
-        String merged = String.join("\n", summaries);
+    public LawListDTO lawSearch(String summaries) {
 
         Advisor retrievalAugmentationAdvisor = RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(VectorStoreDocumentRetriever.builder()
@@ -71,7 +102,6 @@ public class AIServiceImpl implements AIService{
                         .allowEmptyContext(true)
                         .build())
                 .build();
-
 
         // JSON → DTO 변환기 준비
         var outputConverter = new BeanOutputConverter<>(LawListDTO.class);
@@ -88,7 +118,7 @@ public class AIServiceImpl implements AIService{
                 .prompt()
                 .user(userSpec -> userSpec
                         .text(forLAWS)
-                        .param("summaries", merged))
+                        .param("summaries", summaries))
                 .advisors(retrievalAugmentationAdvisor)
                 .options(openAiChatOptions)
                 .call()
