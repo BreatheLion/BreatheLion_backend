@@ -98,6 +98,10 @@ public class Record {
     @Builder.Default
     private RecordStatus recordStatus = RecordStatus.DRAFT;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "district")
+    private RecordDistrict district;
+
     public void add(Person person, PersonRole role) {
         RecordPerson rp = RecordPerson.of(this, person, role);
         this.recordPersons.add(rp);
