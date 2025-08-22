@@ -1,9 +1,11 @@
 package YAMSABU.BreatheLion_backend.global.ai.service;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import YAMSABU.BreatheLion_backend.domain.drawer.entity.Law;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.ChatSummaryDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
@@ -125,7 +127,21 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .entity(LawListDTO.class);
 
+        for (LawDTO dto : lawListDTO.getLaws()) {
+            if (dto == null) continue;
+            String lawName = dto.getLawName();
+            String article = dto.getArticle();
+            String content = dto.getContent();
 
+            Law law = Law.builder()
+                    .lawName(lawName)
+                    .article(article)
+                    .content(content)
+                    .drawer(drawer)
+                    .build();
+
+            drawer.addLaw(law);
+        }
     }
 
     @Override

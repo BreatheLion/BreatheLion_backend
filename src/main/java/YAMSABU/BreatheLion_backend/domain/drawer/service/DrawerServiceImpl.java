@@ -91,8 +91,6 @@ public class DrawerServiceImpl implements DrawerService {
                 .sorted()
                 .toList();
 
-        SOA_DTO soaDto = aiService.helpAnswer(mergedSummaries);
-        LawListDTO laws = aiService.lawSearch(mergedSummaries);
 
         return DrawerConverter.drawersToAiDTO(drawer,assailants,soaDto,laws);
     }

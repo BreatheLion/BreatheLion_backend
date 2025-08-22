@@ -167,9 +167,8 @@ public class RecordServiceImpl implements RecordService {
             }
         }
 
-        record.setSummary(aiService.recordSummary(record));
-        record.setRecordStatus(RecordStatus.FINALIZED);
         recordRepository.save(record);
+        aiService.lawSearch(record.getDrawer(),);
     }
 
     @Transactional(readOnly = true)

@@ -58,4 +58,9 @@ public class Drawer {
     @Builder.Default
     @OneToMany(mappedBy = "drawer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DrawerOrganization> drawerOrganizations = new ArrayList<>();
+
+    public void addLaw(Law law) {
+        this.relatedLaws.add(law);
+        law.setDrawer(this);
+    }
 }
