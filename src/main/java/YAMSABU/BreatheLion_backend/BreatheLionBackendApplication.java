@@ -10,5 +10,4 @@ public class BreatheLionBackendApplication {
     public static void main(String[] args) {
 		SpringApplication.run(BreatheLionBackendApplication.class, args);
 	}
-
 }
