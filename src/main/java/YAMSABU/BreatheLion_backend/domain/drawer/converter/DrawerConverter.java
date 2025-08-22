@@ -4,12 +4,19 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerItemDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.OrganizationDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import YAMSABU.BreatheLion_backend.domain.drawer.entity.Law;
+import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO;
+import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DrawerConverter {
@@ -45,8 +52,38 @@ public class DrawerConverter {
                 .build();
     }
 
-    public static AIHelpResponseDTO drawersToAiDTO(Drawer drawer, List<String> assailants, SOA_DTO soaDto,LawListDTO laws) {
-        return null;
-    }
+    public static AIHelpResponseDTO drawersToAiDTO(Drawer drawer, List<String> assailants) {
+        List<LawDTO> lawDTOs = (drawer.getRelatedLaws() == null ? List.<Law>of() : drawer.getRelatedLaws())
+                .stream()
+                .map(law -> LawDTO.builder()
+                        .lawName(law.getLawName())
+                        .article(law.getArticle())
+                        .content(law.getContent())
+                        .build())
+                .toList();
 
+        LawListDTO lawListDTO = LawListDTO.builder()
+                .laws(lawDTOs)
+                .build();
+
+        List<OrganizationDTO> orgDTOs = (drawer.getOrganizations() == null ? Set.<Organization>of() : drawer.getOrganizations())
+                .stream()
+                .map(org -> OrganizationDTO.builder()
+                        .name(org.getName())
+                        .phone(org.getPhone())
+                        .url(org.getUrl())
+                        .description(org.getDescription())
+                        .build())
+                .toList();
+
+        return AIHelpResponseDTO.builder()
+                .drawerName(drawer.getName())
+                .assailant(assailants == null ? List.of() : assailants)   // 그대로 사용
+                .recordCount(drawer.getRecordCount() == null ? 0L : drawer.getRecordCount())
+                .summary(drawer.getSummary())
+                .careGuide(drawer.getAction())
+                .relatedLaws(lawListDTO)
+                .organizations(orgDTOs)
+                .build();
+    }
 }

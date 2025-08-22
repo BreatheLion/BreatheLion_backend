@@ -76,7 +76,7 @@ public class AIServiceImpl implements AIService{
                 .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
                 .build();
 
-        String response = chatClient
+        SOA_DTO response = chatClient
                 .prompt()
                 .user(userSpec -> userSpec
                         .text(forHELP)
@@ -84,12 +84,17 @@ public class AIServiceImpl implements AIService{
                         .param("organizations", organString))
                 .options(openAiChatOptions)
                 .call()
-                .content();
+                .entity(SOA_DTO.class);
 
-        if (response == null) {
-            throw new RuntimeException("LLM 응답이 비어 있습니다.");
+        drawer.setSummary(response.getSummary());
+        drawer.setAction(response.getCare_guide());
+
+        if (response.getOrganizationID() != null && !response.getOrganizationID().isEmpty()) {
+            List<Organization> selected = organizationRepository.findAllById(response.getOrganizationID());
+            for (Organization org : selected) {
+                if (org != null) drawer.addOrganization(org); // Set이라 중복 자동 방지
+            }
         }
-        return outputConverter.convert(response);
     }
 
     @Override

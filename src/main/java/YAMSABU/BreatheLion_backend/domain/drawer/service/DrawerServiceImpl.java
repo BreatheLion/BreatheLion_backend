@@ -87,12 +87,13 @@ public class DrawerServiceImpl implements DrawerService {
                 .filter(rp -> rp.getRole() == PersonRole.ASSAILANT)
                 .map(rp -> rp.getPerson().getName())
                 .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
                 .distinct()
-                .sorted()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
                 .toList();
 
-
-        return DrawerConverter.drawersToAiDTO(drawer,assailants,soaDto,laws);
+        return DrawerConverter.drawersToAiDTO(drawer,assailants);
     }
 
     public void rename(Long drawerId, String newName) {
