@@ -16,6 +16,7 @@ import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 
@@ -55,6 +58,16 @@ public class DrawerController {
         return ApiResponse.onSuccess("서랍 삭제 성공");
     }
 
+    private HttpHeaders pdfHeaders(String filename) {
+        ContentDisposition cd = ContentDisposition.attachment()
+                .filename(filename, StandardCharsets.UTF_8)
+                .build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(cd);
+        return headers;
+    }
+
     // 전체 PDF 다운로드 (GET)
     @GetMapping("/{drawer_id}/pdf")
     public ResponseEntity<byte[]> downloadAllPdf(@PathVariable("drawer_id") Long drawerId) {
@@ -66,9 +79,7 @@ public class DrawerController {
                 .toList();
         String drawerName = drawerService.getDrawerName(drawerId);
         byte[] pdfBytes = pdfExportService.exportAllPdf(records, drawerName);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "timeline.pdf");
+        HttpHeaders headers = pdfHeaders("timeline.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
@@ -76,7 +87,7 @@ public class DrawerController {
     @GetMapping("/{drawer_id}/records/{record_id}/pdf")
     public ResponseEntity<byte[]> downloadDrawerRecordConsultPdf(@PathVariable("drawer_id") Long drawerId,
                                                                  @PathVariable("record_id") Long recordId,
-                                                                 @Param("type") String type) {
+                                                                 @RequestParam("type") String type) {
         if (!"consult".equals(type)) {
             return ResponseEntity.badRequest().body(null);
         }
@@ -85,9 +96,7 @@ public class DrawerController {
             return ResponseEntity.notFound().build();
         }
         byte[] pdfBytes = pdfExportService.exportConsultPdf(List.of(record));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "consult.pdf");
+        HttpHeaders headers = pdfHeaders("consult.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
@@ -95,7 +104,7 @@ public class DrawerController {
     @PostMapping("/{drawer_id}/records/{record_id}/pdf")
     public ResponseEntity<byte[]> downloadDrawerRecordNoticePdf(@PathVariable("drawer_id") Long drawerId,
                                                                 @PathVariable("record_id") Long recordId,
-                                                                @Param("type") String type,
+                                                                @RequestParam("type") String type,
                                                                 @RequestBody PdfNoticeRequestDTO dto) {
         if (!"notice".equals(type)) {
             return ResponseEntity.badRequest().body(null);
@@ -105,11 +114,10 @@ public class DrawerController {
             return ResponseEntity.notFound().build();
         }
         byte[] pdfBytes = pdfExportService.exportNoticePdf(List.of(record), dto);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "notice.pdf");
+        HttpHeaders headers = pdfHeaders("notice.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
+
     @GetMapping("/{drawer_id}/helpai/")
     public ApiResponse<AIHelpResponseDTO> helpAI(@PathVariable("drawer_id") Long drawerId){
         return ApiResponse.onSuccess("AI 도움 조회 성공", drawerService.helpAI(drawerId));
