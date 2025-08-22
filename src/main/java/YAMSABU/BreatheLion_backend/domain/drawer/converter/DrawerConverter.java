@@ -9,9 +9,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class DrawerConverter {
+    // 년. 월. 일. (시 : 분)
     public static DrawerResponseDTO drawerToResponse(Drawer drawer){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd (HH : mm)");
 
         return DrawerResponseDTO.builder()
                 .drawerId(drawer.getId())
@@ -19,9 +21,9 @@ public class DrawerConverter {
                 .createdAt(drawer.getCreatedAt().format(formatter))
                 .build();
     }
-
+    // 년. 월. 일. (시 : 분)
     public static DrawerItemDTO toItemDTO(Drawer drawer) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd (HH : mm)");
 
         return DrawerItemDTO.builder()
                 .drawerId(drawer.getId())
