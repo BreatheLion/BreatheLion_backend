@@ -1,6 +1,10 @@
 ### Spring Boot / Application Config ###
 src/main/resources/secrets.properties
 
+# runtime data
+mysql-data/
+chroma-data/
+
 ### Logs ###
 logs/
 *.log
@@ -21,3 +25,6 @@ logs/
 ### OS Files ###
 .DS_Store
 Thumbs.db
+
+### Docker
+.env

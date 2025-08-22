@@ -1,43 +1,26 @@
-# Build stage
+# ---------- Build stage ----------
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-# Copy gradle files first for dependency caching
+# 캐시 최적화: 의존성 먼저
 COPY build.gradle settings.gradle ./
 COPY gradle gradle
+RUN gradle --no-daemon dependencies || true
 
-# Download dependencies (캐시)
-RUN gradle dependencies --no-daemon || true
-
-# Copy source code
+# 소스 복사 후 빌드
 COPY src src
+RUN gradle --no-daemon bootJar
 
-# Build application
-RUN gradle bootJar --no-daemon
-
-# Runtime stage
-FROM eclipse-temurin:17-jre
+# ---------- Runtime stage ----------
+FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup --system --gid 1001 spring && \
-    adduser --system --uid 1001 --gid 1001 spring
-
-# Copy built jar from build stage
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# Change ownership to spring user
-RUN chown spring:spring app.jar
-
-# Switch to non-root user
+# 비루트 유저
+RUN addgroup --system spring && adduser --system --ingroup spring spring
 USER spring
 
-# Expose port
+# JAR 복사
+COPY --from=build /app/build/libs/*.jar app.jar
+
 EXPOSE 8080
-
-# Health check (Spring Actuator 사용 시)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Run application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","/app/app.jar"]

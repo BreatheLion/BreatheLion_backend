@@ -1,10 +1,6 @@
 spring:
-  docker:
-    compose:
-      enabled: false
   config:
     import: optional:classpath:secrets.properties
-
   application:
     name: BreatheLion_backend
 
@@ -31,7 +27,6 @@ spring:
           port: ${CHROMADB_PORT}
         initialize-schema: true
         collection-name: pdf-collection
-
   cloud:
     aws:
       s3:
