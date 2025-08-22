@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,6 +34,7 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 @RequestMapping("/api/records")
 public class RecordController {
 

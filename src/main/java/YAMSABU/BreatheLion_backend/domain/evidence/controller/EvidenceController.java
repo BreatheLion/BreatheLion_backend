@@ -3,6 +3,7 @@ package YAMSABU.BreatheLion_backend.domain.evidence.controller;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +18,7 @@ import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidencePresi
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin
 @RequestMapping("/api/evidence")
 public class EvidenceController {
     private final S3FileService s3FileService;
