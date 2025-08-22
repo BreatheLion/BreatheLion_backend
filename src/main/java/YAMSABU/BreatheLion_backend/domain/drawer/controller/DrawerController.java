@@ -5,8 +5,6 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateReque
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO;
-import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
@@ -21,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +35,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 @RequestMapping("/api/drawers")
 public class DrawerController {
     private final DrawerService drawerService;
@@ -69,7 +69,7 @@ public class DrawerController {
     }
 
     // 전체 PDF 다운로드 (GET)
-    @GetMapping("/{drawer_id}/pdf")
+    @GetMapping("/{drawer_id}/pdf/")
     public ResponseEntity<byte[]> downloadAllPdf(@PathVariable("drawer_id") Long drawerId) {
         // 해당 서랍의 FINALIZED 기록 모두 조회 (오래된 순)
         List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
@@ -84,7 +84,7 @@ public class DrawerController {
     }
 
     // 서랍장 내부 레코드별 PDF 다운로드 (상담용)
-    @GetMapping("/{drawer_id}/records/{record_id}/pdf")
+    @GetMapping("/{drawer_id}/records/{record_id}/pdf/")
     public ResponseEntity<byte[]> downloadDrawerRecordConsultPdf(@PathVariable("drawer_id") Long drawerId,
                                                                  @PathVariable("record_id") Long recordId,
                                                                  @RequestParam("type") String type) {
@@ -101,7 +101,7 @@ public class DrawerController {
     }
 
     // 서랍장 내부 레코드별 PDF 다운로드 (내용증명용)
-    @PostMapping("/{drawer_id}/records/{record_id}/pdf")
+    @PostMapping("/{drawer_id}/records/{record_id}/pdf/")
     public ResponseEntity<byte[]> downloadDrawerRecordNoticePdf(@PathVariable("drawer_id") Long drawerId,
                                                                 @PathVariable("record_id") Long recordId,
                                                                 @RequestParam("type") String type,

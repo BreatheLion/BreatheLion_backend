@@ -13,6 +13,7 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
+import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +39,7 @@ public class RecordServiceImpl implements RecordService {
     private final EvidenceRepository evidenceRepository;
     private final S3FileService s3FileService;
     private final DrawerService drawerService;
+    private final AIService aiService;
 
     @Override
     public void saveFinalize(RecordSaveRequestDTO request) {
@@ -84,8 +87,22 @@ public class RecordServiceImpl implements RecordService {
 
         // 증거파일은 채팅 중에만 저장, 이후에는 추가/삭제 불가
 
-        record.setRecordStatus(RecordStatus.FINALIZED);
         recordRepository.save(record);
+
+        aiService.recordSummary(record);
+
+        List<Record> records = recordRepository.findByDrawer(record.getDrawer());
+
+        String summaries = records.stream()
+                .map(Record::getSummary)          // summary 필드만 추출
+                .filter(Objects::nonNull)         // null summary 제거
+                .filter(s -> !s.trim().isEmpty()) // 빈 문자열 제거
+                .collect(Collectors.joining("\n")); // 줄바꿈으로 이어붙이기
+
+        aiService.lawSearch(record.getDrawer(),summaries);
+        aiService.helpAnswer(record.getDrawer(), summaries);
+
+        drawerRepository.incrementRecordCount(record.getDrawer().getId());
     }
 
     @Transactional(readOnly = true)

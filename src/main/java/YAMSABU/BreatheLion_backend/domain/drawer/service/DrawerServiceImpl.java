@@ -7,13 +7,10 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateReque
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
-import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +39,7 @@ public class DrawerServiceImpl implements DrawerService {
 
         Drawer drawer = Drawer.builder()
                 .name(request.getDrawerName())
-                .record_count(0L)
+                .recordCount(0L)
                 .build();
 
         Drawer saved = drawerRepository.save(drawer);
@@ -88,14 +85,13 @@ public class DrawerServiceImpl implements DrawerService {
                 .filter(rp -> rp.getRole() == PersonRole.ASSAILANT)
                 .map(rp -> rp.getPerson().getName())
                 .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
                 .distinct()
-                .sorted()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
                 .toList();
 
-        SOA_DTO soaDto = aiService.helpAnswer(mergedSummaries);
-        LawListDTO laws = aiService.lawSearch(mergedSummaries);
-
-        return DrawerConverter.drawersToAiDTO(drawer,assailants,soaDto,laws);
+        return DrawerConverter.drawersToAiDTO(drawer,assailants);
     }
 
     public void rename(Long drawerId, String newName) {
