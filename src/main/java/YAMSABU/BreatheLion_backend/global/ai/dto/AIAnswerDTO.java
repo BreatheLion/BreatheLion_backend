@@ -1,10 +1,7 @@
 package YAMSABU.BreatheLion_backend.global.ai.dto;
 
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.OrganizationDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordCategory;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

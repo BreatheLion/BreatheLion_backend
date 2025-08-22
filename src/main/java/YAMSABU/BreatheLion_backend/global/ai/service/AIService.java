@@ -3,10 +3,6 @@ package YAMSABU.BreatheLion_backend.global.ai.service;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.ChatSummaryDTO;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
-
-import java.util.List;
 
 public interface AIService {
     // 채팅 하는거

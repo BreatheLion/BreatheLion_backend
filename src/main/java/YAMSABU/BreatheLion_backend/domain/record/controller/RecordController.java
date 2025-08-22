@@ -1,18 +1,15 @@
 package YAMSABU.BreatheLion_backend.domain.record.controller;
 
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDrawerUpdateRequestDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.service.RecordService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,9 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -43,7 +38,7 @@ public class RecordController {
 
     // 2. 최종 기록 저장하기 버튼(FINALIZED 상태)
     @PatchMapping("/save/")
-    public ApiResponse<Void> save(@Valid @RequestBody RecordSaveRequestDTO request) {
+    public ApiResponse<Void> save(@Valid @RequestBody RecordDTO.RecordSaveRequestDTO request) {
         recordService.saveFinalize(request);
         return ApiResponse.onSuccess("서랍에 기록이 만들어졌어요.");
     }
@@ -67,25 +62,14 @@ public class RecordController {
         return ApiResponse.onSuccess("기록이 삭제되었습니다.");
     }
 
-    static class RecordTitleUpdateRequest {
-        @NotBlank
-        private String title;
-        public String getTitle() { return title; }
-    }
-
-    static class RecordDrawerUpdateRequest {
-        private Long drawerId;
-        public Long getDrawerId() { return drawerId; }
-    }
-
     @PatchMapping("/{record_id}/title/")
-    public ApiResponse<Void> updateTitle(@PathVariable("record_id") Long recordId, @Valid @RequestBody RecordTitleUpdateRequest request) {
+    public ApiResponse<Void> updateTitle(@PathVariable("record_id") Long recordId, @Valid @RequestBody RecordDTO.RecordTitleUpdateRequestDTO request) {
         recordService.updateTitle(recordId, request.getTitle());
         return ApiResponse.onSuccess("제목 수정 완료");
     }
 
     @PatchMapping("/{record_id}/drawer/")
-    public ApiResponse<Void> updateDrawer(@PathVariable("record_id") Long recordId, @RequestBody RecordDrawerUpdateRequest request) {
+    public ApiResponse<Void> updateDrawer(@PathVariable("record_id") Long recordId, @RequestBody RecordDrawerUpdateRequestDTO request) {
         recordService.updateDrawer(recordId, request.getDrawerId());
         return ApiResponse.onSuccess("폴더 이동 완료");
     }

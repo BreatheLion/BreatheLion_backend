@@ -1,6 +1,4 @@
 package YAMSABU.BreatheLion_backend.domain.record.service;
-import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 

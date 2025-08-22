@@ -11,8 +11,6 @@ import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRe
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

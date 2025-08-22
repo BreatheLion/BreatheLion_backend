@@ -187,4 +187,20 @@ public class RecordDTO {
 
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RecordTitleUpdateRequestDTO {
+        @NotBlank
+        private String title;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RecordDrawerUpdateRequestDTO {
+        private Long drawerId;
+    }
 }

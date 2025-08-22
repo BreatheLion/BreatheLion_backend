@@ -5,8 +5,6 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateReque
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
-import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO;
-import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
