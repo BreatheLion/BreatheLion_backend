@@ -56,8 +56,8 @@ public class RecordServiceImpl implements RecordService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "장소는 필수항목입니다.");
         if (request.getOccurredAt() == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "발생 시간은 필수항목입니다.");
-        if (request.getSeverity() == null ||request.getSeverity() < 1 || request.getSeverity() > 5)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 1~5여야 합니다.");
+        if (request.getSeverity() == null ||request.getSeverity() < 0 || request.getSeverity() > 2)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 0~2여야 합니다.");
         if(request.getTitle() != null && !request.getTitle().isBlank())
             record.setTitle(request.getTitle());
 

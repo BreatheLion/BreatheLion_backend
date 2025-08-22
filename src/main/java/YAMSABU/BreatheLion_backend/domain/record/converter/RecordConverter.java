@@ -47,7 +47,7 @@ public class RecordConverter {
                         .collect(Collectors.toList()) : Collections.emptyList())
                 .title(record.getTitle())
                 .content(record.getContent())
-                .severity(record.getSeverity())
+                .severity(record.getSeverity()) // 0~2
                 .location(record.getLocation())
                 .occurredAt(record.getOccurredAt())
                 .createdAt(record.getCreatedAt())
