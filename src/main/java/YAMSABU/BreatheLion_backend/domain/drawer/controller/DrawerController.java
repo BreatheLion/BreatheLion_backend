@@ -58,7 +58,7 @@ public class DrawerController {
     }
 
     // 전체 PDF 다운로드 (GET)
-    @GetMapping("/{drawer_id}/pdf")
+    @GetMapping("/{drawer_id}/pdf/")
     public ResponseEntity<byte[]> downloadAllPdf(@PathVariable("drawer_id") Long drawerId) {
         // 해당 서랍의 FINALIZED 기록 모두 조회 (오래된 순)
         List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
@@ -75,7 +75,7 @@ public class DrawerController {
     }
 
     // 서랍장 내부 레코드별 PDF 다운로드 (상담용)
-    @GetMapping("/{drawer_id}/records/{record_id}/pdf")
+    @GetMapping("/{drawer_id}/records/{record_id}/pdf/")
     public ResponseEntity<byte[]> downloadDrawerRecordConsultPdf(@PathVariable("drawer_id") Long drawerId,
                                                                  @PathVariable("record_id") Long recordId,
                                                                  @Param("type") String type) {
@@ -94,7 +94,7 @@ public class DrawerController {
     }
 
     // 서랍장 내부 레코드별 PDF 다운로드 (내용증명용)
-    @PostMapping("/{drawer_id}/records/{record_id}/pdf")
+    @PostMapping("/{drawer_id}/records/{record_id}/pdf/")
     public ResponseEntity<byte[]> downloadDrawerRecordNoticePdf(@PathVariable("drawer_id") Long drawerId,
                                                                 @PathVariable("record_id") Long recordId,
                                                                 @Param("type") String type,

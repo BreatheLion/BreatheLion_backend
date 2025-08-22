@@ -24,7 +24,7 @@ public class EvidenceController {
     private final S3FileService s3FileService;
 
     // presigned url 발급 (파일 업로드용, POST, 서버에서 UUID 파일명 생성)
-    @PostMapping("/presigned-url")
+    @PostMapping("/presigned-url/")
     public ResponseEntity<Map<String, String>> getPresignedUrl(@RequestBody EvidencePresignedUrlRequestDTO request) {
         String ct = request.getContentType();
         String ext = ct != null && ct.contains("/") ? ct.substring(ct.lastIndexOf('/') + 1) : "bin";
@@ -34,7 +34,7 @@ public class EvidenceController {
     }
 
     // Presigned GET URL 발급 (조회용)
-    @GetMapping("/presigned-url/read")
+    @GetMapping("/presigned-url/read/")
     public ResponseEntity<Map<String, String>> getReadUrl(@RequestParam String s3Key,
                                                           @RequestParam(defaultValue = "10") int minutes) {
         String url = s3FileService.getGetPreSignedUrlByKey(s3Key, minutes);
@@ -42,7 +42,7 @@ public class EvidenceController {
     }
 
     // key로 S3 파일 삭제
-    @PostMapping("/delete-by-key")
+    @PostMapping("/delete-by-key/")
     public ResponseEntity<String> deleteEvidenceByKey(@RequestParam String s3Key) {
         s3FileService.deleteByKey(s3Key);
         return ResponseEntity.ok("삭제 완료");
