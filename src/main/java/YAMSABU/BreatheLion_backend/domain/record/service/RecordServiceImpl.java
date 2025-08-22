@@ -13,6 +13,7 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
+import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class RecordServiceImpl implements RecordService {
     private final EvidenceRepository evidenceRepository;
     private final S3FileService s3FileService;
     private final DrawerService drawerService;
+    private final AIService aiService;
 
     @Override
     public Long createDraft(RecordDraftRequestDTO request) {
@@ -164,9 +166,11 @@ public class RecordServiceImpl implements RecordService {
                 evidenceRepository.save(evidence);
             }
         }
-
+        record.setSummary(aiService.recordSummary(record));
         record.setRecordStatus(RecordStatus.FINALIZED);
         recordRepository.save(record);
+
+
     }
 
     @Transactional(readOnly = true)

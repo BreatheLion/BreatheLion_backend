@@ -2,6 +2,7 @@ package YAMSABU.BreatheLion_backend.global.ai.service;
 
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
+import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.ChatSummaryDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
@@ -26,6 +27,7 @@ import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forANSWER
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forCHATSUMMARY;
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forHELP;
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forLAWS;
+import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forRECORDSUMMARY;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +52,7 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .content();
     }
+
     @Override
     @Transactional
     public SOA_DTO helpAnswer(String summaries){
@@ -66,6 +69,7 @@ public class AIServiceImpl implements AIService{
 
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
                 .model("gpt-4.1-nano")
+                .temperature(0.4)
                 .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
                 .build();
 
@@ -91,7 +95,7 @@ public class AIServiceImpl implements AIService{
 
         Advisor retrievalAugmentationAdvisor = RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(VectorStoreDocumentRetriever.builder()
-                        .similarityThreshold(0.65)
+                        .similarityThreshold(0.25)
                         .vectorStore(vectorStore)
                         .build())
                 .queryAugmenter(ContextualQueryAugmenter.builder()
@@ -126,6 +130,9 @@ public class AIServiceImpl implements AIService{
         }
         return outputConverter.convert(response);
     }
+
+    @Override
+    @Transactional
     public ChatSummaryDTO chatSummary(String chattings){
 
         var outputConverter = new BeanOutputConverter<>(ChatSummaryDTO.class);
@@ -133,7 +140,7 @@ public class AIServiceImpl implements AIService{
 
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
                 .model("gpt-4.1-nano")
-                .temperature(0.75)
+                .temperature(0.30)
                 .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
                 .build();
 
@@ -146,6 +153,34 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .content();
 
-        return null;
+        if (response == null) {
+            throw new RuntimeException("LLM 응답이 비어 있습니다.");
+        }
+        return outputConverter.convert(response);
     }
+    @Override
+    @Transactional
+    public String recordSummary(Record record){
+        OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
+                .model("gpt-4.1-nano")
+                .temperature(0.45)
+                .build();
+
+        String recordInfo =
+                "내용: " + record.getContent() + "\n" +
+                "장소: " + record.getLocation() + "\n" +
+                "발생일시: " + (record.getOccurredAt() != null ? record.getOccurredAt().toString() : "") + "\n" +
+                "카테고리: " + String.join(", ", record.getCategories().stream().map(Enum::name).toList());
+
+        return chatClient
+                .prompt()
+                .user(userSpec -> userSpec
+                        .text(forRECORDSUMMARY)
+                        .param("title", record.getTitle())
+                        .param("info",recordInfo))
+                .options(openAiChatOptions)
+                .call()
+                .content();
+    }
+
 }

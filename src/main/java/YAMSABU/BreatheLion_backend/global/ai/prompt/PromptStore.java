@@ -4,6 +4,17 @@ public class PromptStore {
     public static final String forANSWER =
             "너는 상담형 AI다. 대화를 통해 사건 관련 정보를 자연스럽게 이끌어내고, 적절히 공감하며 추가 정보를 유도하라.";
 
+    public static final String forRECORDSUMMARY =
+    """
+    Input:
+    - 사건 제목: {title}
+    - 사건 관련 정보: {info}
+
+    규칙:
+    - 내용을 110자 이내로 요약하라.
+    - 불필요한 수식어나 해석은 넣지 말고, 주어진 사실만 정리하라.
+    """;
+
     public static final String forCHATSUMMARY =
     """
     Input:
