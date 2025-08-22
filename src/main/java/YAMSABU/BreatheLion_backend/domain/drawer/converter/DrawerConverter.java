@@ -10,8 +10,6 @@ import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DrawerConverter {
@@ -31,7 +29,7 @@ public class DrawerConverter {
         return DrawerItemDTO.builder()
                 .drawerId(drawer.getId())
                 .name(drawer.getName())
-                .recordCount(drawer.getRecord_count())
+                .recordCount(drawer.getRecordCount())
                 .createdAt(drawer.getCreatedAt().format(formatter))
                 .updatedAt(drawer.getUpdatedAt().format(formatter))
                 .build();

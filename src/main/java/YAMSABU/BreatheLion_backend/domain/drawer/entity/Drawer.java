@@ -3,7 +3,6 @@ package YAMSABU.BreatheLion_backend.domain.drawer.entity;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.DrawerOrganization;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,9 +42,12 @@ public class Drawer {
 
     private String action;
 
-    private String related_laws;
+    @OneToMany(mappedBy = "drawer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Law> relatedLaws = new ArrayList<>();
 
-    private Long record_count;
+    @Column(name = "record_count")
+    private Long recordCount;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -166,11 +166,10 @@ public class RecordServiceImpl implements RecordService {
                 evidenceRepository.save(evidence);
             }
         }
+
         record.setSummary(aiService.recordSummary(record));
         record.setRecordStatus(RecordStatus.FINALIZED);
         recordRepository.save(record);
-
-
     }
 
     @Transactional(readOnly = true)

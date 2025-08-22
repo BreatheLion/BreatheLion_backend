@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.global.ai.service;
 
+import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -55,7 +56,7 @@ public class AIServiceImpl implements AIService{
 
     @Override
     @Transactional
-    public SOA_DTO helpAnswer(String summaries){
+    public void helpAnswer(Drawer drawer, String summaries){
 
         List<Organization> organizations = organizationRepository.findAll();
 
@@ -91,7 +92,7 @@ public class AIServiceImpl implements AIService{
 
     @Override
     @Transactional
-    public LawListDTO lawSearch(String summaries) {
+    public void lawSearch(Drawer drawer,String summaries) {
 
         Advisor retrievalAugmentationAdvisor = RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(VectorStoreDocumentRetriever.builder()
@@ -114,7 +115,7 @@ public class AIServiceImpl implements AIService{
                 .build();
 
         // OpenAI 호출
-        String response = chatClient
+        LawListDTO lawListDTO = chatClient
                 .prompt()
                 .user(userSpec -> userSpec
                         .text(forLAWS)
@@ -122,13 +123,9 @@ public class AIServiceImpl implements AIService{
                 .advisors(retrievalAugmentationAdvisor)
                 .options(openAiChatOptions)
                 .call()
-                .content();
+                .entity(LawListDTO.class);
 
-        // JSON → DTO 변환
-        if (response == null) {
-            throw new RuntimeException("LLM 응답이 비어 있습니다.");
-        }
-        return outputConverter.convert(response);
+
     }
 
     @Override
