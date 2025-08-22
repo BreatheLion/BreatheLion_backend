@@ -20,12 +20,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import java.util.List;
 
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
+import org.springframework.http.ContentDisposition;
+
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
@@ -74,32 +79,38 @@ public class RecordController {
         return ApiResponse.onSuccess("폴더 이동 완료");
     }
 
-    @GetMapping("/{record_id}/pdf/")
+    private HttpHeaders pdfHeaders(String filename) {
+        ContentDisposition cd = ContentDisposition.attachment()
+                .filename(filename, StandardCharsets.UTF_8)
+                .build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(cd);
+        return headers;
+    }
+
+    @GetMapping("/{record_id}/pdf")
     public ResponseEntity<byte[]> downloadRecordConsultPdf(@PathVariable("record_id") Long recordId,
-                                                          @org.springframework.web.bind.annotation.RequestParam("type") String type) {
+                                                          @RequestParam("type") String type) {
         if (!"consult".equals(type)) {
             return ResponseEntity.badRequest().body(null);
         }
         Record record = recordService.getRecordEntity(recordId);
         byte[] pdfBytes = pdfExportService.exportConsultPdf(List.of(record));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "consult.pdf");
+        HttpHeaders headers = pdfHeaders("consult.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
     @PostMapping("/{record_id}/pdf/")
     public ResponseEntity<byte[]> downloadRecordNoticePdf(@PathVariable("record_id") Long recordId,
-                                                         @org.springframework.web.bind.annotation.RequestParam("type") String type,
+                                                         @RequestParam("type") String type,
                                                          @RequestBody PdfNoticeRequestDTO dto) {
         if (!"notice".equals(type)) {
             return ResponseEntity.badRequest().body(null);
         }
         Record record = recordService.getRecordEntity(recordId);
         byte[] pdfBytes = pdfExportService.exportNoticePdf(List.of(record), dto);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "notice.pdf");
+        HttpHeaders headers = pdfHeaders("notice.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 

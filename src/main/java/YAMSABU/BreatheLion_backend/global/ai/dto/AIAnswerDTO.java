@@ -67,7 +67,7 @@ public class AIAnswerDTO {
         private String content;
 
         @JsonProperty(value = "severity", required = true)
-        private Integer severity;
+        private Integer severity; // 0(낮음), 1(보통), 2(높음)
 
         @JsonProperty(value = "location", required = true)
         private String location;

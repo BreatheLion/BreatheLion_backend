@@ -40,7 +40,7 @@ public class S3FileService {
     // contentType을 파라미터로 받아 동적으로 처리
     public PresignedUrlResponse getPutPreSignedUrl(String prefix, String contentType, Long contentLength, String ext) {
         String fileName = java.util.UUID.randomUUID() + "." + ext;
-        String filePath = prefix + "/" + fileName;
+        String filePath = prefix.endsWith("/") ? prefix + fileName : prefix + "/" + fileName;
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)

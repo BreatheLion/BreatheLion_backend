@@ -60,7 +60,7 @@ public class Record {
     private String content;
 
     @Column
-    private Integer severity;
+    private Integer severity; // 0(낮음), 1(보통), 2(높음)
 
     @Column
     private String location;

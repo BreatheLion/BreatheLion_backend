@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface RecordService {
 
-    // 채팅 마치고 초안(DRAFT) 생성
-    Long createDraft(RecordDraftRequestDTO request);
 
     // DRAFT -> FINALIZED
     void saveFinalize(RecordSaveRequestDTO request);
