@@ -39,65 +39,6 @@ public class RecordServiceImpl implements RecordService {
     private final DrawerService drawerService;
 
     @Override
-    public Long createDraft(RecordDraftRequestDTO request) {
-        Record record = Record.builder().build();
-
-        if(request.getTitle() != null)
-            record.setTitle(request.getTitle());
-        if(request.getContent() != null)
-            record.setContent(request.getContent());
-        if(request.getSeverity() != null)
-            record.setSeverity(request.getSeverity());
-        if(request.getLocation() != null)
-            record.setLocation(request.getLocation());
-        if(request.getOccurredAt() != null) {
-            record.setOccurredAt(request.getOccurredAt());
-        }
-        if(request.getCategories() != null) {
-            record.getCategories().clear();
-            record.getCategories().addAll(RecordConverter.mapCategories(request.getCategories()));
-        }
-        if(request.getDrawer() != null && !request.getDrawer().isBlank()) {
-            Drawer drawer = drawerRepository.findByName(request.getDrawer())
-                    .orElseGet(() -> drawerRepository.save(Drawer.builder()
-                            .name(request.getDrawer()).build()));
-            record.setDrawer(drawer);
-        }
-        if(request.getAssailant() != null || request.getWitness() != null) {
-            attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
-            attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
-        }
-
-        recordRepository.save(record);
-
-        // S3 evidences 제한: 최대 10개, 총합 300MB
-        if (request.getEvidences() != null) {
-            if (request.getEvidences().size() > 10) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일은 최대 10개까지 첨부할 수 있습니다.");
-            }
-            long totalSize = request.getEvidences().stream()
-                    .mapToLong(e -> e.getContentLength() != null ? e.getContentLength() : 0L)
-                    .sum();
-            if (totalSize > 314572800L) { // 300MB
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일 총 용량은 300MB를 초과할 수 없습니다.");
-            }
-        }
-
-        if (request.getEvidences() != null) {
-            for (var it : request.getEvidences()) {
-                Evidence evidence = Evidence.builder()
-                        .record(record)
-                        .type(RecordConverter.mapEvidenceType(it.getType()))
-                        .filename(it.getFilename())
-                        .s3Key(it.getS3Key())
-                        .build();
-                evidenceRepository.save(evidence);
-            }
-        }
-        return record.getId();
-    }
-
-    @Override
     public void saveFinalize(RecordSaveRequestDTO request) {
         if (request.getRecordId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "record_id 필요");
@@ -141,29 +82,7 @@ public class RecordServiceImpl implements RecordService {
         attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
         attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
 
-        evidenceRepository.deleteByRecord(record);
-        if (request.getEvidences() != null) {
-            // S3 evidences 제한: 최대 10개, 총합 300MB
-            if (request.getEvidences().size() > 10) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일은 최대 10개까지 첨부할 수 있습니다.");
-            }
-            long totalSize = request.getEvidences().stream()
-                    .mapToLong(e -> e.getContentLength() != null ? e.getContentLength() : 0L)
-                    .sum();
-            if (totalSize > 314572800L) { // 300MB
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일 총 용량은 300MB를 초과할 수 없습니다.");
-            }
-
-            for (var it : request.getEvidences()) {
-                Evidence evidence = Evidence.builder()
-                        .record(record)
-                        .type(RecordConverter.mapEvidenceType(it.getType()))
-                        .filename(it.getFilename()) // 화면 표시용
-                        .s3Key(it.getS3Key())
-                        .build();
-                evidenceRepository.save(evidence);
-            }
-        }
+        // 증거파일은 채팅 중에만 저장, 이후에는 추가/삭제 불가
 
         record.setRecordStatus(RecordStatus.FINALIZED);
         recordRepository.save(record);
