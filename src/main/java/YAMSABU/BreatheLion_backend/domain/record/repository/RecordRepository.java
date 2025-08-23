@@ -22,3 +22,4 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     // 특정 서랍장 내 summary에 키워드가 포함된 FINALIZED 기록을 최신순으로 반환
     List<Record> findByDrawerAndRecordStatusAndSummaryContainingOrderByCreatedAtDesc(Drawer drawer, RecordStatus status, String keyword);
 }
+
