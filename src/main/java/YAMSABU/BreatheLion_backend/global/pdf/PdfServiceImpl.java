@@ -53,6 +53,8 @@ public class PdfServiceImpl implements PdfService {
             Font titleFont = new Font(baseFont, 21);
 
             document.add(new Paragraph(" "));
+            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
             document.add(new Paragraph("상담용 기록 자료", titleFont));
             document.add(new Paragraph("제목: " + record.getTitle(), font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
@@ -64,7 +66,6 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
 
-            document.add(new LineSeparator());
             document.close();
 
             return baos.toByteArray();
@@ -93,11 +94,11 @@ public class PdfServiceImpl implements PdfService {
                 document.add(new Paragraph("발신인 주소: " + dto.getSenderAddress(), font));
                 document.add(new Paragraph("수신인 주소: " + dto.getReceiverAddress(), font));
             }
+            document.add(new Paragraph(" "));
             document.add(new LineSeparator());
-
             document.add(new Paragraph(" "));
             document.add(new Paragraph("내용증명", titleFont));
-            document.add(new Paragraph("제목: " + record.getTitle(), font));
+            document.add(new Paragraph("제목: " + record.getTitle(),font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
