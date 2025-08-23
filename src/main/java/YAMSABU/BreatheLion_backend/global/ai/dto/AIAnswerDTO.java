@@ -72,13 +72,11 @@ public class AIAnswerDTO {
         @JsonProperty(value = "location", required = true)
         private String location;
 
-        @JsonProperty(value = "occurred_at", required = true)
-        private LocalDateTime occurredAt;
-
         @JsonProperty(value = "assailant", required = true)
         private List<String> assailant;
 
         @JsonProperty(value = "witness", required = true)
         private List<String> witness;
     }
+
 }
