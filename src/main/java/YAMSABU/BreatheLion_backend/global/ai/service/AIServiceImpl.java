@@ -188,7 +188,7 @@ public class AIServiceImpl implements AIService{
                 "내용: " + record.getContent() + "\n" +
                 "장소: " + record.getLocation() + "\n" +
                 "발생일시: " + (record.getOccurredAt() != null ? record.getOccurredAt().toString() : "") + "\n" +
-                "카테고리: " + String.join(", ", record.getCategories().stream().map(Enum::name).toList());
+                "카테고리: " + (record.getCategory() != null ? record.getCategory().name() : "");
 
         return chatClient
                 .prompt()

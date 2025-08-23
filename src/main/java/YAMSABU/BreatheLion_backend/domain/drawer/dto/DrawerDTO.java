@@ -117,7 +117,7 @@ public class DrawerDTO {
     @Builder
     public static class DrawerTimelineResponseDTO {
         private Long recordId;
-        private List<String> categories;
+        private String category;
         private String title;
         private String location;
         private Integer severity;
