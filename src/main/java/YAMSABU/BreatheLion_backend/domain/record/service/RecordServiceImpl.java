@@ -206,3 +206,4 @@ public class RecordServiceImpl implements RecordService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기록을 찾을 수 없습니다."));
     }
 }
+

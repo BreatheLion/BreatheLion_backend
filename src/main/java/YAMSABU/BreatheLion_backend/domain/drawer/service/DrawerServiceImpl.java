@@ -9,8 +9,10 @@ import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
+import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +68,7 @@ public class DrawerServiceImpl implements DrawerService {
             .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
         return drawer.getName();
     }
-  
+
     @Override
     @Transactional
     public AIHelpResponseDTO helpAI(Long drawerId){
@@ -102,5 +104,23 @@ public class DrawerServiceImpl implements DrawerService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
         drawer.setName(newName.trim());
         drawerRepository.save(drawer);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DrawerTimelineResponseDTO> searchSummaryByKeyword(Long drawerId, String keyword) {
+        Drawer drawer = drawerRepository.findById(drawerId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
+        List<Record> records;
+        if (keyword == null || keyword.trim().isEmpty()) {
+            records = recordRepository.findByDrawerAndRecordStatusOrderByCreatedAtDesc(drawer, RecordStatus.FINALIZED);
+        } else {
+            records = recordRepository.findByDrawerAndRecordStatusAndSummaryContainingOrderByCreatedAtDesc(drawer, RecordStatus.FINALIZED, keyword);
+        }
+        List<DrawerTimelineResponseDTO> result = new java.util.ArrayList<>();
+        for (Record record : records) {
+            result.add(DrawerConverter.toTimelineResponseDTO(record));
+        }
+        return result;
     }
 }

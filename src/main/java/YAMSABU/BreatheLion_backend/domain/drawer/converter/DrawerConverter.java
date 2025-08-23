@@ -1,11 +1,15 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.converter;
 
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.*;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerItemDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.OrganizationDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Law;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawDTO;
@@ -83,6 +87,18 @@ public class DrawerConverter {
                 .careGuide(drawer.getAction())
                 .relatedLaws(lawListDTO)
                 .organizations(orgDTOs)
+                .build();
+    }
+
+    public static DrawerDTO.DrawerTimelineResponseDTO toTimelineResponseDTO(Record record) {
+        return DrawerDTO.DrawerTimelineResponseDTO.builder()
+                .recordId(record.getId())
+                .categories(record.getCategories() == null ? List.of() : record.getCategories().stream().map(Enum::name).toList())
+                .title(record.getTitle())
+                .severity(record.getSeverity())
+                .location(record.getLocation())
+                .summary(record.getSummary())
+                .occurredAt(record.getOccurredAt() == null ? null : record.getOccurredAt().toString())
                 .build();
     }
 }
