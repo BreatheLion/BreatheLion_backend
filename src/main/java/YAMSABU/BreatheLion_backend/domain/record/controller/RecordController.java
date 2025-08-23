@@ -3,7 +3,6 @@ package YAMSABU.BreatheLion_backend.domain.record.controller;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordSaveRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDrawerUpdateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.service.RecordService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
@@ -102,7 +100,7 @@ public class RecordController {
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
-    @PostMapping("/{record_id}/pdf/")
+    @PostMapping("/{record_id}/pdf")
     public ResponseEntity<byte[]> downloadRecordNoticePdf(@PathVariable("record_id") Long recordId,
                                                          @RequestParam("type") String type,
                                                          @RequestBody PdfNoticeRequestDTO dto) {
