@@ -2,7 +2,7 @@ package YAMSABU.BreatheLion_backend.domain.chat.dto;
 
 import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordSaveRequestDTO.EvidenceSaveRequestDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.EvidenceSaveRequestDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.ChatSummaryDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -33,9 +33,21 @@ public class ChatDTO {
     @NoArgsConstructor
     public static class ChatStartResponseDTO {
         @JsonProperty("record_id")
-        private Long recordID;
+        private Long recordId;
         @JsonProperty("session_id")
         private Long sessionId;
+        private String answer;
+        @JsonProperty("message_time")
+        private String messageTime;
+        @JsonProperty("message_date")
+        private String messageDate;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChatAnswerDTO{
         private String answer;
         @JsonProperty("message_time")
         private String messageTime;

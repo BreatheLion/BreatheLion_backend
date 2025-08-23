@@ -17,6 +17,7 @@ import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -88,6 +92,7 @@ public class RecordServiceImpl implements RecordService {
         // 증거파일은 채팅 중에만 저장, 이후에는 추가/삭제 불가
 
         recordRepository.save(record);
+        record.setRecordStatus(RecordStatus.FINALIZED);
 
         aiService.recordSummary(record);
 
@@ -108,12 +113,16 @@ public class RecordServiceImpl implements RecordService {
     @Transactional(readOnly = true)
     @Override
     public RecordRecentResponseDTO getRecent() {
-        var items = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
-                .stream()
+        List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED);
+
+        List<RecordRecentItemDTO> items = records.stream()
                 .map(RecordConverter::toRecentItem)
-                .collect(Collectors.toList());
+                .filter(Objects::nonNull)
+                .toList();
+
         return RecordRecentResponseDTO.builder()
-                .records(items).build();
+                .records(items)
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -162,7 +171,6 @@ public class RecordServiceImpl implements RecordService {
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
         record.setDrawer(drawer);
-        recordRepository.save(record);
     }
 
 

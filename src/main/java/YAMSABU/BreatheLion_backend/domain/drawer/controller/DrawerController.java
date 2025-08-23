@@ -51,11 +51,13 @@ public class DrawerController {
         return ApiResponse.onSuccess("서랍 생성 성공", drawerService.createDrawer(drawerCreateRequest));
     }
 
+    // 서랍 목록 조회
     @GetMapping("/list/")
     public ApiResponse<DrawerListResponseDTO> getDrawerList() {
         return ApiResponse.onSuccess("서랍 목록 조회 성공", drawerService.getDrawerList());
     }
 
+    // 서랍 삭제
     @DeleteMapping("/{drawer_id}/delete/")
     public ApiResponse<Void> deleteDrawer(@PathVariable("drawer_id") Long drawerId) {
         drawerService.deleteDrawer(drawerId);

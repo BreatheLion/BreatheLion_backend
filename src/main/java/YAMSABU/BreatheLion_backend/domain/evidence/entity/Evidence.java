@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.evidence.entity;
 
+import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,4 +51,5 @@ public class Evidence {
     @CreationTimestamp
     @Column(name = "uploaded_at", updatable = false)
     private LocalDateTime uploadedAt;
+
 }
