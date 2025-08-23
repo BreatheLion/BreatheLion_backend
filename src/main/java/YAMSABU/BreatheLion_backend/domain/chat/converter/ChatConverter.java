@@ -1,6 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.chat.converter;
 
-import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatAnswerDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatStartResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
@@ -45,15 +45,17 @@ public class ChatConverter {
                 .build();
     }
 
-    public static ChatMessageResponseDTO toChatMessageResponseDTO(String answer){
+    public static ChatAnswerDTO toChatMessageResponseDTO(String answer){
         LocalDateTime now = LocalDateTime.now();
         String messageTime = now.format(DateTimeFormatter.ofPattern("HH:mm"));
         String messageDate = now.format(DateTimeFormatter.ofPattern("yyyy - MM - dd"));
 
-        return ChatMessageResponseDTO.builder()
-                .content(answer)
+        return ChatAnswerDTO.builder()
+                .answer(answer)
                 .messageTime(messageTime)
                 .messageDate(messageDate)
                 .build();
     }
+
+
 }

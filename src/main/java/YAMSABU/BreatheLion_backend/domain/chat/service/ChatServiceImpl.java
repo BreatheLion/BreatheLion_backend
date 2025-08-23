@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.chat.service;
 
 import YAMSABU.BreatheLion_backend.domain.chat.converter.ChatConverter;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatAnswerDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatEndRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatEndResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
@@ -105,7 +106,7 @@ public class ChatServiceImpl implements ChatService{
 
     @Override
     @Transactional
-    public ChatMessageResponseDTO attachChatting(ChatWithEvidenceDTO chatWithEvidenceDTO){
+    public ChatAnswerDTO attachChatting(ChatWithEvidenceDTO chatWithEvidenceDTO){
         Long sessionId = chatWithEvidenceDTO.getChatSessionId();
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "세션이 존재하지 않습니다."));
@@ -120,13 +121,6 @@ public class ChatServiceImpl implements ChatService{
             if (evidences.size() > 10) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일은 최대 10개까지 첨부할 수 있습니다.");
             }
-            long totalSize = evidences.stream()
-                    .mapToLong(e -> e.getContentLength() != null ? e.getContentLength() : 0L)
-                    .sum();
-            if (totalSize > 300L * 1024 * 1024) { // 300MB
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "증거 파일 총 용량은 300MB를 초과할 수 없습니다.");
-            }
-
             for (EvidenceSaveRequestDTO it : evidences) {
                 Evidence evidence = Evidence.builder()
                         .record(session.getRecord())

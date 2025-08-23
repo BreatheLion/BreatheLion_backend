@@ -66,8 +66,6 @@ public class RecordDTO {
             @NotBlank
             private String s3Key;
             // 파일 크기(바이트)
-            @NotNull
-            private Long contentLength;
         }
     }
 

@@ -47,6 +47,18 @@ public class ChatDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class ChatAnswerDTO{
+        private String answer;
+        @JsonProperty("message_time")
+        private String messageTime;
+        @JsonProperty("message_date")
+        private String messageDate;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ChatMessageResponseDTO {
         private ChatRole role;
         private String content;
