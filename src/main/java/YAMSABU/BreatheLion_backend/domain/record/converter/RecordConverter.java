@@ -1,6 +1,5 @@
 package YAMSABU.BreatheLion_backend.domain.record.converter;
 
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -21,12 +20,12 @@ public class RecordConverter {
         // 최근 기록 확인(조회) 리스트
         // 년. 월. 일. (시 : 분)
     public static RecordRecentItemDTO toRecentItem(Record record) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd (HH : mm)");
-
+        Drawer drawer = record.getDrawer();
         return RecordRecentItemDTO.builder()
                 .recordId(record.getId())
-                .drawerId(record.getDrawer() != null ? record.getDrawer().getId() : null)
-                .drawer(record.getDrawer() != null ? record.getDrawer().getName() : null)
+                .drawerId(drawer.getId())
+                .drawer_title(drawer.getName())
+                .record_title(record.getTitle())
                 .location(record.getLocation())
                 .assailant(extractNamesByRole(record, PersonRole.ASSAILANT))
                 .createdAt(record.getCreatedAt())
@@ -45,7 +44,7 @@ public class RecordConverter {
                 .category(record.getCategory() != null ? record.getCategory().getLabel() : null)
                 .title(record.getTitle())
                 .content(record.getContent())
-                .severity(record.getSeverity()) // 0~2
+                .severity(record.getSeverity())
                 .location(record.getLocation())
                 .occurredAt(record.getOccurredAt())
                 .createdAt(record.getCreatedAt())

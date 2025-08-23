@@ -1,8 +1,8 @@
 package YAMSABU.BreatheLion_backend.domain.record.controller;
 
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordSaveRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDrawerUpdateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.service.RecordService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
@@ -43,13 +42,13 @@ public class RecordController {
 
     // 2. 최종 기록 저장하기 버튼(FINALIZED 상태)
     @PatchMapping("/save/")
-    public ApiResponse<Void> save(@Valid @RequestBody RecordDTO.RecordSaveRequestDTO request) {
+    public ApiResponse<Void> save(@Valid @RequestBody RecordSaveRequestDTO request) {
         recordService.saveFinalize(request);
         return ApiResponse.onSuccess("서랍에 기록이 만들어졌어요.");
     }
 
     // 3. 최근 기록 목록
-    @GetMapping("/recent/")
+    @GetMapping("/recent/")  // 숫자만 매칭
     public ApiResponse<RecordRecentResponseDTO> recent() {
         return ApiResponse.onSuccess("최근기록목록", recordService.getRecent());
     }
@@ -73,9 +72,9 @@ public class RecordController {
         return ApiResponse.onSuccess("제목 수정 완료");
     }
 
-    @PatchMapping("/{record_id}/drawer/")
-    public ApiResponse<Void> updateDrawer(@PathVariable("record_id") Long recordId, @RequestBody RecordDrawerUpdateRequestDTO request) {
-        recordService.updateDrawer(recordId, request.getDrawerId());
+    @PatchMapping("/{record_id}/new/{drawer_id}/")
+    public ApiResponse<Void> updateDrawer(@PathVariable("record_id") Long recordId, @PathVariable("drawer_id") Long drawerId) {
+        recordService.updateDrawer(recordId,drawerId);
         return ApiResponse.onSuccess("폴더 이동 완료");
     }
 
@@ -101,7 +100,7 @@ public class RecordController {
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
-    @PostMapping("/{record_id}/pdf/")
+    @PostMapping("/{record_id}/pdf")
     public ResponseEntity<byte[]> downloadRecordNoticePdf(@PathVariable("record_id") Long recordId,
                                                          @RequestParam("type") String type,
                                                          @RequestBody PdfNoticeRequestDTO dto) {
