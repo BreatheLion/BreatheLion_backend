@@ -162,6 +162,7 @@ public class ChatServiceImpl implements ChatService{
         String chattingLogs = sb.toString();
 
         ChatSummaryDTO chatSummaryDTO = aiService.chatSummary(chattingLogs);
+
         return ChatEndResponseDTO.builder()
                 .recordId(record.getId())
                 .recordDetail(chatSummaryDTO)

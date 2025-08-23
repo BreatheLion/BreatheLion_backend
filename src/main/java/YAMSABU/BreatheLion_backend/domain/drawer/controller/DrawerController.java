@@ -5,7 +5,6 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListRespons
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
@@ -25,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,9 +58,9 @@ public class DrawerController {
     }
 
     // 서랍 삭제
-    @DeleteMapping("/{drawer_id}/delete/")
-    public ApiResponse<Void> deleteDrawer(@PathVariable("drawer_id") Long drawerId) {
-        drawerService.deleteDrawer(drawerId);
+    @PatchMapping("/delete/")
+    public ApiResponse<Void> deleteDrawer(@Valid @RequestBody DrawerDeleteRequestDTO drawerDeleteRequestDTO) {
+        drawerService.deleteDrawers(drawerDeleteRequestDTO);
         return ApiResponse.onSuccess("서랍 삭제 성공");
     }
 
@@ -78,15 +78,13 @@ public class DrawerController {
     @GetMapping("/{drawer_id}/pdf/")
     public ResponseEntity<byte[]> downloadAllPdf(@PathVariable("drawer_id") Long drawerId) {
         // 해당 서랍의 FINALIZED 기록 모두 조회 (오래된 순)
-        List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
+        List<Record> records = recordRepository.findAllForPdf(drawerId, RecordStatus.FINALIZED)
                 .stream()
                 .filter(r -> r.getDrawer() != null && r.getDrawer().getId().equals(drawerId))
-                //0823수정
                 .sorted(Comparator.comparing(
                         Record::getOccurredAt,
                         java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
                 ))
-                // .sorted(Comparator.comparing(Record::getOccurredAt))
                 .toList();
         String drawerName = drawerService.getDrawerName(drawerId);
         byte[] pdfBytes = pdfExportService.exportAllPdf(records, drawerName);
@@ -135,11 +133,8 @@ public class DrawerController {
     }
 
     @GetMapping("/{drawer_id}/timeline/")
-    public ApiResponse<List<DrawerTimelineResponseDTO>> searchSummaryByKeyword(
-        @PathVariable("drawer_id") Long drawerId,
-        @RequestParam(value = "keyword", required = false) String keyword
-    ) {
-        List<DrawerTimelineResponseDTO> result = drawerService.searchSummaryByKeyword(drawerId, keyword);
-        return ApiResponse.onSuccess("검색 결과", result);
+    public ApiResponse<TimelineListDTO> searchSummaryByKeyword(
+            @PathVariable("drawer_id") Long drawerId, @RequestParam(value = "keyword", required = false) String keyword) {
+        return ApiResponse.onSuccess("검색 결과", drawerService.searchSummaryByKeyword(drawerId, keyword));
     }
 }

@@ -23,12 +23,12 @@ public class PromptStore {
     
     규칙:
     - severity는 0(낮음), 1(보통), 2(높음) 중 하나만 사용.
-    - categories는 아래 목록 중 선택. 여러 개 가능.
-        - "VERBAL_ABUSE, PHYSICAL_ABUSE, SEXUAL_HARASSMENT, SEXUAL_VIOLENCE,
-            DISCRIMINATION, OSTRACISM, BULLYING, STALKING, ETC"
+    - category는 아래 목록 중 하나만 선택.
+        - "V언어폭력, 신체폭력, 성희롱, 성폭력, 차별행위, 따돌림, 괴롭힘, 스토킹, 기타"
     - assailant와 witness는 여러 명 가능. 쉼표나 조사 제거 후 이름만 배열로 채운다.
-    - occurred_at: 가능하면 "YYYY.MM.DD (THH:mm)" 형식
-    - 모르겠으면 빈칸("" 또는 [] 또는 null)으로 남긴다.
+    - occurred_at: 발생한 사건시간
+        - "yyyy.MM.DD (THH:mm)" 스트링 형식으로 줘
+    - 모든 정보는 모르겠으면 빈칸("" 또는 [] 또는 null)으로 남긴다.
     - 채팅에 명시된 내용만 추출. 추측 금지.
     - 스키마에 정의된 필드 외 다른 값은 절대 포함하지 마라.
     """;

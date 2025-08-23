@@ -34,7 +34,7 @@ public class DrawerConverter {
     }
     // 년. 월. 일. (시 : 분)
     public static DrawerItemDTO toItemDTO(Drawer drawer) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd (HH : mm)");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd.");
 
         return DrawerItemDTO.builder()
                 .drawerId(drawer.getId())
@@ -90,15 +90,4 @@ public class DrawerConverter {
                 .build();
     }
 
-    public static DrawerDTO.DrawerTimelineResponseDTO toTimelineResponseDTO(Record record) {
-        return DrawerDTO.DrawerTimelineResponseDTO.builder()
-                .recordId(record.getId())
-                .category(record.getCategory() == null ? null : record.getCategory().name())
-                .title(record.getTitle())
-                .severity(record.getSeverity())
-                .location(record.getLocation())
-                .summary(record.getSummary())
-                .occurredAt(record.getOccurredAt() == null ? null : record.getOccurredAt().toString())
-                .build();
-    }
 }

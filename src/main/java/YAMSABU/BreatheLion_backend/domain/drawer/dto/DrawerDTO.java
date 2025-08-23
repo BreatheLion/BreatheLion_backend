@@ -1,18 +1,32 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.dto;
 
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.TimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class DrawerDTO {
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DrawerDeleteRequestDTO {
+        @NotNull(message = "삭제할 id 리스트는 필수입니다.")
+        @Size(min = 1, message = "최소 1개 이상의 id가 필요합니다.")
+        @JsonProperty("delete_list")
+        private List<@NotNull(message = "id에 null이 포함될 수 없습니다.") Long> deleteList;
+    }
 
     @Getter
     @Setter
@@ -107,22 +121,8 @@ public class DrawerDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class DrawerTimelineRequestDTO {
-        private String keyword;
+    public static class TimelineListDTO {
+        private List<TimelineResponseDTO>  timelines;
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class DrawerTimelineResponseDTO {
-        private Long recordId;
-        private String category;
-        private String title;
-        private String location;
-        private Integer severity;
-        private String summary;
-        @JsonProperty("occurred_at")
-        private String occurredAt;
-    }
 }

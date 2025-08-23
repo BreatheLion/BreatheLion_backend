@@ -89,8 +89,6 @@ public class RecordServiceImpl implements RecordService {
         attachPeople(record, splitNames(request.getAssailant()), PersonRole.ASSAILANT);
         attachPeople(record, splitNames(request.getWitness()), PersonRole.WITNESS);
 
-        // 증거파일은 채팅 중에만 저장, 이후에는 추가/삭제 불가
-
         recordRepository.save(record);
         record.setRecordStatus(RecordStatus.FINALIZED);
 
@@ -129,7 +127,7 @@ public class RecordServiceImpl implements RecordService {
     @Override
     public RecordDetailResponseDTO getDetail(Long recordId) {
         Record record = recordRepository.findById(recordId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 기록은 존재하지 않습니다."));
 
         List<Evidence> evidences = evidenceRepository.findByRecord(record);
         List<RecordDetailResponseDTO.EvidenceItemDTO> evidenceItemDTOS = evidences.stream()
@@ -138,7 +136,7 @@ public class RecordServiceImpl implements RecordService {
                         .recordId(record.getId())
                         .type(evidence.getType().name())
                         .filename(evidence.getFilename())
-                        .s3Url(s3FileService.getGetPreSignedUrlByKey(evidence.getS3Key(), 10)) // 10분 유효시간
+                        .s3Url(s3FileService.getGetPreSignedUrlByKey(evidence.getS3Key(), 100)) // 10분 유효시간
                         .uploadedAt(evidence.getUploadedAt())
                         .build())
                 .collect(Collectors.toList());
@@ -152,6 +150,7 @@ public class RecordServiceImpl implements RecordService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
         evidenceRepository.deleteByRecord(record);
         recordRepository.delete(record);
+        drawerRepository.decrementRecordCount(record.getDrawer().getId());
     }
 
     @Override
@@ -168,9 +167,12 @@ public class RecordServiceImpl implements RecordService {
     @Override
     public void updateDrawer(Long recordId, Long drawerId) {
         Record record = mustBeFinalized(recordId);
+        drawerRepository.decrementRecordCount(record.getDrawer().getId());
+
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
         record.setDrawer(drawer);
+        drawerRepository.incrementRecordCount(record.getDrawer().getId());
     }
 
 
