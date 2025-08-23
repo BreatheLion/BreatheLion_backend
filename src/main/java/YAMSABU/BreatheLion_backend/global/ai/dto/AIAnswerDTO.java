@@ -78,4 +78,5 @@ public class AIAnswerDTO {
         @JsonProperty(value = "witness", required = true)
         private List<String> witness;
     }
+
 }
