@@ -4,6 +4,8 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateReque
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineResponseDTO;
+import java.util.List;
 
 
 public interface DrawerService {
@@ -18,4 +20,6 @@ public interface DrawerService {
     AIHelpResponseDTO helpAI(Long drawerId);
   
     void rename(Long drawerId, String newName);
+
+    List<DrawerTimelineResponseDTO> searchSummaryByKeyword(Long drawerId, String keyword);
 }

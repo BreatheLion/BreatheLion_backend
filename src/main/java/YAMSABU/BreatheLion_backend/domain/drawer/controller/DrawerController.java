@@ -1,9 +1,11 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.controller;
 
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.*;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
@@ -12,6 +14,7 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ContentDisposition;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -121,5 +125,14 @@ public class DrawerController {
     @GetMapping("/{drawer_id}/helpai/")
     public ApiResponse<AIHelpResponseDTO> helpAI(@PathVariable("drawer_id") Long drawerId){
         return ApiResponse.onSuccess("AI 도움 조회 성공", drawerService.helpAI(drawerId));
+    }
+
+    @GetMapping("/{drawer_id}/timeline/")
+    public ApiResponse<List<DrawerTimelineResponseDTO>> searchSummaryByKeyword(
+        @PathVariable("drawer_id") Long drawerId,
+        @RequestParam(value = "keyword", required = false) String keyword
+    ) {
+        List<DrawerTimelineResponseDTO> result = drawerService.searchSummaryByKeyword(drawerId, keyword);
+        return ApiResponse.onSuccess("검색 결과", result);
     }
 }

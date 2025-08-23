@@ -203,4 +203,17 @@ public class RecordDTO {
     public static class RecordDrawerUpdateRequestDTO {
         private Long drawerId;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class RecordTimelineDTO {
+        private Long recordId;
+        private String title;
+        private String summary;
+        private LocalDateTime occurredAt;
+        private List<String> categories;
+    }
 }
