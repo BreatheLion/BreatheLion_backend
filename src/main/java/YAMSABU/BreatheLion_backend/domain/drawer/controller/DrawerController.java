@@ -80,7 +80,8 @@ public class DrawerController {
         // 해당 서랍의 FINALIZED 기록 모두 조회 (오래된 순)
         List<Record> records = recordRepository.findAllForPdf(drawerId, RecordStatus.FINALIZED)
                 .stream()
-                .sorted(java.util.Comparator.comparing(
+                .filter(r -> r.getDrawer() != null && r.getDrawer().getId().equals(drawerId))
+                .sorted(Comparator.comparing(
                         Record::getOccurredAt,
                         java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
                 ))

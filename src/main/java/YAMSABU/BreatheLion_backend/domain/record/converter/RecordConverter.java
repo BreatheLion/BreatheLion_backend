@@ -65,16 +65,11 @@ public class RecordConverter {
         }
     }
 
-    public static Set<RecordCategory> mapCategories(List<String> rawList) {
-        if (rawList == null) return Collections.emptySet();
-        return rawList.stream()
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .map(s -> java.text.Normalizer.normalize(s.trim(), java.text.Normalizer.Form.NFKC))
-                .map(RecordCategory::fromLabel)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+    public static RecordCategory mapCategory(String raw) {
+        if (raw == null) return null;
+        String normalized = java.text.Normalizer.normalize(raw.trim(), java.text.Normalizer.Form.NFKC);
+        if (normalized.isEmpty()) return null;
+        return RecordCategory.fromLabel(normalized);
     }
 
     public static List<String> extractNamesByRole(Record record, PersonRole role) {

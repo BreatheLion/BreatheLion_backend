@@ -44,7 +44,7 @@ public class PdfExportService {
                 document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
                 document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
                 document.add(new Paragraph("발생 정황: " + record.getContent(), font));
-                document.add(new Paragraph("----------------------", font));
+                document.add(new Paragraph("----------------------------------------------------------------------------------------", font));
             }
             document.close();
             return baos.toByteArray();
@@ -82,7 +82,7 @@ public class PdfExportService {
                 document.add(new Paragraph("수신인(가해자) 이름: " + dto.getReceiverName(), font));
                 document.add(new Paragraph("수신인 전화번호: " + dto.getReceiverPhone(), font));
             }
-            document.add(new Paragraph("----------------------", font));
+            document.add(new Paragraph("----------------------------------------------------------------------------------------", font));
             boolean first = true;
             for (Record record : records) {
                 if (!first) document.newPage();
@@ -96,7 +96,7 @@ public class PdfExportService {
                 document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
                 document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
                 document.add(new Paragraph("발생 정황: " + record.getContent(), font));
-                document.add(new Paragraph("----------------------", font));
+                document.add(new Paragraph("----------------------------------------------------------------------------------------", font));
             }
             document.close();
             return baos.toByteArray();
@@ -128,7 +128,7 @@ public class PdfExportService {
                 document.add(new Paragraph("제목: " + record.getTitle(), font));
                 document.add(new Paragraph("카테고리: " + joinCategory(record), font));
                 document.add(new Paragraph("사건내용: " + record.getContent(), font));
-                document.add(new Paragraph("----------------------", font));
+                document.add(new Paragraph("----------------------------------------------------------------------------------------", font));
             }
             document.close();
             return baos.toByteArray();
@@ -139,6 +139,10 @@ public class PdfExportService {
 
     private BaseFont getSafeFont() throws Exception {
         ClassPathResource fontResource = new ClassPathResource("fonts/NanumGothic.ttf");
+        //0823수정. 에러 메세지 출력용
+        if(!fontResource.exists()) {
+            throw new IllegalStateException("폰트 파일을 찾을 수 없습니다: classpath:/fonts/NanumGothic.ttf");
+        }
         File tempFont = File.createTempFile("NanumGothic", ".ttf");
         try (InputStream is = fontResource.getInputStream(); FileOutputStream fos = new FileOutputStream(tempFont)) {
             byte[] buffer = new byte[4096];

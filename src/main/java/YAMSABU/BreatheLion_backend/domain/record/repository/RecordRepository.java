@@ -48,3 +48,4 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 
     List<Record> findByDrawerId(Long drawerId);
 }
+

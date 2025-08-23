@@ -18,8 +18,10 @@ import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,10 +127,10 @@ public class DrawerServiceImpl implements DrawerService {
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
 
-        // 2) 키워드 정규화 (null/공백 → null, LIKE 특수문자 escape)
+        // 키워드 정규화 (null/공백 → null, LIKE 특수문자 escape)
         String kw = normalizeKeyword(keyword);
 
-        // 3) 분기: 전체 vs 키워드 검색
+        // 분기: 전체 vs 키워드 검색
         List<Record> records = (kw == null)
                 ? recordRepository.findAllByDrawer(drawer.getId())
                 : recordRepository.searchByDrawerAndKeyword(drawer.getId(), kw);
@@ -136,7 +138,6 @@ public class DrawerServiceImpl implements DrawerService {
         // 결과 담을 리스트
         List<TimelineResponseDTO> timelines = new ArrayList<>();
 
-        // 하나씩 변환해서 리스트에 추가
         for (Record record : records) {
             TimelineResponseDTO dto = RecordConverter.toTimelineResponseDTO(record);
             timelines.add(dto);
