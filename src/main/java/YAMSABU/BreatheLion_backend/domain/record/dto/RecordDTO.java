@@ -33,7 +33,6 @@ public class RecordDTO {
         @NotBlank
         private String content;
 
-        @Min(1) @Max(5)
         private Integer severity;
 
         @NotBlank
@@ -51,7 +50,6 @@ public class RecordDTO {
         private String drawer;
 
         private List<EvidenceSaveRequestDTO> evidences;
-
     }
 
     @Getter

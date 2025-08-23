@@ -127,7 +127,7 @@ public class RecordServiceImpl implements RecordService {
     @Override
     public RecordDetailResponseDTO getDetail(Long recordId) {
         Record record = recordRepository.findById(recordId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 기록은 존재하지 않습니다."));
 
         List<Evidence> evidences = evidenceRepository.findByRecord(record);
         List<RecordDetailResponseDTO.EvidenceItemDTO> evidenceItemDTOS = evidences.stream()
@@ -136,7 +136,7 @@ public class RecordServiceImpl implements RecordService {
                         .recordId(record.getId())
                         .type(evidence.getType().name())
                         .filename(evidence.getFilename())
-                        .s3Url(s3FileService.getGetPreSignedUrlByKey(evidence.getS3Key(), 10)) // 10분 유효시간
+                        .s3Url(s3FileService.getGetPreSignedUrlByKey(evidence.getS3Key(), 100)) // 10분 유효시간
                         .uploadedAt(evidence.getUploadedAt())
                         .build())
                 .collect(Collectors.toList());
