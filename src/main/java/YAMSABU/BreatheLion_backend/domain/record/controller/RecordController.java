@@ -74,9 +74,9 @@ public class RecordController {
         return ApiResponse.onSuccess("제목 수정 완료");
     }
 
-    @PatchMapping("/{record_id}/drawer/")
-    public ApiResponse<Void> updateDrawer(@PathVariable("record_id") Long recordId, @RequestBody RecordDrawerUpdateRequestDTO request) {
-        recordService.updateDrawer(recordId, request.getDrawerId());
+    @PatchMapping("/{record_id}/new/{drawer_id}/")
+    public ApiResponse<Void> updateDrawer(@PathVariable("record_id") Long recordId, @PathVariable("drawer_id") Long drawerId) {
+        recordService.updateDrawer(recordId,drawerId);
         return ApiResponse.onSuccess("폴더 이동 완료");
     }
 

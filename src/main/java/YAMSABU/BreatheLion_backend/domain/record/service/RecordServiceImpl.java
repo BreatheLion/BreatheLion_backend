@@ -171,7 +171,6 @@ public class RecordServiceImpl implements RecordService {
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
         record.setDrawer(drawer);
-        recordRepository.save(record);
     }
 
 
