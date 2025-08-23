@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RecordRepository extends JpaRepository<Record, Long> {
     List<Record> findByDrawer(Drawer drawer);
@@ -45,6 +46,16 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
         """)
     List<Record> findAllForPdf(@Param("drawerId") Long drawerId,
                                @Param("status") RecordStatus status);
+
+
+    @Query("""
+        select distinct r
+        from Record r
+        left join fetch r.recordPersons rp
+        left join fetch rp.person p
+        where r.id = :id
+    """)
+    Optional<Record> findGraphById(@Param("id") Long id);
 
     List<Record> findByDrawerId(Long drawerId);
 }

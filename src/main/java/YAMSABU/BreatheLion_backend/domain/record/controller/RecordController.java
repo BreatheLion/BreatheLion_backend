@@ -89,18 +89,18 @@ public class RecordController {
         return headers;
     }
 
-    @GetMapping("/{record_id}/consultpdf")
+    @GetMapping("/{record_id}/consultpdf/")
     public ResponseEntity<byte[]> downloadRecordConsultPdf(@PathVariable("record_id") Long recordId) {
-        Record record = recordService.getRecordEntity(recordId);
-        byte[] pdfBytes = pdfService.exportConsultPdf(record);
+        byte[] pdfBytes = pdfService.exportConsultPdf(recordId); // ← id만 넘김
         HttpHeaders headers = pdfHeaders("consult.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
-    @PostMapping("/{record_id}/noticepdf")
-    public ResponseEntity<byte[]> downloadRecordNoticePdf(@PathVariable("record_id") Long recordId, @RequestBody PdfNoticeRequestDTO dto) {
-        Record record = recordService.getRecordEntity(recordId);
-        byte[] pdfBytes = pdfService.exportNoticePdf(record, dto);
+    @PostMapping("/{record_id}/noticepdf/")
+    public ResponseEntity<byte[]> downloadRecordNoticePdf(
+            @PathVariable("record_id") Long recordId,
+            @RequestBody PdfNoticeRequestDTO dto) {
+        byte[] pdfBytes = pdfService.exportNoticePdf(recordId, dto); // ← id만 넘김
         HttpHeaders headers = pdfHeaders("notice.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }

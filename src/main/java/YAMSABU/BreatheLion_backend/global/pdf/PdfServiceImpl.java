@@ -1,12 +1,13 @@
 package YAMSABU.BreatheLion_backend.global.pdf;
 
+import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
+import org.springframework.transaction.annotation.Transactional;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import jakarta.transaction.Transactional;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,27 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class PdfServiceImpl implements PdfService {
-    // 상담용 PDF
+
+    private final RecordRepository recordRepository;
     @Override
-    @Transactional
-    public byte[] exportConsultPdf(Record record) {
+    @Transactional(readOnly = true)
+    public byte[] exportConsultPdf(Long recordId) {
+        Record record = recordRepository.findGraphById(recordId)
+                .orElseThrow(() -> new IllegalArgumentException("Record not found: " + recordId));
+        return doExportConsultPdf(record); // 기존 PDF 생성 로직
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportNoticePdf(Long recordId, PdfNoticeRequestDTO dto) {
+        Record record = recordRepository.findGraphById(recordId)
+                .orElseThrow(() -> new IllegalArgumentException("Record not found: " + recordId));
+        return doExportNoticePdf(record, dto); // 기존 PDF 생성 로직
+    }
+
+
+    // 상담용 PDF
+    private byte[] doExportConsultPdf(Record record) {
         try {
             Document document = new Document();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -34,6 +52,9 @@ public class PdfServiceImpl implements PdfService {
             Font font = new Font(baseFont, 12);
             Font titleFont = new Font(baseFont, 21);
 
+            document.add(new Paragraph(" "));
+            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
             document.add(new Paragraph("상담용 기록 자료", titleFont));
             document.add(new Paragraph("제목: " + record.getTitle(), font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
@@ -43,7 +64,8 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
-            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
+
             document.close();
 
             return baos.toByteArray();
@@ -53,9 +75,7 @@ public class PdfServiceImpl implements PdfService {
     }
 
     // 내용증명용 PDF
-    @Override
-    @Transactional
-    public byte[] exportNoticePdf(Record record, PdfNoticeRequestDTO dto) {
+    private byte[] doExportNoticePdf(Record record, PdfNoticeRequestDTO dto) {
         try {
             Document document = new Document();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -74,10 +94,11 @@ public class PdfServiceImpl implements PdfService {
                 document.add(new Paragraph("발신인 주소: " + dto.getSenderAddress(), font));
                 document.add(new Paragraph("수신인 주소: " + dto.getReceiverAddress(), font));
             }
+            document.add(new Paragraph(" "));
             document.add(new LineSeparator());
-
+            document.add(new Paragraph(" "));
             document.add(new Paragraph("내용증명", titleFont));
-            document.add(new Paragraph("제목: " + record.getTitle(), font));
+            document.add(new Paragraph("제목: " + record.getTitle(),font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
@@ -85,6 +106,7 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
+            document.add(new Paragraph(" "));
             document.add(new LineSeparator());
 
             document.close();
@@ -119,10 +141,12 @@ public class PdfServiceImpl implements PdfService {
 
             // 레코드 출력 (오래된 순, 날짜/제목/카테고리/사건내용)
             for (Record record : records) {
+                document.add(new Paragraph(" "));
                 document.add(new Paragraph("날짜: " + record.getOccurredAt(), font));
                 document.add(new Paragraph("제목: " + record.getTitle(), font));
                 document.add(new Paragraph("카테고리: " + joinCategory(record), font));
                 document.add(new Paragraph("사건내용: " + record.getContent(), font));
+                document.add(new Paragraph(" "));
                 document.add(new LineSeparator());
             }
             document.close();
