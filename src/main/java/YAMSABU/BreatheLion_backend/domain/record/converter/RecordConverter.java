@@ -29,7 +29,6 @@ public class RecordConverter {
                 .location(record.getLocation())
                 .assailant(extractNamesByRole(record, PersonRole.ASSAILANT))
                 .createdAt(record.getCreatedAt())
-                .summary(record.getSummary())
                 .build();
     }
 
@@ -65,8 +64,9 @@ public class RecordConverter {
     }
 
     public static RecordCategory mapCategory(String raw) {
-        if (raw == null || raw.trim().isEmpty()) return null;
+        if (raw == null) return null;
         String normalized = java.text.Normalizer.normalize(raw.trim(), java.text.Normalizer.Form.NFKC);
+        if (normalized.isEmpty()) return null;
         return RecordCategory.fromLabel(normalized);
     }
 
