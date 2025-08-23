@@ -80,13 +80,12 @@ public class Record {
 
     @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Session session;
-  
-    @Builder.Default
+
     @ElementCollection(targetClass = RecordCategory.class)
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
-    @CollectionTable(name = "record_categories", joinColumns = @JoinColumn(name = "record_id"))
-    private Set<RecordCategory> categories = new HashSet<>();
+    @CollectionTable(name = "record_category", joinColumns = @JoinColumn(name = "record_id"))
+    private RecordCategory category;
 
     @Builder.Default
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
