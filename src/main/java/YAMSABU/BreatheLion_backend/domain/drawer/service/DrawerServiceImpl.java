@@ -59,16 +59,17 @@ public class DrawerServiceImpl implements DrawerService {
     @Override
     @Transactional
     public void deleteDrawers(DrawerDeleteRequestDTO dto) {
-        var ids = dto.getDeleteList().stream()
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+        for (Long drawerId : dto.getDeleteList()) {
+            Drawer drawer = drawerRepository.findById(drawerId)
+                    .orElseThrow(() -> new EntityNotFoundException("Drawer not found: " + drawerId));
 
-        if (ids.isEmpty()) {
-            throw new IllegalArgumentException("deleteList must contain at least one id");
+            List<Record> records = recordRepository.findByDrawerId(drawerId);
+
+            if (!records.isEmpty()) {
+                recordRepository.deleteAll(records);
+            }
+            drawerRepository.delete(drawer);
         }
-
-        drawerRepository.deleteAllByIdInBatch(ids);
     }
 
     @Override

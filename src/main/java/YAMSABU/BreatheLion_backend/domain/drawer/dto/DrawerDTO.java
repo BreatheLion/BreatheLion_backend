@@ -23,6 +23,7 @@ public class DrawerDTO {
     public static class DrawerDeleteRequestDTO {
         @NotNull(message = "삭제할 id 리스트는 필수입니다.")
         @Size(min = 1, message = "최소 1개 이상의 id가 필요합니다.")
+        @JsonProperty("delete_list")
         private List<@NotNull(message = "id에 null이 포함될 수 없습니다.") Long> deleteList;
     }
 

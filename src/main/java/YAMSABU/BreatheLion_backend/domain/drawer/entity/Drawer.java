@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.entity;
 
+import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

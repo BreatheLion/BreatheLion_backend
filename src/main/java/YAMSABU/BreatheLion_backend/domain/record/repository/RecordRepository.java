@@ -33,4 +33,6 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
         """)
     List<Record> findAllForPdf(@Param("drawerId") Long drawerId,
                                @Param("status") RecordStatus status);
+
+    List<Record> findByDrawerId(Long drawerId);
 }
