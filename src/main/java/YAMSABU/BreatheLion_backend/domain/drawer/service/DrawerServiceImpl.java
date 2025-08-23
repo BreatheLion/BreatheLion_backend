@@ -2,6 +2,7 @@ package YAMSABU.BreatheLion_backend.domain.drawer.service;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.converter.DrawerConverter;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerDeleteRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
@@ -57,8 +58,10 @@ public class DrawerServiceImpl implements DrawerService {
 
     @Override
     @Transactional
-    public void deleteDrawer(Long drawerId) {
-        drawerRepository.deleteById(drawerId);
+    public void deleteDrawers(DrawerDeleteRequestDTO drawerDeleteRequestDTO) {
+        for (Long id : drawerDeleteRequestDTO.getDeleteList()) {
+            drawerRepository.deleteById(id);
+        }
     }
 
     @Override

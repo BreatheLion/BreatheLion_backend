@@ -60,8 +60,8 @@ public class DrawerController {
 
     // 서랍 삭제
     @PatchMapping("/delete/")
-    public ApiResponse<Void> deleteDrawer(@PathVariable("drawer_id") Long drawerId) {
-        drawerService.deleteDrawer(drawerId);
+    public ApiResponse<Void> deleteDrawer(@Valid @RequestBody DrawerDeleteRequestDTO drawerDeleteRequestDTO) {
+        drawerService.deleteDrawers(drawerDeleteRequestDTO);
         return ApiResponse.onSuccess("서랍 삭제 성공");
     }
 
