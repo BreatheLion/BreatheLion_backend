@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.chat.entity;
 
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,6 +22,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -47,9 +49,10 @@ public class Chat {
     @Column(columnDefinition = "TEXT")
     private String message;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @Column(nullable = true)
-    private List<Evidence> evidences;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "chat_id", nullable = false)  // Evidence 테이블에 FK 생성 (chat_id)
+    @Builder.Default
+    private List<Evidence> evidences = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime sendAt;

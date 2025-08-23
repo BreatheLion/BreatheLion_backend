@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +38,7 @@ public class ChatController {
         return ApiResponse.onSuccess("저장 및 전송 성공", chatService.attachChatting(chatWithEvidenceDTO));
     }
 
-    @GetMapping("/end/")
+    @PutMapping("/end/")
     public ApiResponse<ChatEndResponseDTO>  endChat(@Valid @RequestBody ChatEndRequestDTO chatEndRequestDTO ){
         return ApiResponse.onSuccess("채팅 종료",chatService.endChatting(chatEndRequestDTO));
     }

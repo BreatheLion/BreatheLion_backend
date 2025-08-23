@@ -18,13 +18,13 @@ public class AIAnswerDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SOA_DTO {
-        @JsonProperty("summary")
+        @JsonProperty(value = "summary", required = true)
         private String summary;
 
-        @JsonProperty("organization_id")
+        @JsonProperty(value = "organization_id", required = true)
         private List<Long> organizationID; // 최대 2개
 
-        @JsonProperty("care_guide")
+        @JsonProperty(value = "care_guide", required = true)
         private String care_guide;
     }
 

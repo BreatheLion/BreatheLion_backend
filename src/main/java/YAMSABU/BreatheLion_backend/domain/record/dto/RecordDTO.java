@@ -52,21 +52,19 @@ public class RecordDTO {
 
         private List<EvidenceSaveRequestDTO> evidences;
 
-        @Getter
-        @Builder
-        @AllArgsConstructor
-        @NoArgsConstructor
-        @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-        public static class EvidenceSaveRequestDTO {
-            @NotBlank
-            private String filename;
-            @NotBlank
-            private String type;
-            // Presigned URL이 아니라 S3Key만 저장
-            @NotBlank
-            private String s3Key;
-            // 파일 크기(바이트)
-        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EvidenceSaveRequestDTO {
+        @NotBlank
+        private String filename;
+        @NotBlank
+        private String type;
+        @NotBlank
+        private String s3Key;
     }
 
 
@@ -181,7 +179,7 @@ public class RecordDTO {
 
         private String drawer;
 
-        private List<RecordSaveRequestDTO.EvidenceSaveRequestDTO> evidences;
+        private List<EvidenceSaveRequestDTO> evidences;
 
     }
 

@@ -14,7 +14,7 @@ import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceRespo
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.evidence.repository.EvidenceRepository;
 import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordSaveRequestDTO.EvidenceSaveRequestDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.EvidenceSaveRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 
@@ -128,7 +128,7 @@ public class ChatServiceImpl implements ChatService{
                         .filename(it.getFilename())
                         .s3Key(it.getS3Key())
                         .build();
-                evidenceRepository.save(evidence);
+
                 chatRequest.getEvidences().add(evidence);
             }
         }

@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.record.controller;
 
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordSaveRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDrawerUpdateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentResponseDTO;
@@ -43,13 +44,13 @@ public class RecordController {
 
     // 2. 최종 기록 저장하기 버튼(FINALIZED 상태)
     @PatchMapping("/save/")
-    public ApiResponse<Void> save(@Valid @RequestBody RecordDTO.RecordSaveRequestDTO request) {
+    public ApiResponse<Void> save(@Valid @RequestBody RecordSaveRequestDTO request) {
         recordService.saveFinalize(request);
         return ApiResponse.onSuccess("서랍에 기록이 만들어졌어요.");
     }
 
     // 3. 최근 기록 목록
-    @GetMapping("/recent/")
+    @GetMapping("/recent/")  // 숫자만 매칭
     public ApiResponse<RecordRecentResponseDTO> recent() {
         return ApiResponse.onSuccess("최근기록목록", recordService.getRecent());
     }

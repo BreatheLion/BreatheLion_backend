@@ -38,6 +38,7 @@ public class ChatConverter {
         String messageDate = now.format(DateTimeFormatter.ofPattern("yyyy - MM - dd"));
 
         return ChatStartResponseDTO.builder()
+                .recordId(recordId)
                 .sessionId(sessionId)
                 .answer(assistantChat.getMessage())
                 .messageTime(messageTime)
