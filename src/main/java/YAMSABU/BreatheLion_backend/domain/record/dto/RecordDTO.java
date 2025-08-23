@@ -75,21 +75,20 @@ public class RecordDTO {
     @NoArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecordRecentItemDTO {
-
         // 상세 기록 진입을 위한 키값
         private Long recordId;
 
         private Long drawerId;
 
-        private String drawer;
+        private String drawer_title;
+
+        private String record_title;
 
         private String location;
 
         private List<String> assailant;
 
         private LocalDateTime createdAt;
-
-        private String summary;
     }
 
     @Getter

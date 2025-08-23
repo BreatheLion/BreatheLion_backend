@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface RecordRepository extends JpaRepository<Record, Long> {
     List<Record> findByDrawer(Drawer drawer);
-  
-    // 페이징 없이 전체 FINALIZED 기록을 최신순으로 반환
+
     List<Record> findByRecordStatusOrderByCreatedAtDesc(RecordStatus status);
 }
