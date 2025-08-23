@@ -34,7 +34,7 @@ public class DrawerConverter {
     }
     // 년. 월. 일. (시 : 분)
     public static DrawerItemDTO toItemDTO(Drawer drawer) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd (HH : mm)");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd.");
 
         return DrawerItemDTO.builder()
                 .drawerId(drawer.getId())

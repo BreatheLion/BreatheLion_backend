@@ -58,15 +58,24 @@ public class DrawerServiceImpl implements DrawerService {
 
     @Override
     @Transactional
-    public void deleteDrawers(DrawerDeleteRequestDTO drawerDeleteRequestDTO) {
-        drawerRepository.deleteAllByIdInBatch(drawerDeleteRequestDTO.getDeleteList());
+    public void deleteDrawers(DrawerDeleteRequestDTO dto) {
+        var ids = dto.getDeleteList().stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (ids.isEmpty()) {
+            throw new IllegalArgumentException("deleteList must contain at least one id");
+        }
+
+        drawerRepository.deleteAllByIdInBatch(ids);
     }
 
     @Override
     @Transactional(readOnly = true)
     public String getDrawerName(Long drawerId) {
-          Drawer drawer = drawerRepository.findById(drawerId)
-            .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
+        Drawer drawer = drawerRepository.findById(drawerId)
+                .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
         return drawer.getName();
     }
 
@@ -99,7 +108,7 @@ public class DrawerServiceImpl implements DrawerService {
 
     public void rename(Long drawerId, String newName) {
         if(newName == null || newName.isBlank()) {
-                throw new IllegalArgumentException("서랍 이름의 형식이 올바르지 않습니다.");
+            throw new IllegalArgumentException("서랍 이름의 형식이 올바르지 않습니다.");
         }
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
@@ -111,7 +120,7 @@ public class DrawerServiceImpl implements DrawerService {
     @Transactional(readOnly = true)
     public List<DrawerTimelineResponseDTO> searchSummaryByKeyword(Long drawerId, String keyword) {
         Drawer drawer = drawerRepository.findById(drawerId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
         List<Record> records;
         if (keyword == null || keyword.trim().isEmpty()) {
             records = recordRepository.findByDrawerAndRecordStatusOrderByCreatedAtDesc(drawer, RecordStatus.FINALIZED);

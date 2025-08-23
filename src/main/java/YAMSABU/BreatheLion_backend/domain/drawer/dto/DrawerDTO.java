@@ -3,6 +3,8 @@ package YAMSABU.BreatheLion_backend.domain.drawer.dto;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,9 @@ public class DrawerDTO {
     @AllArgsConstructor
     @Builder
     public static class DrawerDeleteRequestDTO {
-        List<Long> deleteList;
+        @NotNull(message = "삭제할 id 리스트는 필수입니다.")
+        @Size(min = 1, message = "최소 1개 이상의 id가 필요합니다.")
+        private List<@NotNull(message = "id에 null이 포함될 수 없습니다.") Long> deleteList;
     }
 
     @Getter

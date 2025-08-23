@@ -14,7 +14,7 @@ public interface DrawerService {
 
     DrawerListResponseDTO getDrawerList();
 
-    void deleteDrawers(DrawerDeleteRequestDTO drawerDeleteRequestDTO);
+    void deleteDrawers(DrawerDeleteRequestDTO dto);
 
     String getDrawerName(Long drawerId);
   
