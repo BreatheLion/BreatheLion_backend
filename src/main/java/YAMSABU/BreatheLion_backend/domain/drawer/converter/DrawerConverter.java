@@ -93,7 +93,7 @@ public class DrawerConverter {
     public static DrawerDTO.DrawerTimelineResponseDTO toTimelineResponseDTO(Record record) {
         return DrawerDTO.DrawerTimelineResponseDTO.builder()
                 .recordId(record.getId())
-                .categories(record.getCategories() == null ? List.of() : record.getCategories().stream().map(Enum::name).toList())
+                .category(record.getCategory() == null ? null : record.getCategory().name())
                 .title(record.getTitle())
                 .severity(record.getSeverity())
                 .location(record.getLocation())
