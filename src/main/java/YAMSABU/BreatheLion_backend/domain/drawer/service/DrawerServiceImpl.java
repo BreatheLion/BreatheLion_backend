@@ -59,9 +59,7 @@ public class DrawerServiceImpl implements DrawerService {
     @Override
     @Transactional
     public void deleteDrawers(DrawerDeleteRequestDTO drawerDeleteRequestDTO) {
-        for (Long id : drawerDeleteRequestDTO.getDeleteList()) {
-            drawerRepository.deleteById(id);
-        }
+        drawerRepository.deleteAllByIdInBatch(drawerDeleteRequestDTO.getDeleteList());
     }
 
     @Override
