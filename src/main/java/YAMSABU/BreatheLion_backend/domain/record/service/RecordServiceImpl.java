@@ -75,7 +75,7 @@ public class RecordServiceImpl implements RecordService {
         record.setOccurredAt(request.getOccurredAt());
 
         if (request.getCategory() != null) {
-            record.setCategory(RecordCategory.fromLabel(request.getCategory()));
+            record.setCategory(RecordConverter.mapCategory(request.getCategory()));
         }
 
         if (request.getDrawer() != null && !request.getDrawer().isBlank()) {

@@ -16,8 +16,10 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineRes
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
@@ -110,7 +112,9 @@ public class DrawerServiceImpl implements DrawerService {
     @Transactional(readOnly = true)
     public List<DrawerTimelineResponseDTO> searchSummaryByKeyword(Long drawerId, String keyword) {
         Drawer drawer = drawerRepository.findById(drawerId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
+            //0823수정.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
+                // 500 -> 404 에러로 띄우기 위함
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 서랍입니다. id=" + drawerId));
         List<Record> records;
         if (keyword == null || keyword.trim().isEmpty()) {
             records = recordRepository.findByDrawerAndRecordStatusOrderByCreatedAtDesc(drawer, RecordStatus.FINALIZED);

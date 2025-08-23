@@ -81,7 +81,12 @@ public class DrawerController {
         List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
                 .stream()
                 .filter(r -> r.getDrawer() != null && r.getDrawer().getId().equals(drawerId))
-                .sorted(Comparator.comparing(Record::getOccurredAt))
+                //0823수정
+                .sorted(Comparator.comparing(
+                        Record::getOccurredAt,
+                        java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
+                ))
+                // .sorted(Comparator.comparing(Record::getOccurredAt))
                 .toList();
         String drawerName = drawerService.getDrawerName(drawerId);
         byte[] pdfBytes = pdfExportService.exportAllPdf(records, drawerName);
