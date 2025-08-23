@@ -10,6 +10,7 @@ import YAMSABU.BreatheLion_backend.domain.evidence.repository.EvidenceRepository
 import YAMSABU.BreatheLion_backend.domain.person.repository.PersonRepository;
 import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
+import YAMSABU.BreatheLion_backend.domain.record.entity.RecordCategory;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
@@ -73,9 +74,8 @@ public class RecordServiceImpl implements RecordService {
         record.setLocation(request.getLocation());
         record.setOccurredAt(request.getOccurredAt());
 
-        if (request.getCategories() != null) {
-            record.getCategories().clear();
-            record.getCategories().addAll(RecordConverter.mapCategories(request.getCategories()));
+        if (request.getCategory() != null) {
+            record.setCategory(RecordCategory.fromLabel(request.getCategory()));
         }
 
         if (request.getDrawer() != null && !request.getDrawer().isBlank()) {

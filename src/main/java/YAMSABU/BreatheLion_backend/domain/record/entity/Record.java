@@ -6,9 +6,7 @@ import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,9 +29,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "records")
@@ -80,13 +76,10 @@ public class Record {
 
     @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Session session;
-  
-    @Builder.Default
-    @ElementCollection(targetClass = RecordCategory.class)
+
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
-    @CollectionTable(name = "record_categories", joinColumns = @JoinColumn(name = "record_id"))
-    private Set<RecordCategory> categories = new HashSet<>();
+    private RecordCategory category;
 
     @Builder.Default
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)

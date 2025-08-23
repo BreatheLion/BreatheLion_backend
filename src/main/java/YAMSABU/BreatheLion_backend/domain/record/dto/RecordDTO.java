@@ -28,7 +28,7 @@ public class RecordDTO {
 
         private String title;
 
-        private List<String> categories;
+        private String category;
 
         @NotBlank
         private String content;
@@ -115,7 +115,7 @@ public class RecordDTO {
         // 제목 대신 서랍이름으로 상세기록에 뜨는거 맞나?
         private String drawer;
 
-        private List<String> categories;
+        private String category;
 
         private String title;
 
@@ -162,7 +162,7 @@ public class RecordDTO {
 
         private String title;
 
-        private List<String> categories;
+        private String category;
 
         private String content;
 
@@ -197,5 +197,18 @@ public class RecordDTO {
     @NoArgsConstructor
     public static class RecordDrawerUpdateRequestDTO {
         private Long drawerId;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class RecordTimelineDTO {
+        private Long recordId;
+        private String title;
+        private String summary;
+        private LocalDateTime occurredAt;
+        private String category;
     }
 }

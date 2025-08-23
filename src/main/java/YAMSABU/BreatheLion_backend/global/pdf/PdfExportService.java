@@ -37,7 +37,7 @@ public class PdfExportService {
                 first = false;
                 document.add(new Paragraph("상담용 기록 자료", titleFont));
                 document.add(new Paragraph("제목: " + record.getTitle(), font));
-                document.add(new Paragraph("카테고리: " + joinCategories(record), font));
+                document.add(new Paragraph("카테고리: " + joinCategory(record), font));
                 document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
                 document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
                 document.add(new Paragraph("심각도: " + record.getSeverity(), font));
@@ -89,7 +89,7 @@ public class PdfExportService {
                 first = false;
                 document.add(new Paragraph("내용증명", titleFont));
                 document.add(new Paragraph("제목: " + record.getTitle(), font));
-                document.add(new Paragraph("카테고리: " + joinCategories(record), font));
+                document.add(new Paragraph("카테고리: " + joinCategory(record), font));
                 document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
                 document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
                 document.add(new Paragraph("심각도: " + record.getSeverity(), font));
@@ -126,7 +126,7 @@ public class PdfExportService {
             for (Record record : records) {
                 document.add(new Paragraph("날짜: " + record.getOccurredAt(), font));
                 document.add(new Paragraph("제목: " + record.getTitle(), font));
-                document.add(new Paragraph("카테고리: " + joinCategories(record), font));
+                document.add(new Paragraph("카테고리: " + joinCategory(record), font));
                 document.add(new Paragraph("사건내용: " + record.getContent(), font));
                 document.add(new Paragraph("----------------------", font));
             }
@@ -150,11 +150,9 @@ public class PdfExportService {
         return BaseFont.createFont(tempFont.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
     }
 
-    private String joinCategories(Record r) {
-        if (r.getCategories() == null || r.getCategories().isEmpty()) return "";
-        return r.getCategories().stream()
-                .map(RecordCategory::getLabel)
-                .collect(Collectors.joining(", "));
+    private String joinCategory(Record r) {
+        if (r.getCategory() == null) return "";
+        return r.getCategory().getLabel();
     }
 
     private String joinNamesByRole(Record r, PersonRole role) {

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class DrawerDTO {
@@ -100,5 +101,28 @@ public class DrawerDTO {
         private String description;
         private String phone;
         private String url;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DrawerTimelineRequestDTO {
+        private String keyword;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DrawerTimelineResponseDTO {
+        private Long recordId;
+        private String category;
+        private String title;
+        private String location;
+        private Integer severity;
+        private String summary;
+        @JsonProperty("occurred_at")
+        private String occurredAt;
     }
 }
