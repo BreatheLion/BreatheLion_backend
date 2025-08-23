@@ -4,6 +4,8 @@ import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -21,4 +23,14 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 
     // 특정 서랍장 내 summary에 키워드가 포함된 FINALIZED 기록을 최신순으로 반환
     List<Record> findByDrawerAndRecordStatusAndSummaryContainingOrderByCreatedAtDesc(Drawer drawer, RecordStatus status, String keyword);
+
+    @Query("""
+        select distinct r
+        from Record r
+        left join fetch r.recordPersons rp
+        left join fetch rp.person p
+        where r.drawer.id = :drawerId and r.recordStatus = :status
+        """)
+    List<Record> findAllForPdf(@Param("drawerId") Long drawerId,
+                               @Param("status") RecordStatus status);
 }

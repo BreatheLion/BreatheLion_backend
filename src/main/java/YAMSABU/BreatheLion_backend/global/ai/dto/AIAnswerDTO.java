@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,8 +61,8 @@ public class AIAnswerDTO {
         @JsonProperty(value = "title", required = true)
         private String title;
 
-        @JsonProperty(value = "categories", required = true)
-        private List<RecordCategory> categories;
+        @JsonProperty(value = "category", required = true)
+        private RecordCategory category;
 
         @JsonProperty(value = "content", required = true)
         private String content;

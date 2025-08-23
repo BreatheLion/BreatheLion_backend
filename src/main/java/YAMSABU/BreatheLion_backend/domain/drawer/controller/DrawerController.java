@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,7 +59,7 @@ public class DrawerController {
     }
 
     // 서랍 삭제
-    @DeleteMapping("/{drawer_id}/delete/")
+    @PatchMapping("/delete/")
     public ApiResponse<Void> deleteDrawer(@PathVariable("drawer_id") Long drawerId) {
         drawerService.deleteDrawer(drawerId);
         return ApiResponse.onSuccess("서랍 삭제 성공");
@@ -78,10 +79,12 @@ public class DrawerController {
     @GetMapping("/{drawer_id}/pdf/")
     public ResponseEntity<byte[]> downloadAllPdf(@PathVariable("drawer_id") Long drawerId) {
         // 해당 서랍의 FINALIZED 기록 모두 조회 (오래된 순)
-        List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED)
+        List<Record> records = recordRepository.findAllForPdf(drawerId, RecordStatus.FINALIZED)
                 .stream()
-                .filter(r -> r.getDrawer() != null && r.getDrawer().getId().equals(drawerId))
-                .sorted(Comparator.comparing(Record::getOccurredAt))
+                .sorted(java.util.Comparator.comparing(
+                        Record::getOccurredAt,
+                        java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
+                ))
                 .toList();
         String drawerName = drawerService.getDrawerName(drawerId);
         byte[] pdfBytes = pdfExportService.exportAllPdf(records, drawerName);
