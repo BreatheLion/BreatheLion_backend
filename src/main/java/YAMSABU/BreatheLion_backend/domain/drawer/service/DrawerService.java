@@ -7,7 +7,6 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListRespons
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.TimelineListDTO;
 
-import java.util.List;
 
 
 public interface DrawerService {

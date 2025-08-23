@@ -5,7 +5,8 @@ import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordSaveRequest
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.service.RecordService;
-import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
+import YAMSABU.BreatheLion_backend.global.pdf.PdfService;
+import YAMSABU.BreatheLion_backend.global.pdf.PdfServiceImpl;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ import java.nio.charset.StandardCharsets;
 public class RecordController {
 
     private final RecordService recordService;
-    private final PdfExportService pdfExportService;
+    private final PdfService pdfService;
 
     // 2. 최종 기록 저장하기 버튼(FINALIZED 상태)
     @PatchMapping("/save/")
@@ -88,30 +89,20 @@ public class RecordController {
         return headers;
     }
 
-    @GetMapping("/{record_id}/pdf")
-    public ResponseEntity<byte[]> downloadRecordConsultPdf(@PathVariable("record_id") Long recordId,
-                                                          @RequestParam("type") String type) {
-        if (!"consult".equals(type)) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    @GetMapping("/{record_id}/consultpdf")
+    public ResponseEntity<byte[]> downloadRecordConsultPdf(@PathVariable("record_id") Long recordId) {
         Record record = recordService.getRecordEntity(recordId);
-        byte[] pdfBytes = pdfExportService.exportConsultPdf(List.of(record));
+        byte[] pdfBytes = pdfService.exportConsultPdf(record);
         HttpHeaders headers = pdfHeaders("consult.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
-    @PostMapping("/{record_id}/pdf")
-    public ResponseEntity<byte[]> downloadRecordNoticePdf(@PathVariable("record_id") Long recordId,
-                                                         @RequestParam("type") String type,
-                                                         @RequestBody PdfNoticeRequestDTO dto) {
-        if (!"notice".equals(type)) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    @PostMapping("/{record_id}/noticepdf")
+    public ResponseEntity<byte[]> downloadRecordNoticePdf(@PathVariable("record_id") Long recordId, @RequestBody PdfNoticeRequestDTO dto) {
         Record record = recordService.getRecordEntity(recordId);
-        byte[] pdfBytes = pdfExportService.exportNoticePdf(List.of(record), dto);
+        byte[] pdfBytes = pdfService.exportNoticePdf(record, dto);
         HttpHeaders headers = pdfHeaders("notice.pdf");
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
-
 }
 
