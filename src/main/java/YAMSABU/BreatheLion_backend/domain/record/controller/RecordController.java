@@ -6,7 +6,6 @@ import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailRespo
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.service.RecordService;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfService;
-import YAMSABU.BreatheLion_backend.global.pdf.PdfServiceImpl;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +20,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
-import java.util.List;
-
-import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import org.springframework.http.ContentDisposition;
 
 import java.nio.charset.StandardCharsets;

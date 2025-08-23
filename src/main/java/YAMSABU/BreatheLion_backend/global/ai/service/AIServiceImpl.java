@@ -132,6 +132,7 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .entity(LawListDTO.class);
 
+        drawer.clean();
         for (LawDTO dto : lawListDTO.getLaws()) {
             if (dto == null) continue;
             String lawName = dto.getLawName();
@@ -180,25 +181,25 @@ public class AIServiceImpl implements AIService{
     @Transactional
     public String recordSummary(Record record){
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
-                .model("gpt-4.1-nano")
-                .temperature(0.45)
-                .build();
+            .model("gpt-4.1-nano")
+            .temperature(0.45)
+            .build();
 
         String recordInfo =
-                "내용: " + record.getContent() + "\n" +
-                "장소: " + record.getLocation() + "\n" +
-                "발생일시: " + (record.getOccurredAt() != null ? record.getOccurredAt().toString() : "") + "\n" +
-                "카테고리: " + (record.getCategory() != null ? record.getCategory().name() : "");
+            "내용: " + record.getContent() + "\n" +
+            "장소: " + record.getLocation() + "\n" +
+            "발생일시: " + (record.getOccurredAt() != null ? record.getOccurredAt().toString() : "") + "\n" +
+            "카테고리: " + (record.getCategory() != null ? record.getCategory().name() : "");
 
         return chatClient
-                .prompt()
-                .user(userSpec -> userSpec
-                        .text(forRECORDSUMMARY)
-                        .param("title", record.getTitle())
-                        .param("info",recordInfo))
-                .options(openAiChatOptions)
-                .call()
-                .content();
+            .prompt()
+            .user(userSpec -> userSpec
+                    .text(forRECORDSUMMARY)
+                    .param("title", record.getTitle())
+                    .param("info",recordInfo))
+            .options(openAiChatOptions)
+            .call()
+            .content();
     }
 
 }

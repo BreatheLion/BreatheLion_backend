@@ -4,8 +4,6 @@ import YAMSABU.BreatheLion_backend.global.code.SuccessCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Collections;
-
 @Getter
 @AllArgsConstructor
 public class ApiResponse<T> {

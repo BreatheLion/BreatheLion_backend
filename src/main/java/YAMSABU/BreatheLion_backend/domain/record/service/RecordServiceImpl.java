@@ -1,6 +1,5 @@
 package YAMSABU.BreatheLion_backend.domain.record.service;
 
-import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
@@ -10,12 +9,12 @@ import YAMSABU.BreatheLion_backend.domain.evidence.repository.EvidenceRepository
 import YAMSABU.BreatheLion_backend.domain.person.repository.PersonRepository;
 import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
-import YAMSABU.BreatheLion_backend.domain.record.entity.RecordCategory;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.stream;
 
 @Slf4j
 @Service
@@ -43,7 +41,6 @@ public class RecordServiceImpl implements RecordService {
     private final PersonRepository personRepository;
     private final EvidenceRepository evidenceRepository;
     private final S3FileService s3FileService;
-    private final DrawerService drawerService;
     private final AIService aiService;
 
     @Override
@@ -92,18 +89,9 @@ public class RecordServiceImpl implements RecordService {
         recordRepository.save(record);
         record.setRecordStatus(RecordStatus.FINALIZED);
 
-        aiService.recordSummary(record);
+        record.setSummary(aiService.recordSummary(record));
 
-        List<Record> records = recordRepository.findByDrawer(record.getDrawer());
-
-        String summaries = records.stream()
-                .map(Record::getSummary)          // summary 필드만 추출
-                .filter(Objects::nonNull)         // null summary 제거
-                .filter(s -> !s.trim().isEmpty()) // 빈 문자열 제거
-                .collect(Collectors.joining("\n")); // 줄바꿈으로 이어붙이기
-
-        aiService.lawSearch(record.getDrawer(),summaries);
-        aiService.helpAnswer(record.getDrawer(), summaries);
+        processAI(request.getRecordId());
 
         drawerRepository.incrementRecordCount(record.getDrawer().getId());
     }
@@ -150,6 +138,9 @@ public class RecordServiceImpl implements RecordService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
         evidenceRepository.deleteByRecord(record);
         recordRepository.delete(record);
+
+        processAI(recordId);
+
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
     }
 
@@ -169,9 +160,14 @@ public class RecordServiceImpl implements RecordService {
         Record record = mustBeFinalized(recordId);
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
 
+        processAI(recordId);
+
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
         record.setDrawer(drawer);
+
+        processAI(recordId);
+
         drawerRepository.incrementRecordCount(record.getDrawer().getId());
     }
 
@@ -214,5 +210,22 @@ public class RecordServiceImpl implements RecordService {
     public Record getRecordEntity(Long recordId) {
         return recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기록을 찾을 수 없습니다."));
+    }
+
+
+    private void processAI(Long recordId) {
+        Record record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new EntityNotFoundException("Record not found: " + recordId));
+
+        List<Record> records = recordRepository.findByDrawer(record.getDrawer());
+
+        String summaries = records.stream()
+                .map(Record::getSummary)
+                .filter(Objects::nonNull)
+                .filter(s -> !s.trim().isEmpty())
+                .collect(Collectors.joining("\n"));
+
+        aiService.lawSearch(record.getDrawer(), summaries);
+        aiService.helpAnswer(record.getDrawer(), summaries);
     }
 }

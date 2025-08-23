@@ -18,10 +18,8 @@ import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +32,6 @@ public class DrawerServiceImpl implements DrawerService {
 
     private final DrawerRepository drawerRepository;
     private final RecordRepository recordRepository;
-    private final AIService aiService;
-    private final OrganizationRepository organizationRepository;
 
     @Override
     @Transactional

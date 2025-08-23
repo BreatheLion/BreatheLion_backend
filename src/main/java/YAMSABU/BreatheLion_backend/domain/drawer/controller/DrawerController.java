@@ -8,7 +8,6 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfServiceImpl;
-import YAMSABU.BreatheLion_backend.global.pdf.PdfNoticeRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;

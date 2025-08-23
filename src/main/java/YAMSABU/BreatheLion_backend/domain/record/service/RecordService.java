@@ -2,7 +2,6 @@ package YAMSABU.BreatheLion_backend.domain.record.service;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 
-import java.util.List;
 
 public interface RecordService {
 

@@ -1,6 +1,5 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.entity;
 
-import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -77,6 +76,9 @@ public class Drawer {
     public void addLaw(Law law) {
         this.relatedLaws.add(law);
         law.setDrawer(this);
+    }
+    public void clean() {
+        this.relatedLaws.clear();
     }
 
     public void addOrganization(Organization org) {

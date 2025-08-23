@@ -1,6 +1,5 @@
 package YAMSABU.BreatheLion_backend.domain.record.converter;
 
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
@@ -12,10 +11,8 @@ import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.TimelineResponseD
 
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
 import java.util.stream.Collectors;
 
 public class RecordConverter {
