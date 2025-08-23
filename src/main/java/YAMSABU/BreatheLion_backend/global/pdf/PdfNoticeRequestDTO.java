@@ -1,5 +1,7 @@
 package YAMSABU.BreatheLion_backend.global.pdf;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PdfNoticeRequestDTO {
     private String senderName; // 발신인(피해자) 이름
     private String senderAddress; // 발신인 주소 (주소 모를 경우 null)
