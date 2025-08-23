@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.record.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.Max;
@@ -198,15 +199,18 @@ public class RecordDTO {
     }
 
     @Getter
-    @Builder
-    @AllArgsConstructor
     @NoArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class RecordTimelineDTO {
+    @AllArgsConstructor
+    @Builder
+    public static class TimelineResponseDTO {
+        @JsonProperty("record_id")
         private Long recordId;
-        private String title;
-        private String summary;
-        private LocalDateTime occurredAt;
         private String category;
+        private String title;
+        private String location;
+        private Integer severity;
+        private String summary;
+        @JsonProperty("occurred_at")
+        private String occurredAt;
     }
 }

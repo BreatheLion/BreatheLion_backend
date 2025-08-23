@@ -6,20 +6,22 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerDeleteReque
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.TimelineListDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
+import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.TimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -119,19 +121,43 @@ public class DrawerServiceImpl implements DrawerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DrawerTimelineResponseDTO> searchSummaryByKeyword(Long drawerId, String keyword) {
+    public TimelineListDTO searchSummaryByKeyword(Long drawerId, String keyword) {
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
-        List<Record> records;
-        if (keyword == null || keyword.trim().isEmpty()) {
-            records = recordRepository.findByDrawerAndRecordStatusOrderByCreatedAtDesc(drawer, RecordStatus.FINALIZED);
-        } else {
-            records = recordRepository.findByDrawerAndRecordStatusAndSummaryContainingOrderByCreatedAtDesc(drawer, RecordStatus.FINALIZED, keyword);
-        }
-        List<DrawerTimelineResponseDTO> result = new java.util.ArrayList<>();
+
+        // 2) 키워드 정규화 (null/공백 → null, LIKE 특수문자 escape)
+        String kw = normalizeKeyword(keyword);
+
+        // 3) 분기: 전체 vs 키워드 검색
+        List<Record> records = (kw == null)
+                ? recordRepository.findAllByDrawer(drawer.getId())
+                : recordRepository.searchByDrawerAndKeyword(drawer.getId(), kw);
+
+        // 결과 담을 리스트
+        List<TimelineResponseDTO> timelines = new ArrayList<>();
+
+        // 하나씩 변환해서 리스트에 추가
         for (Record record : records) {
-            result.add(DrawerConverter.toTimelineResponseDTO(record));
+            TimelineResponseDTO dto = RecordConverter.toTimelineResponseDTO(record);
+            timelines.add(dto);
         }
-        return result;
+        return TimelineListDTO.builder()
+                .timelines(timelines)
+                .build();
+    }
+    // 전처리 작업
+    private String normalizeKeyword(String keyword) {
+        if (keyword == null) return null;
+        String t = keyword.trim();
+        if (t.isEmpty()) return null;
+        return escapeForLike(t);
+    }
+
+    // 특수기호를 사용하기 위해 sql 특수기호 매핑
+    private String escapeForLike(String s) {
+        s = s.replace("!", "!!");
+        s = s.replace("%", "!%");
+        s = s.replace("_", "!_");
+        return s;
     }
 }

@@ -1,11 +1,14 @@
 package YAMSABU.BreatheLion_backend.domain.record.converter;
 
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentItemDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.EvidenceType;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordCategory;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.TimelineResponseDTO;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -83,4 +86,17 @@ public class RecordConverter {
                 .map(recordPerson -> recordPerson.getPerson().getName())
                 .collect(Collectors.toList());
     }
+    public static TimelineResponseDTO toTimelineResponseDTO(Record record) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd.");
+
+        return TimelineResponseDTO.builder()
+                .recordId(record.getId())
+                .category(record.getCategory().getLabel())
+                .title(record.getTitle())
+                .severity(record.getSeverity())
+                .summary(record.getSummary())
+                .occurredAt(record.getOccurredAt().format(formatter))
+                .build();
+    }
 }
+

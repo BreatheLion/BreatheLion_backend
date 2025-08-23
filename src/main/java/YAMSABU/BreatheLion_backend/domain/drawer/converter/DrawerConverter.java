@@ -90,15 +90,4 @@ public class DrawerConverter {
                 .build();
     }
 
-    public static DrawerDTO.DrawerTimelineResponseDTO toTimelineResponseDTO(Record record) {
-        return DrawerDTO.DrawerTimelineResponseDTO.builder()
-                .recordId(record.getId())
-                .category(record.getCategory() == null ? null : record.getCategory().name())
-                .title(record.getTitle())
-                .severity(record.getSeverity())
-                .location(record.getLocation())
-                .summary(record.getSummary())
-                .occurredAt(record.getOccurredAt() == null ? null : record.getOccurredAt().toString())
-                .build();
-    }
 }

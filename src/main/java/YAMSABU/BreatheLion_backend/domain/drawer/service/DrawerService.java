@@ -5,7 +5,8 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerDeleteReque
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.TimelineListDTO;
+
 import java.util.List;
 
 
@@ -22,5 +23,5 @@ public interface DrawerService {
   
     void rename(Long drawerId, String newName);
 
-    List<DrawerTimelineResponseDTO> searchSummaryByKeyword(Long drawerId, String keyword);
+    TimelineListDTO searchSummaryByKeyword(Long drawerId, String keyword);
 }

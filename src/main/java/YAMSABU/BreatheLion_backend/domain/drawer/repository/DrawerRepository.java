@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface DrawerRepository extends JpaRepository<Drawer,Long> {
+public interface DrawerRepository extends JpaRepository<Drawer, Long> {
     boolean existsByName(String name);
 
     List<Drawer> findAllByOrderByCreatedAtDesc();

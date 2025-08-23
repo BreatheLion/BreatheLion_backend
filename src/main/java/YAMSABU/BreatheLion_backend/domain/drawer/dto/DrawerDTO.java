@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.dto;
 
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.TimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawListDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -120,22 +121,8 @@ public class DrawerDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class DrawerTimelineRequestDTO {
-        private String keyword;
+    public static class TimelineListDTO {
+        private List<TimelineResponseDTO>  timelines;
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class DrawerTimelineResponseDTO {
-        private Long recordId;
-        private String category;
-        private String title;
-        private String location;
-        private Integer severity;
-        private String summary;
-        @JsonProperty("occurred_at")
-        private String occurredAt;
-    }
 }

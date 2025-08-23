@@ -15,15 +15,27 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     // 페이징 없이 전체 FINALIZED 기록을 최신순으로 반환
     List<Record> findByRecordStatusOrderByCreatedAtDesc(RecordStatus status);
 
-    // summary에 키워드가 포함된 FINALIZED 기록을 최신순으로 반환
-    List<Record> findByRecordStatusAndSummaryContainingOrderByCreatedAtDesc(RecordStatus status, String keyword);
+    @Query("""
+        select r
+        from Record r
+        where r.drawer.id = :drawerId
+        order by r.createdAt desc, r.id desc
+    """)
+    List<Record> findAllByDrawer(@Param("drawerId") Long drawerId);
 
-    // 특정 서랍장 내 FINALIZED 기록을 최신순으로 반환
-    List<Record> findByDrawerAndRecordStatusOrderByCreatedAtDesc(Drawer drawer, RecordStatus status);
-
-    // 특정 서랍장 내 summary에 키워드가 포함된 FINALIZED 기록을 최신순으로 반환
-    List<Record> findByDrawerAndRecordStatusAndSummaryContainingOrderByCreatedAtDesc(Drawer drawer, RecordStatus status, String keyword);
-
+    @Query("""
+        select r
+        from Record r
+        where r.drawer.id = :drawerId
+          and (
+               lower(r.title)   like lower(concat('%', :kw, '%')) escape '!'
+            or lower(r.content) like lower(concat('%', :kw, '%')) escape '!'
+            or lower(r.summary) like lower(concat('%', :kw, '%')) escape '!'
+          )
+        order by r.createdAt desc, r.id desc
+    """)
+    List<Record> searchByDrawerAndKeyword(@Param("drawerId") Long drawerId,
+                                          @Param("kw") String escapedKeyword);
     @Query("""
         select distinct r
         from Record r

@@ -5,7 +5,6 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListRespons
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerCreateRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerTimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.service.DrawerService;
 import YAMSABU.BreatheLion_backend.global.response.ApiResponse;
 import YAMSABU.BreatheLion_backend.global.pdf.PdfExportService;
@@ -133,11 +132,8 @@ public class DrawerController {
     }
 
     @GetMapping("/{drawer_id}/timeline/")
-    public ApiResponse<List<DrawerTimelineResponseDTO>> searchSummaryByKeyword(
-        @PathVariable("drawer_id") Long drawerId,
-        @RequestParam(value = "keyword", required = false) String keyword
-    ) {
-        List<DrawerTimelineResponseDTO> result = drawerService.searchSummaryByKeyword(drawerId, keyword);
-        return ApiResponse.onSuccess("검색 결과", result);
+    public ApiResponse<TimelineListDTO> searchSummaryByKeyword(
+            @PathVariable("drawer_id") Long drawerId, @RequestParam(value = "keyword", required = false) String keyword) {
+        return ApiResponse.onSuccess("검색 결과", drawerService.searchSummaryByKeyword(drawerId, keyword));
     }
 }
