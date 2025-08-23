@@ -7,12 +7,12 @@ import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatEndResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatWithEvidenceDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
 import YAMSABU.BreatheLion_backend.domain.chat.repository.ChatRepository;
 import YAMSABU.BreatheLion_backend.domain.chat.repository.SessionRepository;
 import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
-import YAMSABU.BreatheLion_backend.domain.evidence.repository.EvidenceRepository;
 import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.EvidenceSaveRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -42,7 +42,6 @@ public class ChatServiceImpl implements ChatService{
     private final ChatRepository chatRepository;
     private final SessionRepository sessionRepository;
     private final RecordRepository recordRepository;
-    private final EvidenceRepository evidenceRepository;
     private final AIService aiService;
     private final S3FileService s3FileService;
 
@@ -154,10 +153,12 @@ public class ChatServiceImpl implements ChatService{
 
         StringBuilder sb = new StringBuilder();
         for (Chat chat : session.getChats()) {
-            sb.append(chat.getRole())
-                    .append(":")
-                    .append(chat.getMessage())
-                    .append("\n");
+            if(chat.getRole() == ChatRole.user) {
+                sb.append(chat.getRole())
+                        .append(":")
+                        .append(chat.getMessage())
+                        .append("\n");
+            }
         }
         String chattingLogs = sb.toString();
 

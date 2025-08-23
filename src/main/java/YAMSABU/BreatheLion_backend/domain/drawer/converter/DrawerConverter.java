@@ -1,15 +1,11 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.converter;
 
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.*;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.AIHelpResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerListResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerItemDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.OrganizationDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
-import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Law;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.LawDTO;
