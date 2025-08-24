@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class PdfServiceImpl implements PdfService {
 
     private final RecordRepository recordRepository;
+
     @Override
     @Transactional(readOnly = true)
     public byte[] exportConsultPdf(Long recordId) {
@@ -52,6 +53,16 @@ public class PdfServiceImpl implements PdfService {
             Font font = new Font(baseFont, 12);
             Font titleFont = new Font(baseFont, 21);
 
+            // 심각도 숫자 -> 높음, 보통, 낮음 변환
+            int severity = record.getSeverity();
+            String severityChange;
+            if(severity == 0)
+                severityChange = "낮음";
+            else if(severity == 1)
+                severityChange = "보통";
+            else severityChange = "높음";
+
+
             document.add(new Paragraph(" "));
             document.add(new LineSeparator());
             document.add(new Paragraph(" "));
@@ -60,7 +71,7 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            document.add(new Paragraph("심각도: " + record.getSeverity(), font));
+            document.add(new Paragraph("심각도: " + severityChange, font));
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
@@ -84,6 +95,16 @@ public class PdfServiceImpl implements PdfService {
             BaseFont baseFont = getSafeFont();
             Font font = new Font(baseFont, 12);
             Font titleFont = new Font(baseFont, 21);
+
+            // 심각도 숫자 -> 높음, 보통, 낮음 변환
+            int severity = record.getSeverity();
+            String severityChange;
+            if(severity == 0)
+                severityChange = "낮음";
+            else if(severity == 1)
+                severityChange = "보통";
+            else severityChange = "높음";
+
             document.add(new Paragraph("발신인(피해자) 이름: " + dto.getSenderName(), font));
             document.add(new Paragraph("수신인(가해자) 이름: " + dto.getReceiverName(), font));
 
@@ -102,7 +123,7 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            document.add(new Paragraph("심각도: " + record.getSeverity(), font));
+            document.add(new Paragraph("심각도: " + severityChange, font));
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
@@ -141,10 +162,20 @@ public class PdfServiceImpl implements PdfService {
 
             // 레코드 출력 (오래된 순, 날짜/제목/카테고리/사건내용)
             for (Record record : records) {
+                int severity = record.getSeverity();
+                String severityChange;
+                if(severity == 0)
+                    severityChange = "낮음";
+                else if(severity == 1)
+                    severityChange = "보통";
+                else
+                    severityChange = "높음";
+
                 document.add(new Paragraph(" "));
                 document.add(new Paragraph("날짜: " + record.getOccurredAt(), font));
                 document.add(new Paragraph("제목: " + record.getTitle(), font));
                 document.add(new Paragraph("카테고리: " + joinCategory(record), font));
+                document.add(new Paragraph("심각도: " + severityChange, font));
                 document.add(new Paragraph("사건내용: " + record.getContent(), font));
                 document.add(new Paragraph(" "));
                 document.add(new LineSeparator());
