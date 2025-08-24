@@ -44,6 +44,7 @@ public class Drawer {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "summary", columnDefinition = "TEXT")
     private String summary;
 
     private String action;
