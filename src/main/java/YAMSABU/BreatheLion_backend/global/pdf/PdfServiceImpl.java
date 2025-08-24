@@ -1,9 +1,10 @@
 package YAMSABU.BreatheLion_backend.global.pdf;
 
+import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import org.springframework.transaction.annotation.Transactional;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
+        import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -11,6 +12,12 @@ import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import YAMSABU.BreatheLion_backend.domain.chat.service.ChatService;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageListDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.evidence.dto.*;
+        import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.EvidenceType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,6 +31,7 @@ import java.util.stream.Collectors;
 public class PdfServiceImpl implements PdfService {
 
     private final RecordRepository recordRepository;
+    private final ChatService chatService;
 
     @Override
     @Transactional(readOnly = true)
@@ -52,6 +60,7 @@ public class PdfServiceImpl implements PdfService {
             BaseFont baseFont = getSafeFont();
             Font font = new Font(baseFont, 12);
             Font titleFont = new Font(baseFont, 21);
+            Font redFont = new Font(baseFont, 12, Font.NORMAL, BaseColor.RED);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -71,7 +80,13 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            document.add(new Paragraph("심각도: " + severityChange, font));
+            if (severity == 2) {
+                Paragraph p = new Paragraph("심각도: ", font);
+                p.add(new Chunk(severityChange, redFont));
+                document.add(p);
+            } else {
+                document.add(new Paragraph("심각도: " + severityChange, font));
+            }
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
@@ -95,6 +110,7 @@ public class PdfServiceImpl implements PdfService {
             BaseFont baseFont = getSafeFont();
             Font font = new Font(baseFont, 12);
             Font titleFont = new Font(baseFont, 21);
+            Font redFont = new Font(baseFont, 12, Font.NORMAL, BaseColor.RED);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -123,13 +139,45 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            document.add(new Paragraph("심각도: " + severityChange, font));
+            if (severity == 2) {
+                Paragraph p = new Paragraph("심각도: ", font);
+                p.add(new Chunk(severityChange, redFont));
+                document.add(p);
+            } else {
+                document.add(new Paragraph("심각도: " + severityChange, font));
+            }
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
             document.add(new LineSeparator());
 
+            // 채팅 보기 출력
+            ChatMessageListDTO chatListDTO = chatService.getChattingList(record.getId());
+            List<ChatMessageResponseDTO> chatList = chatListDTO.getMessages();
+            if (chatList != null && !chatList.isEmpty()) {
+                document.add(new Paragraph(" "));
+                document.add(new Paragraph("채팅 내역", titleFont));
+                for (ChatMessageResponseDTO chat : chatList) {
+                    String prefix = chat.getRole() == ChatRole.assistant ? "챗봇 : " : "사용자 : ";
+                    document.add(new Paragraph(prefix + chat.getContent(), font));
+                    // 이미지 첨부파일 출력
+                    if (chat.getEvidences() != null) {
+                        for (EvidenceResponseDTO evidence : chat.getEvidences()) {
+                            if (evidence.getType() == EvidenceType.IMAGE) {
+                                try {
+                                    Image img = Image.getInstance(evidence.getUrl());
+                                    img.scaleToFit(170, 170); // 6cm x 6cm
+                                    document.add(img);
+                                } catch (Exception ex) {
+                                    document.add(new Paragraph("이미지 첨부 오류", font));
+                                }
+                            }
+                        }
+                    }
+                    // 줄바꿈
+                }
+            }
             document.close();
             return baos.toByteArray();
         } catch (Exception e) {
