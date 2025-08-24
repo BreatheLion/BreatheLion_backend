@@ -44,6 +44,7 @@ public class RecordServiceImpl implements RecordService {
     private final AIService aiService;
 
     @Override
+    @Transactional
     public void saveFinalize(RecordSaveRequestDTO request) {
         if (request.getRecordId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "record_id 필요");
@@ -133,6 +134,7 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
+    @Transactional
     public void deleteRecord(Long recordId) {
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
@@ -145,6 +147,7 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
+    @Transactional
     public void updateTitle(Long recordId, String title) {
         if (!StringUtils.hasText(title) || title.trim().length() > 100) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "제목 형식이 올바르지 않습니다.");
@@ -156,6 +159,7 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
+    @Transactional
     public void updateDrawer(Long recordId, Long drawerId) {
         Record record = mustBeFinalized(recordId);
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
@@ -207,13 +211,14 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
+    @Transactional
     public Record getRecordEntity(Long recordId) {
         return recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기록을 찾을 수 없습니다."));
     }
 
-
-    private void processAI(Long recordId) {
+    @Transactional
+    public void processAI(Long recordId) {
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException("Record not found: " + recordId));
 
