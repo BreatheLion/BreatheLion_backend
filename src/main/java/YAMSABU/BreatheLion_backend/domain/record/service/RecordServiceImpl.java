@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.record.service;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import YAMSABU.BreatheLion_backend.domain.drawer.event.DrawerChangedEvent;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
@@ -17,6 +18,7 @@ import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,8 @@ public class RecordServiceImpl implements RecordService {
     private final EvidenceRepository evidenceRepository;
     private final S3FileService s3FileService;
     private final AIService aiService;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Override
     @Transactional
@@ -91,9 +95,7 @@ public class RecordServiceImpl implements RecordService {
         record.setRecordStatus(RecordStatus.FINALIZED);
 
         record.setSummary(aiService.recordSummary(record));
-
-        // 신규 생성시에는 processAI(request.getId())로 받게되면 그 전의 record를 참조할 수 있다고 함
-        processAI(record.getId());
+        eventPublisher.publishEvent(new DrawerChangedEvent(record.getDrawer().getId()));
 
         drawerRepository.incrementRecordCount(record.getDrawer().getId());
     }
@@ -101,7 +103,7 @@ public class RecordServiceImpl implements RecordService {
     @Transactional(readOnly = true)
     @Override
     public RecordRecentResponseDTO getRecent() {
-        List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED);
+        List<Record> records = recordRepository.findByRecordStatusOrderByOccurredAtDesc(RecordStatus.FINALIZED);
 
         List<RecordRecentItemDTO> items = records.stream()
                 .map(RecordConverter::toRecentItem)
@@ -137,14 +139,17 @@ public class RecordServiceImpl implements RecordService {
     @Override
     @Transactional
     public void deleteRecord(Long recordId) {
+
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
-        // recordId가 삭제되기 전에 processAI로 후처리 먼저 하기
-        processAI(recordId);
+
+        Long drawerId = record.getDrawer().getId(); // ✅ 추가 (이벤트용)
+
         evidenceRepository.deleteByRecord(record);
         recordRepository.delete(record);
-
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
+
+        eventPublisher.publishEvent(new DrawerChangedEvent(drawerId));
     }
 
     @Override
@@ -162,7 +167,10 @@ public class RecordServiceImpl implements RecordService {
     @Override
     @Transactional
     public void updateDrawer(Long recordId, Long drawerId) {
+
         Record record = mustBeFinalized(recordId);
+        Long oldDrawerId = record.getDrawer().getId();
+
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
 
         processAI(recordId);
@@ -174,6 +182,10 @@ public class RecordServiceImpl implements RecordService {
         processAI(recordId);
 
         drawerRepository.incrementRecordCount(record.getDrawer().getId());
+
+        eventPublisher.publishEvent(new DrawerChangedEvent(oldDrawerId));
+        eventPublisher.publishEvent(new DrawerChangedEvent(record.getDrawer().getId()));
+
     }
 
 
@@ -216,22 +228,5 @@ public class RecordServiceImpl implements RecordService {
     public Record getRecordEntity(Long recordId) {
         return recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기록을 찾을 수 없습니다."));
-    }
-
-    @Transactional
-    public void processAI(Long recordId) {
-        Record record = recordRepository.findById(recordId)
-                .orElseThrow(() -> new EntityNotFoundException("Record not found: " + recordId));
-
-        List<Record> records = recordRepository.findByDrawer(record.getDrawer());
-
-        String summaries = records.stream()
-                .map(Record::getSummary)
-                .filter(Objects::nonNull)
-                .filter(s -> !s.trim().isEmpty())
-                .collect(Collectors.joining("\n"));
-
-        aiService.lawSearch(record.getDrawer(), summaries);
-        aiService.helpAnswer(record.getDrawer(), summaries);
     }
 }

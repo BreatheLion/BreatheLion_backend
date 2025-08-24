@@ -13,14 +13,13 @@ import java.util.Optional;
 public interface RecordRepository extends JpaRepository<Record, Long> {
     List<Record> findByDrawer(Drawer drawer);
 
-    // 페이징 없이 전체 FINALIZED 기록을 최신순으로 반환
-    List<Record> findByRecordStatusOrderByCreatedAtDesc(RecordStatus status);
+    List<Record> findByRecordStatusOrderByOccurredAtDesc(RecordStatus recordStatus);
 
     @Query("""
         select r
         from Record r
         where r.drawer.id = :drawerId
-        order by r.createdAt desc, r.id desc
+        order by r.occurredAt desc, r.id desc
     """)
     List<Record> findAllByDrawer(@Param("drawerId") Long drawerId);
 
@@ -33,7 +32,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             or lower(r.content) like lower(concat('%', :kw, '%')) escape '!'
             or lower(r.summary) like lower(concat('%', :kw, '%')) escape '!'
           )
-        order by r.createdAt desc, r.id desc
+        order by r.occurredAt desc, r.id desc
     """)
     List<Record> searchByDrawerAndKeyword(@Param("drawerId") Long drawerId,
                                           @Param("kw") String escapedKeyword);
