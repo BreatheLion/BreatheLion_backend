@@ -173,19 +173,18 @@ public class RecordServiceImpl implements RecordService {
 
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
 
-        processAI(recordId);
 
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
         record.setDrawer(drawer);
 
-        processAI(recordId);
 
         drawerRepository.incrementRecordCount(record.getDrawer().getId());
 
-        eventPublisher.publishEvent(new DrawerChangedEvent(oldDrawerId));
-        eventPublisher.publishEvent(new DrawerChangedEvent(record.getDrawer().getId()));
-
+        if (!oldDrawerId.equals(record.getDrawer().getId())) {
+            eventPublisher.publishEvent(new DrawerChangedEvent(oldDrawerId));
+            eventPublisher.publishEvent(new DrawerChangedEvent(record.getDrawer().getId()));
+        }
     }
 
 
