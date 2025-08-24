@@ -2,6 +2,7 @@ package YAMSABU.BreatheLion_backend.global.ai.service;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Law;
+import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -39,6 +40,7 @@ public class AIServiceImpl implements AIService{
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
     private final OrganizationRepository organizationRepository;
+    private final DrawerRepository drawerRepository;
 
     @Override
     @Transactional
@@ -58,7 +60,8 @@ public class AIServiceImpl implements AIService{
 
     @Override
     @Transactional
-    public void helpAnswer(Drawer drawer, String summaries){
+    public void helpAnswer(Long drawerId, String summaries){
+        Drawer drawer = drawerRepository.findById(drawerId).orElseThrow();
 
         List<Organization> organizations = organizationRepository.findAll();
 
@@ -107,7 +110,8 @@ public class AIServiceImpl implements AIService{
 
     @Override
     @Transactional
-    public void lawSearch(Drawer drawer,String summaries) {
+    public void lawSearch(Long drawerId,String summaries) {
+        Drawer drawer = drawerRepository.findById(drawerId).orElseThrow();
 
         Advisor retrievalAugmentationAdvisor = RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(VectorStoreDocumentRetriever.builder()

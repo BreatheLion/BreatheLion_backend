@@ -45,7 +45,7 @@ public class Session {
     private List<Chat> chats = new ArrayList<>();
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "started_at")
     private LocalDateTime startedAt;
 
     public Session(Record record){

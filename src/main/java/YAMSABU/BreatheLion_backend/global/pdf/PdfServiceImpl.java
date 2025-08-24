@@ -1,5 +1,8 @@
 package YAMSABU.BreatheLion_backend.global.pdf;
 
+import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
+import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import org.springframework.transaction.annotation.Transactional;
 import com.itextpdf.text.*;
@@ -20,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +37,17 @@ public class PdfServiceImpl implements PdfService {
 
     private static final DateTimeFormatter PDF_DATETIME_FMT =
             DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 / HH시 mm분경");
+
+    private static final DateTimeFormatter CHAT_TS_FMT =
+            DateTimeFormatter.ofPattern("[yyyy-MM-dd HH:mm]");
+
+    private String roleLabel(ChatRole role) {
+        return switch (role) {
+            case user -> "사용자";
+            case assistant -> "도우미";
+        };
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -59,6 +75,7 @@ public class PdfServiceImpl implements PdfService {
             document.open();
 
             Font font = kFont(12f);
+            Font midlefont = kFont(16f);
             Font titleFont = kFont(21f);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
@@ -89,9 +106,30 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
+
+            //대화 기록
+            document.add(new Paragraph("대화 기록", midlefont));
+            List<Chat> chats = record.getSession().getChats();
+
+            // 시간순 정렬
+            List<Chat> ordered = new ArrayList<>(chats);
+            ordered.sort(Comparator.comparing(Chat::getSendAt, Comparator.nullsLast(Comparator.naturalOrder())));
+
+            for (Chat chat : ordered) {
+                String ts = chat.getSendAt().format(CHAT_TS_FMT);
+                String msg = (chat.getMessage() == null || chat.getMessage().isBlank()) ? "(내용 없음)" : chat.getMessage();
+
+                String line = String.format("[%s] %s : %s", ts, roleLabel(chat.getRole()), msg);
+                document.add(new Paragraph(line,font));
+            }
+
+            document.add(new Paragraph(" ")); // 마지막 여백
+            document.add(new LineSeparator());
 
             document.close();
-
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("PDF 생성 실패", e);
