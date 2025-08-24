@@ -87,7 +87,7 @@ public class RecordDTO {
 
         private List<String> assailant;
 
-        private LocalDateTime createdAt;
+        private LocalDateTime occurredAt;
     }
 
     @Getter
