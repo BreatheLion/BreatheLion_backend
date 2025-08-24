@@ -111,7 +111,6 @@ public class RecordDTO {
 
         private Long drawerId;
 
-        // 제목 대신 서랍이름으로 상세기록에 뜨는거 맞나?
         private String drawer;
 
         private String category;

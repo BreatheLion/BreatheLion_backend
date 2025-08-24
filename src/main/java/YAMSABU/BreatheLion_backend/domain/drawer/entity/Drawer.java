@@ -47,6 +47,7 @@ public class Drawer {
     @Column(name = "summary", columnDefinition = "TEXT")
     private String summary;
 
+    @Column(name = "action", columnDefinition = "TEXT")
     private String action;
 
     @OneToMany(mappedBy = "drawer", cascade = CascadeType.ALL, orphanRemoval = true)
