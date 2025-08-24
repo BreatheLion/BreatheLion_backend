@@ -136,13 +136,12 @@ public class RecordServiceImpl implements RecordService {
     @Override
     @Transactional
     public void deleteRecord(Long recordId) {
+
+        processAI(recordId);
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
         evidenceRepository.deleteByRecord(record);
         recordRepository.delete(record);
-
-        processAI(recordId);
-
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
     }
 
