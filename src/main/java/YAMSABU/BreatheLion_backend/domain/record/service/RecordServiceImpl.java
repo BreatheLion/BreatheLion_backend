@@ -92,7 +92,8 @@ public class RecordServiceImpl implements RecordService {
 
         record.setSummary(aiService.recordSummary(record));
 
-        processAI(request.getRecordId());
+        // 신규 생성시에는 processAI(request.getId())로 받게되면 그 전의 record를 참조할 수 있다고 함
+        processAI(record.getId());
 
         drawerRepository.incrementRecordCount(record.getDrawer().getId());
     }
@@ -136,12 +137,13 @@ public class RecordServiceImpl implements RecordService {
     @Override
     @Transactional
     public void deleteRecord(Long recordId) {
-
-        processAI(recordId);
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
+        // recordId가 삭제되기 전에 processAI로 후처리 먼저 하기
+        processAI(recordId);
         evidenceRepository.deleteByRecord(record);
         recordRepository.delete(record);
+
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
     }
 
