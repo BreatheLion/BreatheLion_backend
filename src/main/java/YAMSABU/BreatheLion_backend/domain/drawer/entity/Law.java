@@ -34,7 +34,7 @@ public class Law {
     @Column(name = "article", nullable = false)
     private String article;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     // Record와 연관관계
