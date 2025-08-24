@@ -31,10 +31,10 @@ public class Law {
     @Column(name = "law_name", nullable = false)
     private String lawName;
 
-    @Column(name = "article", nullable = false)
+    @Column(name = "article", nullable = false, columnDefinition = "TEXT")
     private String article;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     // Record와 연관관계

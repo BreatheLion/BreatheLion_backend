@@ -236,20 +236,24 @@ public class PdfServiceImpl implements PdfService {
     }
 
     private BaseFont getSafeFont() throws Exception {
-        ClassPathResource fontResource = new ClassPathResource("fonts/NanumGothic.ttf");
-        //0823수정. 에러 메세지 출력용
-        if(!fontResource.exists()) {
-            throw new IllegalStateException("폰트 파일을 찾을 수 없습니다: classpath:/fonts/NanumGothic.ttf");
-        }
-        File tempFont = File.createTempFile("NanumGothic", ".ttf");
-        try (InputStream is = fontResource.getInputStream(); FileOutputStream fos = new FileOutputStream(tempFont)) {
-            byte[] buffer = new byte[4096];
-            int len;
-            while ((len = is.read(buffer)) > 0) {
-                fos.write(buffer, 0, len);
+        // 1) classpath에서 바로 바이트로 읽기
+        try (InputStream is = getClass().getResourceAsStream("/fonts/NanumGothic.ttf")) {
+            if (is == null) {
+                throw new IllegalStateException("폰트 파일을 찾을 수 없습니다: classpath:/fonts/NanumGothic.ttf");
             }
+            byte[] ttf = is.readAllBytes();
+
+            // 2) 바이트 배열로 직접 생성 (파일경로 X)
+            //    IDENTITY_H = 유니코드 세로쓰기 아님(가로쓰기) / 한글 출력용
+            return BaseFont.createFont(
+                    "NanumGothic",            // 내부 식별명(아무 문자열 가능)
+                    BaseFont.IDENTITY_H,      // 유니코드 인코딩
+                    BaseFont.EMBEDDED,        // 폰트 임베딩
+                    true,                     // cached
+                    ttf,                      // ttf bytes
+                    null                      // pfb (Type1용, TTF면 null)
+            );
         }
-        return BaseFont.createFont(tempFont.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
     }
 
     private String joinCategory(Record r) {

@@ -61,9 +61,10 @@ public class Record {
     @Column
     private String location;
 
-    @Column
+    @Column(name="occurred_at")
     private LocalDateTime occurredAt;
 
+    @Column(name = "summary", columnDefinition = "TEXT")
     private String summary;
 
     @CreationTimestamp
