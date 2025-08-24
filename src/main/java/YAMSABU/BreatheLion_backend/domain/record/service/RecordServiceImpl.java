@@ -103,7 +103,7 @@ public class RecordServiceImpl implements RecordService {
     @Transactional(readOnly = true)
     @Override
     public RecordRecentResponseDTO getRecent() {
-        List<Record> records = recordRepository.findByRecordStatusOrderByOccurredAtDesc(RecordStatus.FINALIZED);
+        List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED);
 
         List<RecordRecentItemDTO> items = records.stream()
                 .map(RecordConverter::toRecentItem)

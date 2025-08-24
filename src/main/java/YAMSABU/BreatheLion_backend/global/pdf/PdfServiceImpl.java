@@ -16,6 +16,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +28,10 @@ import java.util.stream.Collectors;
 public class PdfServiceImpl implements PdfService {
 
     private final RecordRepository recordRepository;
+
+
+    private static final DateTimeFormatter PDF_DATETIME_FMT =
+            DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 / HH시 mm분경");
 
     @Override
     @Transactional(readOnly = true)
@@ -49,9 +57,9 @@ public class PdfServiceImpl implements PdfService {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, baos);
             document.open();
-            BaseFont baseFont = getSafeFont();
-            Font font = new Font(baseFont, 12);
-            Font titleFont = new Font(baseFont, 21);
+
+            Font font = kFont(12f);
+            Font titleFont = kFont(21f);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -63,16 +71,21 @@ public class PdfServiceImpl implements PdfService {
             else severityChange = "높음";
 
 
-            document.add(new Paragraph(" "));
             document.add(new LineSeparator());
             document.add(new Paragraph(" "));
             document.add(new Paragraph("상담용 기록 자료", titleFont));
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
+
+
             document.add(new Paragraph("제목: " + record.getTitle(), font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
             document.add(new Paragraph("심각도: " + severityChange, font));
-            document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
+            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
@@ -92,9 +105,9 @@ public class PdfServiceImpl implements PdfService {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, baos);
             document.open();
-            BaseFont baseFont = getSafeFont();
-            Font font = new Font(baseFont, 12);
-            Font titleFont = new Font(baseFont, 21);
+
+            Font font = kFont(12f);
+            Font titleFont = kFont(21f);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -117,14 +130,17 @@ public class PdfServiceImpl implements PdfService {
             }
             document.add(new Paragraph(" "));
             document.add(new LineSeparator());
-            document.add(new Paragraph(" "));
             document.add(new Paragraph("내용증명", titleFont));
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+
+
             document.add(new Paragraph("제목: " + record.getTitle(),font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
             document.add(new Paragraph("심각도: " + severityChange, font));
-            document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
+            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
@@ -139,27 +155,27 @@ public class PdfServiceImpl implements PdfService {
 
     // 전체 PDF (타임라인 내려받기)
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public byte[] exportAllPdf(List<Record> records, String drawerName) {
         try {
             Document document = new Document();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, baos);
             document.open();
-            BaseFont baseFont = getSafeFont();
-            Font font = new Font(baseFont, 12);
-            Font titleFont = new Font(baseFont, 21);
+
+            Font font = kFont(12f);
+            Font titleFont = kFont(21f);
 
             // 서랍 이름 출력
             document.add(new Paragraph(drawerName, titleFont));
             document.add(new Paragraph(" "));
-            document.add(new LineSeparator());
 
             // 가해자 한 번만 출력
             String assailantNames = records.isEmpty() ? "" : joinNamesByRole(records.get(0), PersonRole.ASSAILANT);
             document.add(new Paragraph("가해자: " + assailantNames, font));
             document.add(new Paragraph(" "));
 
+            document.add(new LineSeparator());
             // 레코드 출력 (오래된 순, 날짜/제목/카테고리/사건내용)
             for (Record record : records) {
                 int severity = record.getSeverity();
@@ -187,26 +203,22 @@ public class PdfServiceImpl implements PdfService {
         }
     }
 
-    private BaseFont getSafeFont() throws Exception {
-        // 1) classpath에서 바로 바이트로 읽기
-        try (InputStream is = getClass().getResourceAsStream("/fonts/NanumGothic.ttf")) {
-            if (is == null) {
-                throw new IllegalStateException("폰트 파일을 찾을 수 없습니다: classpath:/fonts/NanumGothic.ttf");
-            }
-            byte[] ttf = is.readAllBytes();
-
-            // 2) 바이트 배열로 직접 생성 (파일경로 X)
-            //    IDENTITY_H = 유니코드 세로쓰기 아님(가로쓰기) / 한글 출력용
-            return BaseFont.createFont(
-                    "NanumGothic",            // 내부 식별명(아무 문자열 가능)
-                    BaseFont.IDENTITY_H,      // 유니코드 인코딩
-                    BaseFont.EMBEDDED,        // 폰트 임베딩
-                    true,                     // cached
-                    ttf,                      // ttf bytes
-                    null                      // pfb (Type1용, TTF면 null)
-            );
+    private BaseFont getBaseFont() {
+        try (InputStream in = getClass().getResourceAsStream("/fonts/NanumGothic.ttf")) {
+            if (in == null) throw new IllegalStateException("NanumGothic.ttf not found in /fonts");
+            Path tmp = Files.createTempFile("NanumGothic", ".ttf");
+            Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+            return BaseFont.createFont(tmp.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        } catch (Exception e) {
+            throw new RuntimeException("폰트 로드 실패", e);
         }
     }
+
+    /** 지정 크기의 한글 폰트 생성 */
+    private Font kFont(float size) {
+        return new Font(getBaseFont(), size);
+    }
+
 
     private String joinCategory(Record r) {
         if (r.getCategory() == null) return "";

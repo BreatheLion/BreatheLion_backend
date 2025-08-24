@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface RecordRepository extends JpaRepository<Record, Long> {
     List<Record> findByDrawer(Drawer drawer);
 
-    List<Record> findByRecordStatusOrderByOccurredAtDesc(RecordStatus recordStatus);
+    List<Record> findByRecordStatusOrderByCreatedAtDesc(RecordStatus recordStatus);
 
     @Query("""
         select r

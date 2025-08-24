@@ -90,10 +90,18 @@ public class AIServiceImpl implements AIService{
         drawer.setAction(response.getCare_guide());
 
         if (response.getOrganizationID() != null && !response.getOrganizationID().isEmpty()) {
+            // 기존 관계 초기화
+            drawer.getOrganizations().clear();
+            // 새 ID로 다시 조회
             List<Organization> selected = organizationRepository.findAllById(response.getOrganizationID());
+
             for (Organization org : selected) {
-                if (org != null) drawer.addOrganization(org); // Set이라 중복 자동 방지
+                if (org != null) {
+                    drawer.addOrganization(org);
+                }
             }
+        } else {
+            drawer.getOrganizations().clear();
         }
     }
 
@@ -201,5 +209,4 @@ public class AIServiceImpl implements AIService{
             .call()
             .content();
     }
-
 }
