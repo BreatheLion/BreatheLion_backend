@@ -160,7 +160,8 @@ public class PdfServiceImpl implements PdfService {
                 document.add(new Paragraph("채팅 내역", titleFont));
                 for (ChatMessageResponseDTO chat : chatList) {
                     String prefix = chat.getRole() == ChatRole.assistant ? "챗봇 : " : "사용자 : ";
-                    document.add(new Paragraph(prefix + chat.getContent(), font));
+                    document.add(new Paragraph(prefix, font));
+                    document.add(new Paragraph(new Phrase(chat.getContent(), font)));
                     // 이미지 첨부파일 출력
                     if (chat.getEvidences() != null) {
                         for (EvidenceResponseDTO evidence : chat.getEvidences()) {
