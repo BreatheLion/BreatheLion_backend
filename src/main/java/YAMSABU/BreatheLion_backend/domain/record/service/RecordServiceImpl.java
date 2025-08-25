@@ -9,22 +9,24 @@ import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.evidence.repository.EvidenceRepository;
 import YAMSABU.BreatheLion_backend.domain.person.repository.PersonRepository;
 import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordDetailResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentItemDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordRecentResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.RecordSaveRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
-import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.*;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
-import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +105,7 @@ public class RecordServiceImpl implements RecordService {
     @Transactional(readOnly = true)
     @Override
     public RecordRecentResponseDTO getRecent() {
-        List<Record> records = recordRepository.findByRecordStatusOrderByOccurredAtDesc(RecordStatus.FINALIZED);
+        List<Record> records = recordRepository.findByRecordStatusOrderByCreatedAtDesc(RecordStatus.FINALIZED);
 
         List<RecordRecentItemDTO> items = records.stream()
                 .map(RecordConverter::toRecentItem)
@@ -173,19 +175,18 @@ public class RecordServiceImpl implements RecordService {
 
         drawerRepository.decrementRecordCount(record.getDrawer().getId());
 
-        processAI(recordId);
 
         Drawer drawer = drawerRepository.findById(drawerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
         record.setDrawer(drawer);
 
-        processAI(recordId);
 
         drawerRepository.incrementRecordCount(record.getDrawer().getId());
 
-        eventPublisher.publishEvent(new DrawerChangedEvent(oldDrawerId));
-        eventPublisher.publishEvent(new DrawerChangedEvent(record.getDrawer().getId()));
-
+        if (!oldDrawerId.equals(record.getDrawer().getId())) {
+            eventPublisher.publishEvent(new DrawerChangedEvent(oldDrawerId));
+            eventPublisher.publishEvent(new DrawerChangedEvent(record.getDrawer().getId()));
+        }
     }
 
 

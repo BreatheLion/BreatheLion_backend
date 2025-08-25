@@ -2,6 +2,7 @@ package YAMSABU.BreatheLion_backend.global.ai.service;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Law;
+import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
 import YAMSABU.BreatheLion_backend.domain.organization.entity.Organization;
 import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -39,6 +40,7 @@ public class AIServiceImpl implements AIService{
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
     private final OrganizationRepository organizationRepository;
+    private final DrawerRepository drawerRepository;
 
     @Override
     @Transactional
@@ -58,7 +60,8 @@ public class AIServiceImpl implements AIService{
 
     @Override
     @Transactional
-    public void helpAnswer(Drawer drawer, String summaries){
+    public void helpAnswer(Long drawerId, String summaries){
+        Drawer drawer = drawerRepository.findById(drawerId).orElseThrow();
 
         List<Organization> organizations = organizationRepository.findAll();
 
@@ -89,17 +92,32 @@ public class AIServiceImpl implements AIService{
         drawer.setSummary(response.getSummary());
         drawer.setAction(response.getCare_guide());
 
-        if (response.getOrganizationID() != null && !response.getOrganizationID().isEmpty()) {
-            List<Organization> selected = organizationRepository.findAllById(response.getOrganizationID());
+        List<Long> ids = response.getOrganizationID();
+
+        if (ids != null && !ids.isEmpty()) {
+            // 최소 변경(diff) 적용: 기존에서 불필요한 것만 제거, 필요한 것만 추가
+            List<Organization> selected = organizationRepository.findAllById(ids);
+
+            // 1) 기존 중, 선택되지 않은 것 제거
+            drawer.getOrganizations().removeIf(org -> selected.stream()
+                    .noneMatch(sel -> sel.getId().equals(org.getId())));
+
+            // 2) 선택된 것 중, 아직 없는 것 추가
             for (Organization org : selected) {
-                if (org != null) drawer.addOrganization(org); // Set이라 중복 자동 방지
+                if (drawer.getOrganizations().stream().noneMatch(o -> o.getId().equals(org.getId()))) {
+                    drawer.addOrganization(org);
+                }
             }
         }
+
+        // 명시적 저장(트랜잭션이면 생략 가능하지만 안전하게)
+        drawerRepository.save(drawer);
     }
 
     @Override
     @Transactional
-    public void lawSearch(Drawer drawer,String summaries) {
+    public void lawSearch(Long drawerId,String summaries) {
+        Drawer drawer = drawerRepository.findById(drawerId).orElseThrow();
 
         Advisor retrievalAugmentationAdvisor = RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(VectorStoreDocumentRetriever.builder()
@@ -201,5 +219,4 @@ public class AIServiceImpl implements AIService{
             .call()
             .content();
     }
-
 }

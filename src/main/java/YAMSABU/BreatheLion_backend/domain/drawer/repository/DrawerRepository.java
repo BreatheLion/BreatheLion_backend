@@ -12,6 +12,14 @@ import java.util.Optional;
 public interface DrawerRepository extends JpaRepository<Drawer, Long> {
     boolean existsByName(String name);
 
+    @Query("""
+        select d
+        from Drawer d
+        left join fetch d.relatedLaws rl
+        where d.id = :id
+    """)
+    Optional<Drawer> findByIdWithRelatedLaws(@Param("id") Long id);
+
     List<Drawer> findAllByOrderByCreatedAtDesc();
 
     Optional<Drawer> findByName(String name);

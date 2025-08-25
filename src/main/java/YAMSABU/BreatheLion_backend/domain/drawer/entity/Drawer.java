@@ -80,6 +80,9 @@ public class Drawer {
         law.setDrawer(this);
     }
     public void clean() {
+        for (Law law : relatedLaws) {
+            law.setDrawer(null); // 역참조 끊기
+        }
         this.relatedLaws.clear();
     }
 

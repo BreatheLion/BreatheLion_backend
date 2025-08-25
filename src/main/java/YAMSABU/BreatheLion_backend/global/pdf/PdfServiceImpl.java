@@ -1,5 +1,8 @@
 package YAMSABU.BreatheLion_backend.global.pdf;
 
+import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
+import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +41,21 @@ public class PdfServiceImpl implements PdfService {
 
     private final RecordRepository recordRepository;
     private final ChatService chatService;
+
+
+    private static final DateTimeFormatter PDF_DATETIME_FMT =
+            DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 / HH시 mm분경");
+
+    private static final DateTimeFormatter CHAT_TS_FMT =
+            DateTimeFormatter.ofPattern("[yyyy-MM-dd HH:mm]");
+
+    private String roleLabel(ChatRole role) {
+        return switch (role) {
+            case user -> "사용자";
+            case assistant -> "도우미";
+        };
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -57,10 +81,10 @@ public class PdfServiceImpl implements PdfService {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, baos);
             document.open();
-            BaseFont baseFont = getSafeFont();
-            Font font = new Font(baseFont, 12);
-            Font titleFont = new Font(baseFont, 21);
-            Font redFont = new Font(baseFont, 12, Font.NORMAL, BaseColor.RED);
+
+            Font font = kFont(12f);
+            Font midlefont = kFont(16f);
+            Font titleFont = kFont(21f);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -72,28 +96,50 @@ public class PdfServiceImpl implements PdfService {
             else severityChange = "높음";
 
 
-            document.add(new Paragraph(" "));
             document.add(new LineSeparator());
             document.add(new Paragraph(" "));
             document.add(new Paragraph("상담용 기록 자료", titleFont));
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
+
+
             document.add(new Paragraph("제목: " + record.getTitle(), font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            if (severity == 2) {
-                Paragraph p = new Paragraph("심각도: ", font);
-                p.add(new Chunk(severityChange, redFont));
-                document.add(p);
-            } else {
-                document.add(new Paragraph("심각도: " + severityChange, font));
-            }
+            document.add(new Paragraph("심각도: " + severityChange, font));
+            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
+
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
+
+            //대화 기록
+            document.add(new Paragraph("대화 기록", midlefont));
+            List<Chat> chats = record.getSession().getChats();
+
+            // 시간순 정렬
+            List<Chat> ordered = new ArrayList<>(chats);
+            ordered.sort(Comparator.comparing(Chat::getSendAt, Comparator.nullsLast(Comparator.naturalOrder())));
+
+            for (Chat chat : ordered) {
+                String ts = chat.getSendAt().format(CHAT_TS_FMT);
+                String msg = (chat.getMessage() == null || chat.getMessage().isBlank()) ? "(내용 없음)" : chat.getMessage();
+
+                String line = String.format("[%s] %s : %s", ts, roleLabel(chat.getRole()), msg);
+                document.add(new Paragraph(line,font));
+            }
+
+            document.add(new Paragraph(" ")); // 마지막 여백
+            document.add(new LineSeparator());
 
             document.close();
-
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("PDF 생성 실패", e);
@@ -107,10 +153,9 @@ public class PdfServiceImpl implements PdfService {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, baos);
             document.open();
-            BaseFont baseFont = getSafeFont();
-            Font font = new Font(baseFont, 12);
-            Font titleFont = new Font(baseFont, 21);
-            Font redFont = new Font(baseFont, 12, Font.NORMAL, BaseColor.RED);
+
+            Font font = kFont(12f);
+            Font titleFont = kFont(21f);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -133,20 +178,18 @@ public class PdfServiceImpl implements PdfService {
             }
             document.add(new Paragraph(" "));
             document.add(new LineSeparator());
-            document.add(new Paragraph(" "));
             document.add(new Paragraph("내용증명", titleFont));
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+
+
             document.add(new Paragraph("제목: " + record.getTitle(),font));
             document.add(new Paragraph("카테고리: " + joinCategory(record), font));
             document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            if (severity == 2) {
-                Paragraph p = new Paragraph("심각도: ", font);
-                p.add(new Chunk(severityChange, redFont));
-                document.add(p);
-            } else {
-                document.add(new Paragraph("심각도: " + severityChange, font));
-            }
-            document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
+            document.add(new Paragraph("심각도: " + severityChange, font));
+            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
+
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
@@ -188,27 +231,27 @@ public class PdfServiceImpl implements PdfService {
 
     // 전체 PDF (타임라인 내려받기)
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public byte[] exportAllPdf(List<Record> records, String drawerName) {
         try {
             Document document = new Document();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, baos);
             document.open();
-            BaseFont baseFont = getSafeFont();
-            Font font = new Font(baseFont, 12);
-            Font titleFont = new Font(baseFont, 21);
+
+            Font font = kFont(12f);
+            Font titleFont = kFont(21f);
 
             // 서랍 이름 출력
             document.add(new Paragraph(drawerName, titleFont));
             document.add(new Paragraph(" "));
-            document.add(new LineSeparator());
 
             // 가해자 한 번만 출력
             String assailantNames = records.isEmpty() ? "" : joinNamesByRole(records.get(0), PersonRole.ASSAILANT);
             document.add(new Paragraph("가해자: " + assailantNames, font));
             document.add(new Paragraph(" "));
 
+            document.add(new LineSeparator());
             // 레코드 출력 (오래된 순, 날짜/제목/카테고리/사건내용)
             for (Record record : records) {
                 int severity = record.getSeverity();
@@ -236,26 +279,22 @@ public class PdfServiceImpl implements PdfService {
         }
     }
 
-    private BaseFont getSafeFont() throws Exception {
-        // 1) classpath에서 바로 바이트로 읽기
-        try (InputStream is = getClass().getResourceAsStream("/fonts/NanumGothic.ttf")) {
-            if (is == null) {
-                throw new IllegalStateException("폰트 파일을 찾을 수 없습니다: classpath:/fonts/NanumGothic.ttf");
-            }
-            byte[] ttf = is.readAllBytes();
-
-            // 2) 바이트 배열로 직접 생성 (파일경로 X)
-            //    IDENTITY_H = 유니코드 세로쓰기 아님(가로쓰기) / 한글 출력용
-            return BaseFont.createFont(
-                    "NanumGothic",            // 내부 식별명(아무 문자열 가능)
-                    BaseFont.IDENTITY_H,      // 유니코드 인코딩
-                    BaseFont.EMBEDDED,        // 폰트 임베딩
-                    true,                     // cached
-                    ttf,                      // ttf bytes
-                    null                      // pfb (Type1용, TTF면 null)
-            );
+    private BaseFont getBaseFont() {
+        try (InputStream in = getClass().getResourceAsStream("/fonts/NanumGothic.ttf")) {
+            if (in == null) throw new IllegalStateException("NanumGothic.ttf not found in /fonts");
+            Path tmp = Files.createTempFile("NanumGothic", ".ttf");
+            Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+            return BaseFont.createFont(tmp.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        } catch (Exception e) {
+            throw new RuntimeException("폰트 로드 실패", e);
         }
     }
+
+    /** 지정 크기의 한글 폰트 생성 */
+    private Font kFont(float size) {
+        return new Font(getBaseFont(), size);
+    }
+
 
     private String joinCategory(Record r) {
         if (r.getCategory() == null) return "";
