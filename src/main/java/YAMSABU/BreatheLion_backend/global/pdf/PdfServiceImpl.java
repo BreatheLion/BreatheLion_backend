@@ -1,40 +1,28 @@
 package YAMSABU.BreatheLion_backend.global.pdf;
 
-import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
-import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
-import org.springframework.ai.openai.api.OpenAiApi.ChatCompletionChunk.ChunkChoice;
 import org.springframework.transaction.annotation.Transactional;
 import com.itextpdf.text.*;
-        import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import YAMSABU.BreatheLion_backend.domain.chat.service.ChatService;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageListDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageResponseDTO;
-import YAMSABU.BreatheLion_backend.domain.evidence.dto.*;
-        import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.EvidenceType;
 
-import javax.print.Doc;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +43,7 @@ public class PdfServiceImpl implements PdfService {
     private String roleLabel(ChatRole role) {
         return switch (role) {
             case user -> "사용자";
-            case assistant -> "도우미";
+            case assistant -> "AI";
         };
     }
 
@@ -86,8 +74,8 @@ public class PdfServiceImpl implements PdfService {
             document.open();
           
             Font font = kFont(12f);
-            Font middleFont = kFont(16f);
-            Font titleBoldFont = kFont(21f, Font.BOLD);
+            Font middleFont = kFont(17f);
+            Font titleBoldFont = kFont(22f, Font.BOLD);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환2
             int severity = record.getSeverity();
@@ -107,14 +95,14 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph(" "));
             document.add(new Paragraph(" "));
 
-            addLabelAndValue(document, "제목", record.getTitle());
-            addLabelAndValue(document, "카테고리",joinCategory(record));
-            addLabelAndValue(document, "가해자", joinNamesByRole(record, PersonRole.ASSAILANT));
-            addLabelAndValue(document, "목격자", joinNamesByRole(record, PersonRole.WITNESS));
-            addLabelAndValue(document, "심각도", severityChange);
-            addLabelAndValue(document, "발생 일시", record.getOccurredAt().format(PDF_DATETIME_FMT));
-            addLabelAndValue(document, "발생 장소", record.getLocation());
-            addLabelAndValue(document, "발생 정황", record.getContent());
+            addLabelAndValue(document, "제목: ", record.getTitle());
+            addLabelAndValue(document, "카테고리: ",joinCategory(record));
+            addLabelAndValue(document, "가해자: ", joinNamesByRole(record, PersonRole.ASSAILANT));
+            addLabelAndValue(document, "목격자: ", joinNamesByRole(record, PersonRole.WITNESS));
+            addLabelAndValue(document, "심각도: ", severityChange);
+            addLabelAndValue(document, "발생 일시: ", record.getOccurredAt().format(PDF_DATETIME_FMT));
+            addLabelAndValue(document, "발생 장소: ", record.getLocation());
+            addLabelAndValue(document, "발생 정황: ", record.getContent());
             document.add(new Paragraph(" "));
 
 
@@ -128,7 +116,10 @@ public class PdfServiceImpl implements PdfService {
 
                 for (ChatMessageResponseDTO chat : chatList) {
                     // 날짜 + 시간 그대로 출력
-                    String tsStr = "[" + chat.getMessageDate() + " / " + chat.getMessageTime() + "]";
+                    String cleanDate = chat.getMessageDate() != null
+                            ? chat.getMessageDate().replaceAll("\\s+", "")
+                            : "";
+                    String tsStr = "[" + cleanDate + " / " + chat.getMessageTime() + "]";
 
                     // 역할 라벨
                     String roleText;
@@ -147,15 +138,10 @@ public class PdfServiceImpl implements PdfService {
                     Paragraph chatLine = new Paragraph();
 
                     chatLine.add(new Chunk(tsStr , kFont(12f, Font.NORMAL)));     // 시간 Normal
-                    chatLine.add(new Chunk(roleText + "  ", kFont(12f, Font.BOLD)));    // 사용자 / AI 챗봇 라벨 Bold
+                    chatLine.add(new Chunk(roleText + " : ", kFont(12f, Font.BOLD)));    // 사용자 / AI 챗봇 라벨 Bold
                     chatLine.add(new Chunk(msg, kFont(12f, Font.NORMAL)));              // 메시지 Normal
 
                     document.add(chatLine);
-
-                    //여기까지 수정
-                    // 한 줄로 추가
-//                    String line = String.format("%s  %s  %s", tsStr, roleText, msg);
-//                    document.add(new Paragraph(line, font));
 
                     // 증거 이미지 출력
                     if (chat.getEvidences() != null) {
@@ -196,17 +182,14 @@ public class PdfServiceImpl implements PdfService {
 
             Font font = kFont(12f);
             Font middleFont = kFont(17f);
-            Font titleFont = kFont(21f);
+            Font titleFont = kFont(22f);
             Font boldFont = kFont(12f, Font.BOLD);
-            Font titleBoldFont = kFont(21f, Font.BOLD);
+            Font titleBoldFont = kFont(22f, Font.BOLD);
 
-            //document.add(new Paragraph("내용 증명", titleBoldFont));
-            // 여기부터 수정
             Paragraph title = new Paragraph("내용 증명", titleBoldFont);
             title.setAlignment(Element.ALIGN_CENTER);  // 가운데 정렬
             document.add(title);
 
-            // 여기까지 수정
             document.add(new Paragraph(" "));
             document.add(new Paragraph(" "));
 
@@ -219,27 +202,26 @@ public class PdfServiceImpl implements PdfService {
                 severityChange = "보통";
             else severityChange = "높음";
 
-            // 여기서부터 수정 들어감
-            addLabelAndValue(document, "발신인(피해자) 이름", dto.getSenderName());
-            addLabelAndValue(document, "수신인(가해자) 이름", dto.getReceiverName());
+            addLabelAndValue(document, "발신인(피해자) 이름: ", dto.getSenderName());
+            addLabelAndValue(document, "수신인(가해자) 이름: ", dto.getReceiverName());
             if (dto.getSenderAddress() == null || dto.getReceiverAddress() == null) {
-                addLabelAndValue(document, "발신인(피해자) 전화번호", dto.getSenderPhone());
-                addLabelAndValue(document, "수신인(가해자) 전화번호", dto.getReceiverPhone());
+                addLabelAndValue(document, "발신인(피해자) 전화번호: ", dto.getSenderPhone());
+                addLabelAndValue(document, "수신인(가해자) 전화번호: ", dto.getReceiverPhone());
             } else {
-                addLabelAndValue(document, "발신인(피해자) 주소", dto.getSenderAddress());
-                addLabelAndValue(document, "수신인(가해자) 주소", dto.getReceiverAddress());
+                addLabelAndValue(document, "발신인(피해자) 주소: ", dto.getSenderAddress());
+                addLabelAndValue(document, "수신인(가해자) 주소: ", dto.getReceiverAddress());
             }
             document.add(new Paragraph(" "));
 
             // 여기서부터 수정 들어감
-            addLabelAndValue(document, "제목", record.getTitle());
-            addLabelAndValue(document, "카테고리",joinCategory(record));
-            addLabelAndValue(document, "가해자", joinNamesByRole(record, PersonRole.ASSAILANT));
-            addLabelAndValue(document, "목격자", joinNamesByRole(record, PersonRole.WITNESS));
-            addLabelAndValue(document, "심각도", severityChange);
-            addLabelAndValue(document, "발생 일시", record.getOccurredAt().format(PDF_DATETIME_FMT));
-            addLabelAndValue(document, "발생 장소", record.getLocation());
-            addLabelAndValue(document, "발생 정황", record.getContent());
+            addLabelAndValue(document, "제목: ", record.getTitle());
+            addLabelAndValue(document, "카테고리: ",joinCategory(record));
+            addLabelAndValue(document, "가해자: ", joinNamesByRole(record, PersonRole.ASSAILANT));
+            addLabelAndValue(document, "목격자: ", joinNamesByRole(record, PersonRole.WITNESS));
+            addLabelAndValue(document, "심각도: ", severityChange);
+            addLabelAndValue(document, "발생 일시: ", record.getOccurredAt().format(PDF_DATETIME_FMT));
+            addLabelAndValue(document, "발생 장소: ", record.getLocation());
+            addLabelAndValue(document, "발생 정황: ", record.getContent());
             document.add(new Paragraph(" "));
 
             // 채팅 보기 출력 (상담용 포맷 적용 + 증거 이미지는 메시지 아래에 표시)
@@ -252,7 +234,11 @@ public class PdfServiceImpl implements PdfService {
 
                 for (ChatMessageResponseDTO chat : chatList) {
                     // 날짜 + 시간 그대로 출력
-                    String tsStr = "[" + chat.getMessageDate() + " / " + chat.getMessageTime() + "]";
+                    String cleanDate = chat.getMessageDate() != null
+                            ? chat.getMessageDate().replaceAll("\\s+", "")
+                            : "";
+
+                    String tsStr = "[" + cleanDate + " / " + chat.getMessageTime() + "]";
 
                     // 역할 라벨
                     String roleText;
@@ -268,18 +254,13 @@ public class PdfServiceImpl implements PdfService {
                             : chat.getContent();
 
                     // 한 줄로 추가
-                    // 여기서부터
                     Paragraph chatLine = new Paragraph();
 
                     chatLine.add(new Chunk(tsStr , kFont(12f, Font.NORMAL)));     // 시간 Normal
-                    chatLine.add(new Chunk(roleText + "  ", kFont(12f, Font.BOLD)));    // 사용자 / AI 챗봇 라벨 Bold
+                    chatLine.add(new Chunk(roleText + " : ", kFont(12f, Font.BOLD)));    // 사용자 / AI 챗봇 라벨 Bold
                     chatLine.add(new Chunk(msg, kFont(12f, Font.NORMAL)));              // 메시지 Normal
 
                     document.add(chatLine);
-
-                    // 여기까지 수정
-//                    String line = String.format("%s  %s  %s", tsStr, roleText, msg);
-//                    document.add(new Paragraph(line, font));
 
                     // 증거 이미지 출력
                     if (chat.getEvidences() != null) {
@@ -320,12 +301,9 @@ public class PdfServiceImpl implements PdfService {
             document.open();
 
             Font font = kFont(12f);
-            //Font titleFont = kFont(21f);
             Font titleBoldFont = kFont(21f, Font.BOLD);
 
             // 서랍 이름 출력
-            // document.add(new Paragraph(drawerName, titleBoldFont));
-            // 여기부터 수정
             Paragraph drawerTitle = new Paragraph(drawerName, titleBoldFont);
             drawerTitle.setAlignment(Element.ALIGN_CENTER);  // 가운데 정렬
             document.add(drawerTitle);
