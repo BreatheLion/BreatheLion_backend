@@ -5,6 +5,7 @@ import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
+import org.springframework.ai.openai.api.OpenAiApi.ChatCompletionChunk.ChunkChoice;
 import org.springframework.transaction.annotation.Transactional;
 import com.itextpdf.text.*;
         import com.itextpdf.text.pdf.BaseFont;
@@ -22,6 +23,7 @@ import YAMSABU.BreatheLion_backend.domain.evidence.dto.*;
         import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.EvidenceType;
 
+import javax.print.Doc;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -85,7 +87,8 @@ public class PdfServiceImpl implements PdfService {
 
             Font font = kFont(12f);
             Font middleFont = kFont(16f);
-            Font titleFont = kFont(21f);
+            // Font titleFont = kFont(21f);
+            Font titleBoldFont = kFont(21f, Font.BOLD);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -97,25 +100,39 @@ public class PdfServiceImpl implements PdfService {
             else severityChange = "높음";
 
 
-            document.add(new LineSeparator());
-            document.add(new Paragraph("상담용 기록 자료", titleFont));
+            //document.add(new Paragraph("상담용 기록 자료", titleBoldFont));
+            // 수정
+            Paragraph title = new Paragraph("상담용 기록 자료", titleBoldFont);
+            title.setAlignment(Element.ALIGN_CENTER);  // 가운데 정렬
+            document.add(title);
+            // 여기까지 수정
             document.add(new Paragraph(" "));
-            document.add(new LineSeparator());
             document.add(new Paragraph(" "));
 
-
-            document.add(new Paragraph("제목: " + record.getTitle(), font));
-            document.add(new Paragraph("카테고리: " + joinCategory(record), font));
-            document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
-            document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            document.add(new Paragraph("심각도: " + severityChange, font));
-            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
-
-            document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
-            document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
-            document.add(new Paragraph("발생 정황: " + record.getContent(), font));
+// 여기서부터 수정 들어감
+            addLabelAndValue(document, "제목", record.getTitle());
+            addLabelAndValue(document, "카테고리",joinCategory(record));
+            addLabelAndValue(document, "가해자", joinNamesByRole(record, PersonRole.ASSAILANT));
+            addLabelAndValue(document, "목격자", joinNamesByRole(record, PersonRole.WITNESS));
+            addLabelAndValue(document, "심각도", severityChange);
+            addLabelAndValue(document, "발생 일시", record.getOccurredAt().format(PDF_DATETIME_FMT));
+            addLabelAndValue(document, "발생 장소", record.getLocation());
+            addLabelAndValue(document, "발생 정황", record.getContent());
             document.add(new Paragraph(" "));
-            document.add(new LineSeparator());
+
+// 여기까지 수정
+
+
+//            document.add(new Paragraph("제목: " + record.getTitle(), font));
+//            document.add(new Paragraph("카테고리: " + joinCategory(record), font));
+//            document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
+//            document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
+//            document.add(new Paragraph("심각도: " + severityChange, font));
+//            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
+//            document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
+//            document.add(new Paragraph("발생 정황: " + record.getContent(), font));
+//            document.add(new Paragraph(" "));
+
 
             // 채팅 보기 출력 (상담용 포맷 적용 + 증거 이미지는 메시지 아래에 표시)
             ChatMessageListDTO chatListDTO = chatService.getChattingList(record.getId());
@@ -142,9 +159,19 @@ public class PdfServiceImpl implements PdfService {
                             ? "(내용 없음)"
                             : chat.getContent();
 
+                    // 여기서부터
+                    Paragraph chatLine = new Paragraph();
+
+                    chatLine.add(new Chunk(tsStr , kFont(12f, Font.NORMAL)));     // 시간 Normal
+                    chatLine.add(new Chunk(roleText + "  ", kFont(12f, Font.BOLD)));    // 사용자 / AI 챗봇 라벨 Bold
+                    chatLine.add(new Chunk(msg, kFont(12f, Font.NORMAL)));              // 메시지 Normal
+
+                    document.add(chatLine);
+
+                    //여기까지 수정
                     // 한 줄로 추가
-                    String line = String.format("%s - %s : %s", tsStr, roleText, msg);
-                    document.add(new Paragraph(line, font));
+//                    String line = String.format("%s  %s  %s", tsStr, roleText, msg);
+//                    document.add(new Paragraph(line, font));
 
                     // 증거 이미지 출력
                     if (chat.getEvidences() != null) {
@@ -186,11 +213,17 @@ public class PdfServiceImpl implements PdfService {
             Font font = kFont(12f);
             Font middleFont = kFont(17f);
             Font titleFont = kFont(21f);
+            Font boldFont = kFont(12f, Font.BOLD);
+            Font titleBoldFont = kFont(21f, Font.BOLD);
 
-            document.add(new LineSeparator());
-            document.add(new Paragraph("내용 증명", titleFont));
+            //document.add(new Paragraph("내용 증명", titleBoldFont));
+            // 여기부터 수정
+            Paragraph title = new Paragraph("내용 증명", titleBoldFont);
+            title.setAlignment(Element.ALIGN_CENTER);  // 가운데 정렬
+            document.add(title);
+
+            // 여기까지 수정
             document.add(new Paragraph(" "));
-            document.add(new LineSeparator());
             document.add(new Paragraph(" "));
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
@@ -202,31 +235,56 @@ public class PdfServiceImpl implements PdfService {
                 severityChange = "보통";
             else severityChange = "높음";
 
-            document.add(new Paragraph("발신인(피해자) 이름: " + dto.getSenderName(), font));
-            document.add(new Paragraph("수신인(가해자) 이름: " + dto.getReceiverName(), font));
-
+            // 여기서부터 수정 들어감
+            addLabelAndValue(document, "발신인(피해자) 이름", dto.getSenderName());
+            addLabelAndValue(document, "수신인(가해자) 이름", dto.getReceiverName());
             if (dto.getSenderAddress() == null || dto.getReceiverAddress() == null) {
-                document.add(new Paragraph("발신인 전화번호: " + dto.getSenderPhone(), font));
-                document.add(new Paragraph("수신인 전화번호: " + dto.getReceiverPhone(), font));
+                addLabelAndValue(document, "발신인(피해자) 전화번호", dto.getSenderPhone());
+                addLabelAndValue(document, "수신인(가해자) 전화번호", dto.getReceiverPhone());
             } else {
-                document.add(new Paragraph("발신인 주소: " + dto.getSenderAddress(), font));
-                document.add(new Paragraph("수신인 주소: " + dto.getReceiverAddress(), font));
+                addLabelAndValue(document, "발신인(피해자) 주소", dto.getSenderAddress());
+                addLabelAndValue(document, "수신인(가해자) 주소", dto.getReceiverAddress());
             }
             document.add(new Paragraph(" "));
+
+            // 여기까지
+//            document.add(new Paragraph("발신인(피해자) 이름: " + dto.getSenderName(), font));
+//            document.add(new Paragraph("수신인(가해자) 이름: " + dto.getReceiverName(), font));
+//
+//            if (dto.getSenderAddress() == null || dto.getReceiverAddress() == null) {
+//                document.add(new Paragraph("발신인 전화번호: " + dto.getSenderPhone(), font));
+//                document.add(new Paragraph("수신인 전화번호: " + dto.getReceiverPhone(), font));
+//            } else {
+//                document.add(new Paragraph("발신인 주소: " + dto.getSenderAddress(), font));
+//                document.add(new Paragraph("수신인 주소: " + dto.getReceiverAddress(), font));
+//            }
+//            document.add(new Paragraph(" "));
+
+
+            // 여기서부터 수정 들어감
+            addLabelAndValue(document, "제목", record.getTitle());
+            addLabelAndValue(document, "카테고리",joinCategory(record));
+            addLabelAndValue(document, "가해자", joinNamesByRole(record, PersonRole.ASSAILANT));
+            addLabelAndValue(document, "목격자", joinNamesByRole(record, PersonRole.WITNESS));
+            addLabelAndValue(document, "심각도", severityChange);
+            addLabelAndValue(document, "발생 일시", record.getOccurredAt().format(PDF_DATETIME_FMT));
+            addLabelAndValue(document, "발생 장소", record.getLocation());
+            addLabelAndValue(document, "발생 정황", record.getContent());
             document.add(new Paragraph(" "));
 
+// 여기까지 수정
 
-            document.add(new Paragraph("제목: " + record.getTitle(),font));
-            document.add(new Paragraph("카테고리: " + joinCategory(record), font));
-            document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
-            document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-            document.add(new Paragraph("심각도: " + severityChange, font));
-            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
+//            document.add(new Paragraph("제목: " + record.getTitle(),font));
+//            document.add(new Paragraph("카테고리: " + joinCategory(record), font));
+//            document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
+//            document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
+//            document.add(new Paragraph("심각도: " + severityChange, font));
+//            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
+//
+//            document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
+//            document.add(new Paragraph("발생 정황: " + record.getContent(), font));
+//            document.add(new Paragraph(" "));
 
-            document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
-            document.add(new Paragraph("발생 정황: " + record.getContent(), font));
-            document.add(new Paragraph(" "));
-            document.add(new LineSeparator());
 
             // 채팅 보기 출력 (상담용 포맷 적용 + 증거 이미지는 메시지 아래에 표시)
             ChatMessageListDTO chatListDTO = chatService.getChattingList(record.getId());
@@ -254,8 +312,18 @@ public class PdfServiceImpl implements PdfService {
                             : chat.getContent();
 
                     // 한 줄로 추가
-                    String line = String.format("%s - %s : %s", tsStr, roleText, msg);
-                    document.add(new Paragraph(line, font));
+                    // 여기서부터
+                    Paragraph chatLine = new Paragraph();
+
+                    chatLine.add(new Chunk(tsStr , kFont(12f, Font.NORMAL)));     // 시간 Normal
+                    chatLine.add(new Chunk(roleText + "  ", kFont(12f, Font.BOLD)));    // 사용자 / AI 챗봇 라벨 Bold
+                    chatLine.add(new Chunk(msg, kFont(12f, Font.NORMAL)));              // 메시지 Normal
+
+                    document.add(chatLine);
+
+                    // 여기까지 수정
+//                    String line = String.format("%s  %s  %s", tsStr, roleText, msg);
+//                    document.add(new Paragraph(line, font));
 
                     // 증거 이미지 출력
                     if (chat.getEvidences() != null) {
@@ -296,15 +364,24 @@ public class PdfServiceImpl implements PdfService {
             document.open();
 
             Font font = kFont(12f);
-            Font titleFont = kFont(21f);
+            //Font titleFont = kFont(21f);
+            Font titleBoldFont = kFont(21f, Font.BOLD);
 
             // 서랍 이름 출력
-            document.add(new Paragraph(drawerName, titleFont));
+            // document.add(new Paragraph(drawerName, titleBoldFont));
+            // 여기부터 수정
+            Paragraph drawerTitle = new Paragraph(drawerName, titleBoldFont);
+            drawerTitle.setAlignment(Element.ALIGN_CENTER);  // 가운데 정렬
+            document.add(drawerTitle);
+            // 여기까지 수정
             document.add(new Paragraph(" "));
 
             // 가해자 한 번만 출력
             String assailantNames = records.isEmpty() ? "" : joinNamesByRole(records.get(0), PersonRole.ASSAILANT);
-            document.add(new Paragraph("가해자: " + assailantNames, font));
+            //document.add(new Paragraph("가해자: " + assailantNames, font));
+            // 한줄 수정
+            addLabelAndValue(document, "가해자", assailantNames);
+            // 여기까지
             document.add(new Paragraph(" "));
 
             document.add(new LineSeparator());
@@ -320,11 +397,18 @@ public class PdfServiceImpl implements PdfService {
                     severityChange = "높음";
 
                 document.add(new Paragraph(" "));
-                document.add(new Paragraph("날짜: " + record.getOccurredAt(), font));
-                document.add(new Paragraph("제목: " + record.getTitle(), font));
-                document.add(new Paragraph("카테고리: " + joinCategory(record), font));
-                document.add(new Paragraph("심각도: " + severityChange, font));
-                document.add(new Paragraph("사건내용: " + record.getContent(), font));
+                // 여기부터 수정
+                addLabelAndValue(document, "날짜", record.getOccurredAt().format(PDF_DATETIME_FMT));
+                addLabelAndValue(document, "제목", record.getTitle());
+                addLabelAndValue(document, "카테고리", joinCategory(record));
+                addLabelAndValue(document, "심각도", severityChange);
+                addLabelAndValue(document, "사건내용", record.getContent());
+                // 여기까지 수정
+//                document.add(new Paragraph("날짜: " + record.getOccurredAt(), font));
+//                document.add(new Paragraph("제목: " + record.getTitle(), font));
+//                document.add(new Paragraph("카테고리: " + joinCategory(record), font));
+//                document.add(new Paragraph("심각도: " + severityChange, font));
+//                document.add(new Paragraph("사건내용: " + record.getContent(), font));
                 document.add(new Paragraph(" "));
                 document.add(new LineSeparator());
             }
@@ -351,6 +435,11 @@ public class PdfServiceImpl implements PdfService {
         return new Font(getBaseFont(), size);
     }
 
+    // 볼드용
+    private Font kFont(float size, int style) {
+        return new Font(getBaseFont(), size, style);
+    }
+
 
     private String joinCategory(Record r) {
         if (r.getCategory() == null) return "";
@@ -363,5 +452,16 @@ public class PdfServiceImpl implements PdfService {
                 .filter(rp -> rp.getRole() == role)
                 .map(rp -> rp.getPerson().getName())
                 .collect(Collectors.joining(", "));
+    }
+
+    private void addLabelAndValue(Document document, String label, String value) throws DocumentException {
+        Font boldFont = kFont(12f, Font.BOLD);
+        Font normalFont = kFont(12f, Font.NORMAL);
+
+        Phrase phrase = new Phrase();
+        phrase.add(new Chunk(label + " ", boldFont));
+        phrase.add(new Chunk(value != null ? value : "", normalFont));
+
+        document.add(phrase);
     }
 }
