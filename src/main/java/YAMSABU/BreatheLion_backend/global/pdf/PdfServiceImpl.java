@@ -84,13 +84,12 @@ public class PdfServiceImpl implements PdfService {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, baos);
             document.open();
-
+          
             Font font = kFont(12f);
             Font middleFont = kFont(16f);
-            // Font titleFont = kFont(21f);
             Font titleBoldFont = kFont(21f, Font.BOLD);
 
-            // 심각도 숫자 -> 높음, 보통, 낮음 변환
+            // 심각도 숫자 -> 높음, 보통, 낮음 변환2
             int severity = record.getSeverity();
             String severityChange;
             if(severity == 0)
@@ -98,7 +97,6 @@ public class PdfServiceImpl implements PdfService {
             else if(severity == 1)
                 severityChange = "보통";
             else severityChange = "높음";
-
 
             //document.add(new Paragraph("상담용 기록 자료", titleBoldFont));
             // 수정
@@ -119,19 +117,6 @@ public class PdfServiceImpl implements PdfService {
             addLabelAndValue(document, "발생 장소", record.getLocation());
             addLabelAndValue(document, "발생 정황", record.getContent());
             document.add(new Paragraph(" "));
-
-// 여기까지 수정
-
-
-//            document.add(new Paragraph("제목: " + record.getTitle(), font));
-//            document.add(new Paragraph("카테고리: " + joinCategory(record), font));
-//            document.add(new Paragraph("가해자: " + joinNamesByRole(record, PersonRole.ASSAILANT), font));
-//            document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
-//            document.add(new Paragraph("심각도: " + severityChange, font));
-//            document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
-//            document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
-//            document.add(new Paragraph("발생 정황: " + record.getContent(), font));
-//            document.add(new Paragraph(" "));
 
 
             // 채팅 보기 출력 (상담용 포맷 적용 + 증거 이미지는 메시지 아래에 표시)

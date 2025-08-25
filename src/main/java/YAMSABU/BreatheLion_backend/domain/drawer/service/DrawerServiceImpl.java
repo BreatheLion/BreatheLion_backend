@@ -9,13 +9,11 @@ import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.DrawerResponseDTO
 import YAMSABU.BreatheLion_backend.domain.drawer.dto.DrawerDTO.TimelineListDTO;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.drawer.repository.DrawerRepository;
-import YAMSABU.BreatheLion_backend.domain.organization.repository.OrganizationRepository;
 import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.TimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
-import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

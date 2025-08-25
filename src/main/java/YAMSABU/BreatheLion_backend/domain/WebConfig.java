@@ -11,6 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**") // 모든 API 경로
                 .allowedOrigins(
                         "http://localhost:5173",
+                        "https://localhost:5173",
                         "https://breathe-lion-frontend.vercel.app",
                         "https://api.breathelion.site",
                         "https://breathelion.site",

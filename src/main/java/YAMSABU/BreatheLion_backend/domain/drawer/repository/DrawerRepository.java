@@ -1,7 +1,9 @@
 package YAMSABU.BreatheLion_backend.domain.drawer.repository;
 
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,4 +33,8 @@ public interface DrawerRepository extends JpaRepository<Drawer, Long> {
     @Modifying
     @Query("UPDATE Drawer d SET d.recordCount = COALESCE(d.recordCount, 0) - 1 WHERE d.id = :drawerId")
     void decrementRecordCount(@Param("drawerId") Long drawerId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select d from Drawer d where d.id = :id")
+    Optional<Drawer> findByIdForUpdate(@Param("id") Long id);
 }
