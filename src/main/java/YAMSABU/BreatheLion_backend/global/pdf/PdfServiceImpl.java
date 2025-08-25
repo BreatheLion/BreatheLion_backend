@@ -447,6 +447,6 @@ public class PdfServiceImpl implements PdfService {
         phrase.add(new Chunk(label + " ", boldFont));
         phrase.add(new Chunk(value != null ? value : "", normalFont));
 
-        document.add(phrase);
+        document.add(new Paragraph(phrase));
     }
 }
