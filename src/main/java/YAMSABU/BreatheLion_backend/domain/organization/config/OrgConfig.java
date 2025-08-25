@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
