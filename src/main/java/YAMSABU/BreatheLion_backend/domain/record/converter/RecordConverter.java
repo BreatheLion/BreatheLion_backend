@@ -30,7 +30,7 @@ public class RecordConverter {
                 .record_title(record.getTitle())
                 .location(record.getLocation())
                 .assailant(extractNamesByRole(record, PersonRole.ASSAILANT))
-                .occurredAt(record.getCreatedAt())
+                .occurredAt(record.getOccurredAt())
                 .build();
     }
 
