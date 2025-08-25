@@ -3,10 +3,11 @@ package YAMSABU.BreatheLion_backend.global.pdf;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
+import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import org.springframework.transaction.annotation.Transactional;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
+        import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
@@ -14,6 +15,12 @@ import YAMSABU.BreatheLion_backend.domain.person.entity.PersonRole;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import YAMSABU.BreatheLion_backend.domain.chat.service.ChatService;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageListDTO;
+import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatMessageResponseDTO;
+import YAMSABU.BreatheLion_backend.domain.evidence.dto.*;
+        import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
+import YAMSABU.BreatheLion_backend.domain.evidence.entity.EvidenceType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,6 +40,7 @@ import java.util.stream.Collectors;
 public class PdfServiceImpl implements PdfService {
 
     private final RecordRepository recordRepository;
+    private final ChatService chatService;
 
 
     private static final DateTimeFormatter PDF_DATETIME_FMT =
@@ -103,6 +111,8 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
             document.add(new Paragraph("심각도: " + severityChange, font));
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
+
+            document.add(new Paragraph("발생 일시: " + record.getOccurredAt(), font));
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
@@ -179,11 +189,39 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("목격자: " + joinNamesByRole(record, PersonRole.WITNESS), font));
             document.add(new Paragraph("심각도: " + severityChange, font));
             document.add(new Paragraph("발생 일시: " + record.getOccurredAt().format(PDF_DATETIME_FMT), font));
+
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
             document.add(new LineSeparator());
 
+            // 채팅 보기 출력
+            ChatMessageListDTO chatListDTO = chatService.getChattingList(record.getId());
+            List<ChatMessageResponseDTO> chatList = chatListDTO.getMessages();
+            if (chatList != null && !chatList.isEmpty()) {
+                document.add(new Paragraph(" "));
+                document.add(new Paragraph("채팅 내역", titleFont));
+                for (ChatMessageResponseDTO chat : chatList) {
+                    String prefix = chat.getRole() == ChatRole.assistant ? "챗봇 : " : "사용자 : ";
+                    document.add(new Paragraph(prefix, font));
+                    document.add(new Paragraph(new Phrase(chat.getContent(), font)));
+                    // 이미지 첨부파일 출력
+                    if (chat.getEvidences() != null) {
+                        for (EvidenceResponseDTO evidence : chat.getEvidences()) {
+                            if (evidence.getType() == EvidenceType.IMAGE) {
+                                try {
+                                    Image img = Image.getInstance(evidence.getUrl());
+                                    img.scaleToFit(170, 170); // 6cm x 6cm
+                                    document.add(img);
+                                } catch (Exception ex) {
+                                    document.add(new Paragraph("이미지 첨부 오류", font));
+                                }
+                            }
+                        }
+                    }
+                    // 줄바꿈
+                }
+            }
             document.close();
             return baos.toByteArray();
         } catch (Exception e) {
