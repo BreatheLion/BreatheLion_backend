@@ -48,7 +48,7 @@ public class AIServiceImpl implements AIService{
     @Transactional
     public String ChatAnswer(String message){
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
-                .model("gpt-4.1-mini")
+                .model("gpt-4o")
                 .temperature(0.7)
                 .build();
 
@@ -76,7 +76,7 @@ public class AIServiceImpl implements AIService{
         var jsonSchema = outputConverter.getJsonSchema();
 
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
-                .model("gpt-4.1-mini")
+                .model("gpt-4o")
                 .temperature(0.4)
                 .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
                 .build();
@@ -147,7 +147,7 @@ public class AIServiceImpl implements AIService{
 
         // OpenAI 옵션 (구조화된 출력 적용)
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
-                .model("gpt-4.1-mini")
+                .model("gpt-4o")
                 .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
                 .build();
 
@@ -188,7 +188,7 @@ public class AIServiceImpl implements AIService{
         var jsonSchema = outputConverter.getJsonSchema();
 
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
-                .model("gpt-4.1-mini")
+                .model("gpt-4o")
                 .temperature(0.25)
                 .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
                 .build();
@@ -211,7 +211,7 @@ public class AIServiceImpl implements AIService{
     @Transactional
     public String recordSummary(Record record){
         OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
-            .model("gpt-4.1-mini")
+            .model("gpt-4o")
             .temperature(0.45)
             .build();
 
