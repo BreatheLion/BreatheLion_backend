@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class RecordServiceImpl implements RecordService {
 
     private final RecordRepository recordRepository;
@@ -117,8 +116,8 @@ public class RecordServiceImpl implements RecordService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public RecordDetailResponseDTO getDetail(Long recordId) {
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 기록은 존재하지 않습니다."));
@@ -169,24 +168,40 @@ public class RecordServiceImpl implements RecordService {
     @Override
     @Transactional
     public void updateDrawer(Long recordId, Long drawerId) {
-
         Record record = mustBeFinalized(recordId);
+
         Long oldDrawerId = record.getDrawer().getId();
-
-        drawerRepository.decrementRecordCount(record.getDrawer().getId());
-
-
-        Drawer drawer = drawerRepository.findById(drawerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 서랍은 존재하지 않습니다."));
-        record.setDrawer(drawer);
-
-
-        drawerRepository.incrementRecordCount(record.getDrawer().getId());
-
-        if (!oldDrawerId.equals(record.getDrawer().getId())) {
-            eventPublisher.publishEvent(new DrawerChangedEvent(oldDrawerId));
-            eventPublisher.publishEvent(new DrawerChangedEvent(record.getDrawer().getId()));
+        if (oldDrawerId.equals(drawerId)) {
+            return;
         }
+
+        // 두 행 모두 잠금 (교착 방지를 위해 id 순으로 잠그기)
+        Long first = Math.min(oldDrawerId, drawerId);
+        Long second = Math.max(oldDrawerId, drawerId);
+
+        Drawer firstLocked = drawerRepository.findByIdForUpdate(first)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "서랍 없음"));
+        Drawer secondLocked = drawerRepository.findByIdForUpdate(second)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "서랍 없음"));
+
+        Drawer oldDrawer = (firstLocked.getId().equals(oldDrawerId)) ? firstLocked : secondLocked;
+        Drawer newDrawer = (firstLocked.getId().equals(drawerId))   ? firstLocked : secondLocked;
+
+        // 음수 방지 (데이터가 틀어져 0인데 또 감소하려 하면 예외)
+        if (oldDrawer.getRecordCount() != null && oldDrawer.getRecordCount() == 0) {
+            throw new IllegalStateException("기존 서랍 카운트가 0이어서 더 이상 감소할 수 없습니다.");
+        }
+
+        // 카운트 증감
+        oldDrawer.setRecordCount((oldDrawer.getRecordCount() == null ? 0 : oldDrawer.getRecordCount()) - 1);
+        newDrawer.setRecordCount((newDrawer.getRecordCount() == null ? 0 : newDrawer.getRecordCount()) + 1);
+
+        // 소유관계 변경 (영속 상태라 flush 시 자동 반영)
+        record.setDrawer(newDrawer);
+
+        // 커밋 후 요약 갱신 이벤트
+        eventPublisher.publishEvent(new DrawerChangedEvent(oldDrawerId));
+        eventPublisher.publishEvent(new DrawerChangedEvent(newDrawer.getId()));
     }
 
 

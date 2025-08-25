@@ -86,8 +86,13 @@ public class PdfServiceImpl implements PdfService {
             Font font = kFont(12f);
             Font middleFont = kFont(16f);
             Font titleFont = kFont(21f);
+            // 볼드체 추가
+            Font boldFont = new Font(kFont(12f));
+            boldFont.setStyle(Font.BOLD);
+            Font titleboldFont = new Font(kFont(21f));
+            boldFont.setStyle(Font.BOLD);
 
-            // 심각도 숫자 -> 높음, 보통, 낮음 변환
+            // 심각도 숫자 -> 높음, 보통, 낮음 변환2
             int severity = record.getSeverity();
             String severityChange;
             if(severity == 0)
