@@ -88,10 +88,6 @@ public class DrawerServiceImpl implements DrawerService {
 
         List<Record> records = recordRepository.findByDrawer(drawer);
 
-        String mergedSummaries = records.stream()
-                .map(Record::getSummary) // 각 Record에서 summary를 추출
-                .collect(Collectors.joining("\n")); // 줄바꿈으로 연결
-
         // 가해자들
         List<String> assailants = records.stream()
                 .flatMap(r -> r.getRecordPersons().stream())

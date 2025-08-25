@@ -92,20 +92,26 @@ public class AIServiceImpl implements AIService{
         drawer.setSummary(response.getSummary());
         drawer.setAction(response.getCare_guide());
 
-        if (response.getOrganizationID() != null && !response.getOrganizationID().isEmpty()) {
-            // 기존 관계 초기화
-            drawer.getOrganizations().clear();
-            // 새 ID로 다시 조회
-            List<Organization> selected = organizationRepository.findAllById(response.getOrganizationID());
+        List<Long> ids = response.getOrganizationID();
 
+        if (ids != null && !ids.isEmpty()) {
+            // 최소 변경(diff) 적용: 기존에서 불필요한 것만 제거, 필요한 것만 추가
+            List<Organization> selected = organizationRepository.findAllById(ids);
+
+            // 1) 기존 중, 선택되지 않은 것 제거
+            drawer.getOrganizations().removeIf(org -> selected.stream()
+                    .noneMatch(sel -> sel.getId().equals(org.getId())));
+
+            // 2) 선택된 것 중, 아직 없는 것 추가
             for (Organization org : selected) {
-                if (org != null) {
+                if (drawer.getOrganizations().stream().noneMatch(o -> o.getId().equals(org.getId()))) {
                     drawer.addOrganization(org);
                 }
             }
-        } else {
-            drawer.getOrganizations().clear();
         }
+
+        // 명시적 저장(트랜잭션이면 생략 가능하지만 안전하게)
+        drawerRepository.save(drawer);
     }
 
     @Override
