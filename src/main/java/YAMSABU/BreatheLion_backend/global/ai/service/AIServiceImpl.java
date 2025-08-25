@@ -13,6 +13,7 @@ import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.SOA_DTO;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.converter.BeanOutputConverter;
@@ -33,6 +34,7 @@ import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forHELP;
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forLAWS;
 import static YAMSABU.BreatheLion_backend.global.ai.prompt.PromptStore.forRECORDSUMMARY;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AIServiceImpl implements AIService{
@@ -57,17 +59,17 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .content();
     }
-
     @Override
     @Transactional
     public void helpAnswer(Long drawerId, String summaries){
         Drawer drawer = drawerRepository.findById(drawerId).orElseThrow();
 
         List<Organization> organizations = organizationRepository.findAll();
+        log.info("📦 Loaded organizations: count={}", organizations.size());
 
         // 각 기관 이름에 번호를 붙이고
         String organString = organizations.stream()
-                .map(org -> org.getId() + ". " + org.getName())
+                .map(org -> org.getId() + "-" + org.getName())
                 .collect(Collectors.joining("\n"));
 
         var outputConverter = new BeanOutputConverter<>(SOA_DTO.class);
@@ -89,10 +91,14 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .entity(SOA_DTO.class);
 
+        log.info("🤖 AI response received: orgIds={}", response.getOrganizationID());
+
         drawer.setSummary(response.getSummary());
         drawer.setAction(response.getCare_guide());
 
         List<Long> ids = response.getOrganizationID();
+        log.info("🪞 Before apply: drawer.orgIds={}", ids);
+
 
         if (ids != null && !ids.isEmpty()) {
             // 최소 변경(diff) 적용: 기존에서 불필요한 것만 제거, 필요한 것만 추가
@@ -106,9 +112,15 @@ public class AIServiceImpl implements AIService{
             for (Organization org : selected) {
                 if (drawer.getOrganizations().stream().noneMatch(o -> o.getId().equals(org.getId()))) {
                     drawer.addOrganization(org);
+                    log.info("➕ Added orgId={} (name={})", org.getId(), org.getName());
                 }
             }
         }
+
+        organizationRepository.findById(11L).ifPresent(org -> {
+            drawer.addOrganization(org);
+            log.info("⭐ Added existing organization: id={} name={}", org.getId(), org.getName());
+        });
 
         // 명시적 저장(트랜잭션이면 생략 가능하지만 안전하게)
         drawerRepository.save(drawer);
