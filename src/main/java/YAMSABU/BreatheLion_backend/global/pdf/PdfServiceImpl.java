@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -83,7 +84,7 @@ public class PdfServiceImpl implements PdfService {
             document.open();
 
             Font font = kFont(12f);
-            Font midlefont = kFont(16f);
+            Font middleFont = kFont(16f);
             Font titleFont = kFont(21f);
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
@@ -97,9 +98,7 @@ public class PdfServiceImpl implements PdfService {
 
 
             document.add(new LineSeparator());
-            document.add(new Paragraph(" "));
             document.add(new Paragraph("상담용 기록 자료", titleFont));
-            document.add(new Paragraph(" "));
             document.add(new Paragraph(" "));
             document.add(new LineSeparator());
             document.add(new Paragraph(" "));
@@ -116,28 +115,58 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph("발생 장소: " + record.getLocation(), font));
             document.add(new Paragraph("발생 정황: " + record.getContent(), font));
             document.add(new Paragraph(" "));
-            document.add(new Paragraph(" "));
             document.add(new LineSeparator());
-            document.add(new Paragraph(" "));
 
-            //대화 기록
-            document.add(new Paragraph("대화 기록", midlefont));
-            List<Chat> chats = record.getSession().getChats();
+            // 채팅 보기 출력 (상담용 포맷 적용 + 증거 이미지는 메시지 아래에 표시)
+            ChatMessageListDTO chatListDTO = chatService.getChattingList(record.getId());
+            List<ChatMessageResponseDTO> chatList = (chatListDTO != null) ? chatListDTO.getMessages() : null;
 
-            // 시간순 정렬
-            List<Chat> ordered = new ArrayList<>(chats);
-            ordered.sort(Comparator.comparing(Chat::getSendAt, Comparator.nullsLast(Comparator.naturalOrder())));
+            if (chatList != null && !chatList.isEmpty()) {
+                document.add(new Paragraph("대화 내용", middleFont));
+                document.add(new Paragraph(" "));
 
-            for (Chat chat : ordered) {
-                String ts = chat.getSendAt().format(CHAT_TS_FMT);
-                String msg = (chat.getMessage() == null || chat.getMessage().isBlank()) ? "(내용 없음)" : chat.getMessage();
+                for (ChatMessageResponseDTO chat : chatList) {
+                    // 날짜 + 시간 그대로 출력
+                    String tsStr = "[" + chat.getMessageDate() + " / " + chat.getMessageTime() + "]";
 
-                String line = String.format("[%s] %s : %s", ts, roleLabel(chat.getRole()), msg);
-                document.add(new Paragraph(line,font));
+                    // 역할 라벨
+                    String roleText;
+                    try {
+                        roleText = roleLabel(chat.getRole());
+                    } catch (Exception ignore) {
+                        roleText = (chat.getRole() == ChatRole.assistant) ? "AI 챗봇 " : "사용자 ";
+                    }
+
+                    // 메시지 내용
+                    String msg = (chat.getContent() == null || chat.getContent().isBlank())
+                            ? "(내용 없음)"
+                            : chat.getContent();
+
+                    // 한 줄로 추가
+                    String line = String.format("%s - %s : %s", tsStr, roleText, msg);
+                    document.add(new Paragraph(line, font));
+
+                    // 증거 이미지 출력
+                    if (chat.getEvidences() != null) {
+                        for (EvidenceResponseDTO evidence : chat.getEvidences()) {
+                            if (evidence.getType() == EvidenceType.IMAGE && evidence.getUrl() != null) {
+                                try {
+                                    Image img = Image.getInstance(evidence.getUrl());
+                                    img.scaleToFit(170, 170); // 6cm x 6cm
+                                    img.setSpacingBefore(4f);
+                                    img.setSpacingAfter(4f);
+                                    document.add(img);
+                                } catch (Exception ex) {
+                                    document.add(new Paragraph("이미지 첨부 오류", font));
+                                }
+                            }
+                        }
+                    }
+
+                    // 메시지 간 간격
+                    document.add(new Paragraph(" "));
+                }
             }
-
-            document.add(new Paragraph(" ")); // 마지막 여백
-            document.add(new LineSeparator());
 
             document.close();
             return baos.toByteArray();
@@ -155,7 +184,14 @@ public class PdfServiceImpl implements PdfService {
             document.open();
 
             Font font = kFont(12f);
+            Font middleFont = kFont(17f);
             Font titleFont = kFont(21f);
+
+            document.add(new LineSeparator());
+            document.add(new Paragraph("내용 증명", titleFont));
+            document.add(new Paragraph(" "));
+            document.add(new LineSeparator());
+            document.add(new Paragraph(" "));
 
             // 심각도 숫자 -> 높음, 보통, 낮음 변환
             int severity = record.getSeverity();
@@ -177,9 +213,6 @@ public class PdfServiceImpl implements PdfService {
                 document.add(new Paragraph("수신인 주소: " + dto.getReceiverAddress(), font));
             }
             document.add(new Paragraph(" "));
-            document.add(new LineSeparator());
-            document.add(new Paragraph("내용증명", titleFont));
-            document.add(new Paragraph(" "));
             document.add(new Paragraph(" "));
 
 
@@ -195,23 +228,44 @@ public class PdfServiceImpl implements PdfService {
             document.add(new Paragraph(" "));
             document.add(new LineSeparator());
 
-            // 채팅 보기 출력
+            // 채팅 보기 출력 (상담용 포맷 적용 + 증거 이미지는 메시지 아래에 표시)
             ChatMessageListDTO chatListDTO = chatService.getChattingList(record.getId());
-            List<ChatMessageResponseDTO> chatList = chatListDTO.getMessages();
+            List<ChatMessageResponseDTO> chatList = (chatListDTO != null) ? chatListDTO.getMessages() : null;
+
             if (chatList != null && !chatList.isEmpty()) {
+                document.add(new Paragraph("대화 내용", middleFont));
                 document.add(new Paragraph(" "));
-                document.add(new Paragraph("채팅 내역", titleFont));
+
                 for (ChatMessageResponseDTO chat : chatList) {
-                    String prefix = chat.getRole() == ChatRole.assistant ? "챗봇 : " : "사용자 : ";
-                    document.add(new Paragraph(prefix, font));
-                    document.add(new Paragraph(new Phrase(chat.getContent(), font)));
-                    // 이미지 첨부파일 출력
+                    // 날짜 + 시간 그대로 출력
+                    String tsStr = "[" + chat.getMessageDate() + " / " + chat.getMessageTime() + "]";
+
+                    // 역할 라벨
+                    String roleText;
+                    try {
+                        roleText = roleLabel(chat.getRole());
+                    } catch (Exception ignore) {
+                        roleText = (chat.getRole() == ChatRole.assistant) ? "AI 챗봇 " : "사용자 ";
+                    }
+
+                    // 메시지 내용
+                    String msg = (chat.getContent() == null || chat.getContent().isBlank())
+                            ? "(내용 없음)"
+                            : chat.getContent();
+
+                    // 한 줄로 추가
+                    String line = String.format("%s - %s : %s", tsStr, roleText, msg);
+                    document.add(new Paragraph(line, font));
+
+                    // 증거 이미지 출력
                     if (chat.getEvidences() != null) {
                         for (EvidenceResponseDTO evidence : chat.getEvidences()) {
-                            if (evidence.getType() == EvidenceType.IMAGE) {
+                            if (evidence.getType() == EvidenceType.IMAGE && evidence.getUrl() != null) {
                                 try {
                                     Image img = Image.getInstance(evidence.getUrl());
                                     img.scaleToFit(170, 170); // 6cm x 6cm
+                                    img.setSpacingBefore(4f);
+                                    img.setSpacingAfter(4f);
                                     document.add(img);
                                 } catch (Exception ex) {
                                     document.add(new Paragraph("이미지 첨부 오류", font));
@@ -219,7 +273,9 @@ public class PdfServiceImpl implements PdfService {
                             }
                         }
                     }
-                    // 줄바꿈
+
+                    // 메시지 간 간격
+                    document.add(new Paragraph(" "));
                 }
             }
             document.close();
