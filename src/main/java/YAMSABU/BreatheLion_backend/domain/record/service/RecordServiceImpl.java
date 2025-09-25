@@ -17,15 +17,15 @@ import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.entity.RecordStatus;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
+import YAMSABU.BreatheLion_backend.global.code.GlobalErrorCode;
+import YAMSABU.BreatheLion_backend.global.exception.CustomException;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,25 +51,25 @@ public class RecordServiceImpl implements RecordService {
     @Transactional
     public void saveFinalize(RecordSaveRequestDTO request) {
         if (request.getRecordId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "record_id 필요");
+            throw new CustomException(GlobalErrorCode._INVALID_PARAMETER, "record_id 필요");
         }
         Record record = recordRepository.findById(request.getRecordId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.RECORD_NOT_FOUND));
 
         if (record.getRecordStatus() != RecordStatus.DRAFT) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 저장한 기록은 수정할 수 없습니다.");
+            throw new CustomException(GlobalErrorCode.RECORD_NOT_MODIFIABLE);
         }
 
         if (request.getContent() == null || request.getContent().isBlank())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "내용은 필수항목입니다.");
+            throw new CustomException(GlobalErrorCode._INVALID_PARAMETER, "내용은 필수항목입니다.");
         if (request.getLocation() == null || request.getLocation().isBlank())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "장소는 필수항목입니다.");
+            throw new CustomException(GlobalErrorCode._INVALID_PARAMETER, "장소는 필수항목입니다.");
         if (request.getOccurredAt() == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "발생 시간은 필수항목입니다.");
+            throw new CustomException(GlobalErrorCode._INVALID_PARAMETER, "발생 시간은 필수항목입니다.");
         if (request.getSeverity() == null ||request.getSeverity() < 0 || request.getSeverity() > 2)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "severity는 0~2여야 합니다.");
+            throw new CustomException(GlobalErrorCode._INVALID_PARAMETER, "severity는 0~2여야 합니다.");
         if(request.getTitle() != null && !request.getTitle().isBlank())
-            record.setTitle(request.getTitle());
+            record.setTitle(request.getTitle().trim());
 
         record.setContent(request.getContent());
         record.setSeverity(request.getSeverity());
@@ -85,6 +85,22 @@ public class RecordServiceImpl implements RecordService {
                     .orElseGet(() -> drawerRepository.save(Drawer.builder().name(request.getDrawer()).build()));
             record.setDrawer(drawer);
         }
+
+        // 서랍 처리
+        if (request.getDrawer() != null && !request.getDrawer().isBlank()) {
+            String drawerName = request.getDrawer().trim();
+
+            Drawer drawer = drawerRepository.findByName(drawerName)
+                    .orElseGet(() -> {
+                        try {
+                            return drawerRepository.save(Drawer.builder().name(drawerName).build());
+                        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+                            throw new CustomException(GlobalErrorCode.DRAWER_ALREADY_EXISTS);
+                        }
+                    });
+            record.setDrawer(drawer);
+        }
+
 
         // 인물 처리
         record.clear();
@@ -119,7 +135,7 @@ public class RecordServiceImpl implements RecordService {
     @Transactional(readOnly = true)
     public RecordDetailResponseDTO getDetail(Long recordId) {
         Record record = recordRepository.findById(recordId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 기록은 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.RECORD_NOT_FOUND));
 
         List<Evidence> evidences = evidenceRepository.findByRecord(record);
         List<RecordDetailResponseDTO.EvidenceItemDTO> evidenceItemDTOS = evidences.stream()
@@ -141,9 +157,8 @@ public class RecordServiceImpl implements RecordService {
     public void deleteRecord(Long recordId) {
 
         Record record = recordRepository.findById(recordId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
-
-        Long drawerId = record.getDrawer().getId(); // ✅ 추가 (이벤트용)
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.RECORD_NOT_FOUND));
+        Long drawerId = record.getDrawer().getId();
 
         evidenceRepository.deleteByRecord(record);
         recordRepository.delete(record);
@@ -156,7 +171,7 @@ public class RecordServiceImpl implements RecordService {
     @Transactional
     public void updateTitle(Long recordId, String title) {
         if (!StringUtils.hasText(title) || title.trim().length() > 100) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "제목 형식이 올바르지 않습니다.");
+            throw new CustomException(GlobalErrorCode.RECORD_INVALID_TITLE);
         }
         // FINALIZED에서만 허용
         Record record = mustBeFinalized(recordId);
@@ -179,16 +194,16 @@ public class RecordServiceImpl implements RecordService {
         Long second = Math.max(oldDrawerId, drawerId);
 
         Drawer firstLocked = drawerRepository.findByIdForUpdate(first)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "서랍 없음"));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.DRAWER_NOT_FOUND));
         Drawer secondLocked = drawerRepository.findByIdForUpdate(second)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "서랍 없음"));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.DRAWER_NOT_FOUND));
 
         Drawer oldDrawer = (firstLocked.getId().equals(oldDrawerId)) ? firstLocked : secondLocked;
         Drawer newDrawer = (firstLocked.getId().equals(drawerId))   ? firstLocked : secondLocked;
 
         // 음수 방지 (데이터가 틀어져 0인데 또 감소하려 하면 예외)
         if (oldDrawer.getRecordCount() != null && oldDrawer.getRecordCount() == 0) {
-            throw new IllegalStateException("기존 서랍 카운트가 0이어서 더 이상 감소할 수 없습니다.");
+            throw new CustomException(GlobalErrorCode.DRAWER_COUNT_UNDERFLOW);
         }
 
         // 카운트 증감
@@ -231,9 +246,9 @@ public class RecordServiceImpl implements RecordService {
 
     private Record mustBeFinalized(Long id) {
         Record record = recordRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 기록은 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.RECORD_NOT_FOUND));
         if(record.getRecordStatus() != RecordStatus.FINALIZED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "FINALIZED 상태에서만 수정이 가능합니다.");
+            throw new CustomException(GlobalErrorCode.RECORD_NOT_FINALIZED);
         }
         return record;
     }
@@ -242,6 +257,6 @@ public class RecordServiceImpl implements RecordService {
     @Transactional
     public Record getRecordEntity(Long recordId) {
         return recordRepository.findById(recordId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기록을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.RECORD_NOT_FOUND));
     }
 }
