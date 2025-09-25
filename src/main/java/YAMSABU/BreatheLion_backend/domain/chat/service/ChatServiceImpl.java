@@ -18,6 +18,8 @@ import YAMSABU.BreatheLion_backend.domain.evidence.dto.EvidenceDTO.EvidenceRespo
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
 import YAMSABU.BreatheLion_backend.global.ai.dto.AIAnswerDTO.ChatSummaryDTO;
 import YAMSABU.BreatheLion_backend.global.ai.service.AIService;
+import YAMSABU.BreatheLion_backend.global.code.GlobalErrorCode;
+import YAMSABU.BreatheLion_backend.global.exception.CustomException;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +67,7 @@ public class ChatServiceImpl implements ChatService{
     @Transactional
     public ChatMessageListDTO getChattingList(Long recordID){
         Record record = recordRepository.findById(recordID)
-                .orElseThrow(() -> new IllegalArgumentException("Record not found: " + recordID));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.RECORD_NOT_FOUND));
         List<Chat> chatList = chatRepository.findByRecord(record);
 
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");

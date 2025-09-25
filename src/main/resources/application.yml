@@ -3,6 +3,9 @@ spring:
     import: optional:classpath:secrets.properties
   application:
     name: BreatheLion_backend
+  web:
+    resources:
+      add-mappings: false
 
   datasource:
     url: ${DB_URL}
