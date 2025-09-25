@@ -34,6 +34,7 @@ public class ChatDTO {
     public static class ChatStartResponseDTO {
         @JsonProperty("record_id")
         private Long recordId;
+        private Long sessionId;
         private String answer;
         @JsonProperty("message_time")
         private String messageTime;
@@ -82,9 +83,9 @@ public class ChatDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChatWithEvidenceDTO {
-        @JsonProperty("record_id")
+        @JsonProperty("chat_session_id")
         @NotNull
-        private Long recordId;
+        private Long chatSessionId;
 
         private String text;
 
