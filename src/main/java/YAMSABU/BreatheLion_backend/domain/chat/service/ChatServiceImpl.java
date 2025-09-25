@@ -90,7 +90,7 @@ public class ChatServiceImpl implements ChatService{
                 .toList();
 
         return ChatMessageListDTO.builder()
-                .recordId(record.getId())
+                .sessionId(record.getId())
                 .messages(messages)
                 .build();
     }

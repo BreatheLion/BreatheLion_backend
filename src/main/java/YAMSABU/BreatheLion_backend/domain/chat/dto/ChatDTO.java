@@ -72,8 +72,8 @@ public class ChatDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChatMessageListDTO {
-        @JsonProperty("record_id")
-        private Long recordId;
+        @JsonProperty("session_id")
+        private Long sessionId;
         private List<ChatMessageResponseDTO> messages;
     }
 
@@ -98,6 +98,10 @@ public class ChatDTO {
     @AllArgsConstructor
     @Builder
     public static class ChatEndRequestDTO {
+        @JsonProperty("chat_session_id")
+        @NotNull
+        private Long chatSessionId;
+
         @JsonProperty("record_id")
         @NotNull
         private Long recordId;

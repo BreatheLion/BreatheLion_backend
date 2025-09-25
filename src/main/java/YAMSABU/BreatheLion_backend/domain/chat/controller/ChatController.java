@@ -39,7 +39,7 @@ public class ChatController {
     }
 
     @PutMapping("/end/")
-    public ApiResponse<ChatEndResponseDTO>  endChat(@Valid @RequestBody ChatEndRequestDTO chatEndRequestDTO ){
+    public ApiResponse<ChatEndResponseDTO> endChat(@Valid @RequestBody ChatEndRequestDTO chatEndRequestDTO ){
         return ApiResponse.onSuccess("채팅 종료",chatService.endChatting(chatEndRequestDTO));
     }
 
