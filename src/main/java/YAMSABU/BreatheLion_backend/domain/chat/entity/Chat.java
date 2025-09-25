@@ -1,6 +1,7 @@
 package YAMSABU.BreatheLion_backend.domain.chat.entity;
 
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
+import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,8 +40,8 @@ public class Chat {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", nullable = false)
-    private Session session;
+    @JoinColumn(name = "record_id", nullable = false)
+    private Record record;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
