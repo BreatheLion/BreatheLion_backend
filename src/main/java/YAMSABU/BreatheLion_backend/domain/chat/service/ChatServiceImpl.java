@@ -98,7 +98,7 @@ public class ChatServiceImpl implements ChatService{
     @Override
     @Transactional
     public ChatAnswerDTO attachChatting(ChatWithEvidenceDTO chatWithEvidenceDTO){
-        Long recordId = chatWithEvidenceDTO.getRecordId();
+        Long recordId = chatWithEvidenceDTO.getChatSessionId();
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "레코드가 존재하지 않습니다."));
 
