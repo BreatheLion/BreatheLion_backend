@@ -34,8 +34,6 @@ public class ChatDTO {
     public static class ChatStartResponseDTO {
         @JsonProperty("record_id")
         private Long recordId;
-        @JsonProperty("session_id")
-        private Long sessionId;
         private String answer;
         @JsonProperty("message_time")
         private String messageTime;
@@ -74,8 +72,8 @@ public class ChatDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChatMessageListDTO {
-        @JsonProperty("session_id")
-        private Long sessionId;
+        @JsonProperty("record_id")
+        private Long recordId;
         private List<ChatMessageResponseDTO> messages;
     }
 
@@ -84,9 +82,9 @@ public class ChatDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChatWithEvidenceDTO {
-        @JsonProperty("chat_session_id")
+        @JsonProperty("record_id")
         @NotNull
-        private Long chatSessionId;
+        private Long recordId;
 
         private String text;
 
@@ -100,9 +98,9 @@ public class ChatDTO {
     @AllArgsConstructor
     @Builder
     public static class ChatEndRequestDTO {
-        @JsonProperty("chat_session_id")
+        @JsonProperty("record_id")
         @NotNull
-        private Long chatSessionId;
+        private Long recordId;
     }
 
     @Getter

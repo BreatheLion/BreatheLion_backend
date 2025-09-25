@@ -5,7 +5,7 @@ import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatStartResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.dto.ChatDTO.ChatRequestDTO;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.chat.entity.ChatRole;
-import YAMSABU.BreatheLion_backend.domain.chat.entity.Session;
+import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,25 +13,25 @@ import java.time.format.DateTimeFormatter;
 public class ChatConverter {
 
     // 사용자가 보낸 첫 메시지 → Chat(user)
-    public static Chat requestToChat(ChatRequestDTO dto, Session session) {
+    public static Chat requestToChat(ChatRequestDTO dto, Record record) {
         return Chat.builder()
-                .session(session)
+                .record(record)
                 .role(ChatRole.user)
                 .message(dto.getMessage())
                 .build();
     }
 
     // AI 답변 → Chat(assistant)
-    public static Chat anwerToChat(String answer, Session session) {
+    public static Chat anwerToChat(String answer, Record record) {
         return Chat.builder()
-                .session(session)
+                .record(record)
                 .role(ChatRole.assistant)
                 .message(answer)
                 .build();
     }
 
     // AI 답변 메시지 기준으로 Start 응답 DTO 생성
-    public static ChatStartResponseDTO toChatStartResponseDTO(Long sessionId,Long recordId, Chat assistantChat) {
+    public static ChatStartResponseDTO toChatStartResponseDTO(Long recordId, Chat assistantChat) {
         // 현재 날짜/시간
         LocalDateTime now = LocalDateTime.now();
         String messageTime = now.format(DateTimeFormatter.ofPattern("HH:mm"));
@@ -39,7 +39,6 @@ public class ChatConverter {
 
         return ChatStartResponseDTO.builder()
                 .recordId(recordId)
-                .sessionId(sessionId)
                 .answer(assistantChat.getMessage())
                 .messageTime(messageTime)
                 .messageDate(messageDate)
