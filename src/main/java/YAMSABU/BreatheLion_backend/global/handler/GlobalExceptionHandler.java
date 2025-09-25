@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(CustomException ex) {
         var ec = ex.getErrorCode();
-        log.warn("[Business] {} : {}", ec.getCode(), ex.getMessage());
+        log.warn("[CustomException] {} : {}", ec.getCode(), ex.getMessage());
         return ResponseEntity.status(ec.getHttpStatus())
                 .body(new ErrorResponse(ec.getCode(), ex.getMessage()));
     }
@@ -52,14 +52,6 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex) {
         var ec = GlobalErrorCode._BAD_REQUEST;
-        return ResponseEntity.status(ec.getHttpStatus())
-                .body(new ErrorResponse(ec.getCode(), ec.getMessage()));
-    }
-
-    // 존재하지 않는 URL을 호출했을 때 에러 처리
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(NoHandlerFoundException ex) {
-        var ec = GlobalErrorCode._URL_NOT_FOUND;
         return ResponseEntity.status(ec.getHttpStatus())
                 .body(new ErrorResponse(ec.getCode(), ec.getMessage()));
     }

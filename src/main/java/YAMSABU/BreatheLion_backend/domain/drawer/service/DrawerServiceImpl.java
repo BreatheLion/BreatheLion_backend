@@ -14,6 +14,8 @@ import YAMSABU.BreatheLion_backend.domain.record.converter.RecordConverter;
 import YAMSABU.BreatheLion_backend.domain.record.dto.RecordDTO.TimelineResponseDTO;
 import YAMSABU.BreatheLion_backend.domain.record.entity.Record;
 import YAMSABU.BreatheLion_backend.domain.record.repository.RecordRepository;
+import YAMSABU.BreatheLion_backend.global.code.GlobalErrorCode;
+import YAMSABU.BreatheLion_backend.global.exception.CustomException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,9 +36,8 @@ public class DrawerServiceImpl implements DrawerService {
     @Transactional
     public DrawerResponseDTO createDrawer(DrawerCreateRequestDTO request) {
         if (drawerRepository.existsByName(request.getDrawerName())) {
-            throw new IllegalArgumentException("이미 존재하는 서랍 이름입니다: " + request.getDrawerName());
-        } // 컨트롤러에서 예외처리 코드 필요
-
+            throw new CustomException(GlobalErrorCode.DRAWER_ALREADY_EXISTS);
+        }
         Drawer drawer = Drawer.builder()
                 .name(request.getDrawerName())
                 .recordCount(0L)
@@ -56,16 +57,23 @@ public class DrawerServiceImpl implements DrawerService {
     @Override
     @Transactional
     public void deleteDrawers(DrawerDeleteRequestDTO dto) {
+        if (dto == null || dto.getDeleteList() == null || dto.getDeleteList().isEmpty()) {
+            throw new CustomException(GlobalErrorCode._INVALID_PARAMETER, "삭제 대상이 없습니다.");
+        }
+
         for (Long drawerId : dto.getDeleteList()) {
             Drawer drawer = drawerRepository.findById(drawerId)
-                    .orElseThrow(() -> new EntityNotFoundException("Drawer not found: " + drawerId));
+                    .orElseThrow(() -> new CustomException(GlobalErrorCode.DRAWER_NOT_FOUND));
 
             List<Record> records = recordRepository.findByDrawerId(drawerId);
-
-            if (!records.isEmpty()) {
-                recordRepository.deleteAll(records);
+            try {
+                if (!records.isEmpty()) {
+                    recordRepository.deleteAll(records);
+                }
+                drawerRepository.delete(drawer);
+            } catch (Exception e) { // 하나라도 실패하면 전체 롤백
+                throw new CustomException(GlobalErrorCode.DRAWER_DELETE_FAILED);
             }
-            drawerRepository.delete(drawer);
         }
     }
 
@@ -73,7 +81,7 @@ public class DrawerServiceImpl implements DrawerService {
     @Transactional(readOnly = true)
     public String getDrawerName(Long drawerId) {
         Drawer drawer = drawerRepository.findById(drawerId)
-                .orElseThrow(() -> new IllegalArgumentException("서랍을 찾을 수 없습니다: " + drawerId));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.DRAWER_NOT_FOUND));
         return drawer.getName();
     }
 
@@ -81,7 +89,7 @@ public class DrawerServiceImpl implements DrawerService {
     @Transactional
     public AIHelpResponseDTO helpAI(Long drawerId){
         Drawer drawer = drawerRepository.findById(drawerId)
-                .orElseThrow(() -> new EntityNotFoundException("Drawer not found: " + drawerId));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.DRAWER_NOT_FOUND));
 
         List<Record> records = recordRepository.findByDrawer(drawer);
 
@@ -102,10 +110,10 @@ public class DrawerServiceImpl implements DrawerService {
 
     public void rename(Long drawerId, String newName) {
         if(newName == null || newName.isBlank()) {
-            throw new IllegalArgumentException("서랍 이름의 형식이 올바르지 않습니다.");
+            throw new CustomException(GlobalErrorCode.DRAWER_INVALID_NAME);
         }
         Drawer drawer = drawerRepository.findById(drawerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.DRAWER_NOT_FOUND));
         drawer.setName(newName.trim());
         drawerRepository.save(drawer);
     }
@@ -114,7 +122,7 @@ public class DrawerServiceImpl implements DrawerService {
     @Transactional(readOnly = true)
     public TimelineListDTO searchSummaryByKeyword(Long drawerId, String keyword) {
         Drawer drawer = drawerRepository.findById(drawerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 서랍입니다." + drawerId));
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.DRAWER_NOT_FOUND));
 
         // 키워드 정규화 (null/공백 → null, LIKE 특수문자 escape)
         String kw = normalizeKeyword(keyword);
