@@ -23,6 +23,7 @@ import YAMSABU.BreatheLion_backend.global.exception.CustomException;
 import YAMSABU.BreatheLion_backend.global.s3.S3FileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService{
@@ -142,6 +143,8 @@ public class ChatServiceImpl implements ChatService{
 
         StringBuilder sb = new StringBuilder();
         List<Chat> chatList = chatRepository.findByRecord(record);
+        log.info("recordId={} 에서 조회된 채팅 수: {}", recordId, chatList.size());
+
         for (Chat chat : chatList) {
             if(chat.getRole() == ChatRole.user) {
                 sb.append(chat.getRole())
@@ -151,6 +154,7 @@ public class ChatServiceImpl implements ChatService{
             }
         }
         String chattingLogs = sb.toString();
+        log.info("최종 요약용 로그 입력:\n{}", chattingLogs);
 
         ChatSummaryDTO chatSummaryDTO = aiService.chatSummary(chattingLogs);
 

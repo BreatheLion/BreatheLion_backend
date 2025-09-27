@@ -56,6 +56,4 @@ public class ChatConverter {
                 .messageDate(messageDate)
                 .build();
     }
-
-
 }
