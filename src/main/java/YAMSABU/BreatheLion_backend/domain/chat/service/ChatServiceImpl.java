@@ -96,6 +96,7 @@ public class ChatServiceImpl implements ChatService{
                 .build();
     }
 
+
     @Override
     @Transactional
     public ChatAnswerDTO attachChatting(ChatWithEvidenceDTO chatWithEvidenceDTO){
