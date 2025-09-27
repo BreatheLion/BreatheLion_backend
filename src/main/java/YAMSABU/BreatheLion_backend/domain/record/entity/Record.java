@@ -1,5 +1,6 @@
 package YAMSABU.BreatheLion_backend.domain.record.entity;
 
+import YAMSABU.BreatheLion_backend.domain.chat.entity.Chat;
 import YAMSABU.BreatheLion_backend.domain.drawer.entity.Drawer;
 import YAMSABU.BreatheLion_backend.domain.evidence.entity.Evidence;
 import YAMSABU.BreatheLion_backend.domain.person.entity.Person;
@@ -85,6 +86,10 @@ public class Record {
     @Builder.Default
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Evidence> evidences = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chat> chats = new ArrayList<>();
 
     // 기본값이 DRAFT고 저장완료 후, FINALIZED로 변경하면 됨
     @Enumerated(EnumType.STRING)

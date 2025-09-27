@@ -160,11 +160,12 @@ public class RecordServiceImpl implements RecordService {
                 .orElseThrow(() -> new CustomException(GlobalErrorCode.RECORD_NOT_FOUND));
         Long drawerId = record.getDrawer().getId();
 
-        evidenceRepository.deleteByRecord(record);
         recordRepository.delete(record);
-        drawerRepository.decrementRecordCount(record.getDrawer().getId());
 
-        eventPublisher.publishEvent(new DrawerChangedEvent(drawerId));
+        if (drawerId != null) {
+            drawerRepository.decrementRecordCount(drawerId);
+            eventPublisher.publishEvent(new DrawerChangedEvent(drawerId));
+        }
     }
 
     @Override

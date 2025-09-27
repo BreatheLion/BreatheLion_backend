@@ -59,6 +59,7 @@ public class AIServiceImpl implements AIService{
                 .call()
                 .content();
     }
+
     @Override
     @Transactional
     public void helpAnswer(Long drawerId, String summaries){
