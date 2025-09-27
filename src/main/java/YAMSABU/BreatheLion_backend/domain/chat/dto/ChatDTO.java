@@ -82,9 +82,9 @@ public class ChatDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChatWithEvidenceDTO {
-        @JsonProperty("record_id")
+        @JsonProperty("chat_session_id")
         @NotNull
-        private Long recordId;
+        private Long chatSessionId;
 
         private String text;
 
