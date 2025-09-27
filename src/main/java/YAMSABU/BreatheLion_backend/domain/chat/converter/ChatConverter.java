@@ -39,6 +39,7 @@ public class ChatConverter {
 
         return ChatStartResponseDTO.builder()
                 .recordId(recordId)
+                .sessionID(recordId)
                 .answer(assistantChat.getMessage())
                 .messageTime(messageTime)
                 .messageDate(messageDate)
